@@ -1,15 +1,21 @@
-EVIDENCE
+# Week 1, Labs 1–2: shared repository, workflow, validated tracked baseline
 
-Code/test PR + checked revision;
-each member's commit or useful review.
+## Student / team
 
-RECORD
+## Links to code and pull requests
 
-Test choice + reason + actual result;
-Review/check links; owners + blockers.
+## Test and execution results (commands, revision, observed output)
 
-ASSESSMENT
+## Screenshots
 
-Shared, ungraded worksheet.
-m1 follows review of both labs.
+Embed 2–4 images from `reports/images/`, each with a caption: what it shows and which commit, PR or run it belongs to.
 
+## My contribution
+
+## Decisions and rationale
+
+## Review and response
+
+## Blockers / missing evidence
+
+## Assistance and recovery acknowledgement
