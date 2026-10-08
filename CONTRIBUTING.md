@@ -6,11 +6,15 @@
 - One small change per branch; stage only intended files.
 
 ## Local checks
-uv run --locked ruff check .
-uv run --locked ruff format --check .
-uv run --locked pytest -q -m infra
-uv run --locked pytest -q -m lab1
-uv run --locked pytest -q
+`uv run --locked ruff check .`
+
+`uv run --locked ruff format --check .`
+
+`uv run --locked pytest -q -m infra`
+
+`uv run --locked pytest -q -m lab1`
+
+`uv run --locked pytest -q`
 
 ## Pull requests and review
 - Every change goes through a PR into `main`; no direct push to `main`.
