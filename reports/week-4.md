@@ -1,4 +1,4 @@
-# Week 1, Labs 1–2: shared repository, workflow, validated tracked baseline
+# Week 4, Labs 7–8: training pipeline, quality gate, incident diagnosis, verified rollback
 
 ## Student / team
 
