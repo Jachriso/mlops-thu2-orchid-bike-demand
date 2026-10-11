@@ -10,7 +10,6 @@ import joblib
 import numpy as np
 import pandas as pd
 import yaml
-from sklearn.metrics import mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
 
@@ -61,10 +60,12 @@ def compare_mean(
 
 
 def fit_evaluate(train: pd.DataFrame, validation: pd.DataFrame, config: dict):
-    raise NotImplementedError(
-        "TODO(Week 1, Lab 2): fit the RF on train and evaluate only on "
-        "validation rows. See README 'Expected failures'."
-    )
+    features = config["features"]
+    model = RandomForestRegressor(**config["model"])
+    model.fit(select_features(train, features), train["cnt"])
+    predictions = model.predict(select_features(validation, features))
+    mae = float(mean_absolute_error(validation["cnt"], predictions))
+    return model, predictions, mae
 
 
 def reload_validation(

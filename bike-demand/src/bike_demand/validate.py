@@ -57,7 +57,7 @@ def check_domains(frame: pd.DataFrame) -> None:
     if not inside.all():
         raise ValueError(
             "dteday: require dates inside the train/validation/test windows"
-            )
+        )
 
 
 def load_data(path: Path | str) -> pd.DataFrame:
