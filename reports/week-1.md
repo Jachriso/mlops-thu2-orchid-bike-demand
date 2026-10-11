@@ -159,3 +159,4 @@ The test partition is counted and held: it is never passed to fitting or evaluat
 
 ### Assistance and Recovery Acknowledgement
 - Starter code and unit tests were provided by the course.
+- Lab 2: Jade used an AI assistant (Claude Code)
