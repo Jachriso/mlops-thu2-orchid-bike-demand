@@ -55,10 +55,9 @@ def select_features(frame: pd.DataFrame, features: list[str]) -> pd.DataFrame:
 def compare_mean(
     train_target: pd.Series, validation_target: pd.Series
 ) -> tuple[float, float]:
-    raise NotImplementedError(
-        "TODO(Week 1, Lab 2): fit the comparator on training targets and "
-        "compute validation MAE. See README 'Expected failures'."
-    )
+    mean = float(train_target.mean())
+    predictions = np.full(len(validation_target), mean)
+    return mean, float(mean_absolute_error(validation_target, predictions))
 
 
 def fit_evaluate(train: pd.DataFrame, validation: pd.DataFrame, config: dict):
