@@ -1,85 +1,87 @@
 # Week 1, Labs 1–2: shared repository, workflow, validated tracked baseline
 
 ## Status
-**Lab 1:** Done and described below.
-**Lab 2:** Done by Anna and Jade.
+- **Lab 1:** Done by Hajar Benlemqadem and Marie Léona and described below.
+- **Lab 2:** Done by Annabelle FAUTRAD and Jade PARILLA.
 
 ## Student / team
-**Student:** Benlemqadem Hajar, GitHub: `Hajarblmq`
-**Team:** `mlops-thu2-orchid-bike-demand`
+- **Students:** Benlemqadem Hajar (`Hajarblmq`) and Marie Léona (`Leona224`)
+- **Team:** `mlops-thu2-orchid-bike-demand`
 
 ---
 
-## Lab 1: Shared Repository, Workflow & Code Quality Checks
+##  Lab 1: Shared Repository, Workflow & Code Quality Checks
 
 ### Roles & Contributions
-**Lab 1 Roles:** Leona224 was the lead author, I (`Hajarblmq`) was the reviewer.
-**My Contribution:** I was the reviewer for Lab 1. I set up the project on my machine, checked out Leona's branch, ran the checks myself, read the diff, and ran the tests against the old `team.py` to see whether her added test was useful. I wrote the review comments, checked the new commit, approved the PR and merged it.
+- **Lab 1 Roles:** Leona224 was the lead author. We (`Hajarblmq` & Marie) acted as peer reviewers and co-validators.
+- **Joint Effort:** We set up the project locally on our Macs, checked out Leona's branch, executed the checks, evaluated the test effectiveness against the old code, wrote review feedback, and verified the updated commit before approving and merging.
+- **Individual Breakdown:**
+  - **Hajar (`Hajarblmq`):** Set up the initial workspace, ran local checks on commit `8eea469`, tested against old `team.py`, identified that the first test did not catch the bug, and drafted the review feedback.
+  - **Marie Léona (`Leona224`):** Cross-checked execution logs, verified commit `9677616` against old `team.py` to confirm the new test caught the bug, approved the PR, and assisted with merging and documentation.
 
 ### Links to Code and Pull Requests
-**Team repository:** https://github.com/Jachriso/mlops-thu2-orchid-bike-demand
-**Pull request #1 (merged):** https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/1
-**First commit I checked:** `8eea469`
-**Final commit I checked and approved:** `9677616` (branch `lab-01-fix-slug`)
-**My review comments:** [LINK TO COMMENT 1] and [LINK TO COMMENT 2]
+- **Team repository:** https://github.com/Jachriso/mlops-thu2-orchid-bike-demand
+- **Pull request #1 (merged):** https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/1
+- **First commit checked:** `8eea469`
+- **Final commit checked and approved:** `9677616` (branch `lab-01-fix-slug`)
+- **Review comments / Approval:**  
+  ![PR Approved](./images/pr-approved.png)
 
 ### Test and Execution Results
-All commands were run by me on my Mac (arm64), from the `bike-demand/` folder.
+All commands were run by us on our Macs (arm64), from the `bike-demand/` folder.
 
 #### Commit `8eea469` (first version of the PR)
-`uv run --locked pytest -q -m lab1` -> `4 passed, 44 deselected`
-`uv run --locked ruff check .` -> `All checks passed`
-`uv run --locked ruff format --check .` -> `10 files already formatted`
-`uv run --locked pytest -q` -> `20 passed, 28 failed` (the 28 are the expected Lab 2 NotImplementedError TODOs)
-Old `team.py` (`git checkout origin/main -- src/bike_demand/team.py`), then `pytest -q tests/lab1/test_team.py` -> `1 failed, 3 passed`
-*Note: The last line is the important one: the test added in this first version also passed on the old code, so it did not protect the fix.*
+- `uv run --locked pytest -q -m lab1` -> `4 passed, 44 deselected`
+- `uv run --locked ruff check .` -> `All checks passed`
+- `uv run --locked ruff format --check .` -> `10 files already formatted`
+- `uv run --locked pytest -q` -> `20 passed, 28 failed` (the 28 are the expected Lab 2 `NotImplementedError` TODOs)
+- Old `team.py` (`git checkout origin/main -- src/bike_demand/team.py`), then `pytest -q tests/lab1/test_team.py` -> `1 failed, 3 passed`
+*Note: The last line is key: the test added in this first version also passed on the old code, meaning it did not protect against the bug.*
 
 #### Commit `9677616` (final version of the PR)
-`git rev-parse --short HEAD` -> `9677616`
-`uv run --locked pytest -q -m lab1` -> `4 passed, 44 deselected`
-`uv run --locked ruff check .` -> `All checks passed`
-Old `team.py`, then `pytest -q tests/lab1/test_team.py` -> `2 failed, 2 passed`
-*Note: On the old code, both `test_joins_whitespace_with_hyphens` (supplied) and `test_joins_newlines_with_hyphens` (added) fail, so the added test now catches the bug.*
+- `git rev-parse --short HEAD` -> `9677616`
+- `uv run --locked pytest -q -m lab1` -> `4 passed, 44 deselected`
+- `uv run --locked ruff check .` -> `All checks passed`
+- Old `team.py`, then `pytest -q tests/lab1/test_team.py` -> `2 failed, 2 passed`
+*Note: On the old code, both `test_joins_whitespace_with_hyphens` (supplied) and `test_joins_newlines_with_hyphens` (added) fail, proving the new test properly catches the bug.*
 
-On `9677616` I did not re-run `ruff format --check`, `pytest -m infra` and the full suite myself. The results for those on `9677616` come from the PR description written by Leona and I have not independently verified them.
+On `9677616`, we did not re-run `ruff format --check`, `pytest -m infra` or the full suite ourselves. Those results come from the PR description written by Leona.
 
-No GitHub check ran on the pull request (Checks: 0), so my local results are my evidence. After each check I restored `team.py` and `git status --short` was empty.
+No GitHub CI checks ran on the PR (Checks: 0), so our local runs serve as proof. After each check, we restored `team.py` and ensured `git status --short` was empty.
 
 ### Decisions and Rationale
-The fix `"-".join(team_name.lower().split())` follows the contract: it trims, lowercases, joins any whitespace with one hyphen, and the blank-name check still raises `ValueError`.
-I asked for a different added test. The first one (a name made only of tabs and newlines) passed on the old code too, because `strip()` already treats tabs and newlines as blank. A useful test must fail on the old code, so I suggested `"Team\nBlue North"` → `"team-blue-north"`.
-I approved only after re-running the checks on the new commit (`9677616`).
+- The fix `"-".join(team_name.lower().split())` follows the specification: it trims, lowercases, joins whitespace with a single hyphen, and raises `ValueError` for blank names.
+- We requested a stronger added test. The original test passed on old code because `strip()` already handles tabs/newlines as blank. A proper test had to fail on old code, so we suggested `"Team\nBlue North"` → `"team-blue-north"`.
+- We approved the PR only after re-running checks on updated commit `9677616`.
 
 ### Review and Response
-**My finding (on `8eea469`):** the added test also passed on the old `team.py`; I asked for one that fails on the old code, e.g. `"Team\nBlue North"` → `"team-blue-north"`.
-**Response:** Leona replaced the test with `test_joins_newlines_with_hyphens` (commits `9cddb2c` and `9677616`) and confirmed it to me by WhatsApp message. She did not reply in writing on GitHub, so the reply is not visible on the PR.
-**My follow-up (on `9677616`):** `lab1` 4 passed, `ruff check` OK, the new test fails on the old code and passes on the fix.
-**Result:** I approved on `9677616` and the PR was merged into `main`.
+- **Our finding (on `8eea469`):** The added test passed on old `team.py`. We requested a test that fails on old code.
+- **Response:** Leona updated the test to `test_joins_newlines_with_hyphens` (commits `9cddb2c` and `9677616`) and notified us on WhatsApp (no written reply on GitHub).
+- **Our follow-up (on `9677616`):** `lab1` 4 passed, `ruff check` OK, and the new test fails on old code as expected.
+- **Result:** We approved commit `9677616` and merged the PR into `main`.
 
 ### Screenshots
-**Local checks on commit `9677616`:**
-   ![Local checks on commit 9677616](./images/lab1-9677616.png)
+1. **Local checks on commit `9677616`:**
+   ![Local checks on commit 9677616](./images/lab1-9677616.png)
 
-2. **Tests run against the old `team.py` code (showing the new test fails as expected):**
-   ![Tests run against old team.py](./images/old-code-9677616.jpg)
+2. **Tests run against old `team.py` (showing test failure as expected):**
+   ![Tests run against old team.py](./images/old-code-9677616.jpg)
+
+3. **Pull Request Approval:**
+   ![PR Approved](./images/pr-approved.png)
 
 ---
 
 ##  General Notes, Blockers & Acknowledgements
 
 ### Blockers / Missing Evidence
-My first install failed: the disk was full, and then my Intel (x86_64) `uv` on an arm64 Mac tried to compile `cryptography`. I freed disk space, installed a native `uv` 0.12.24 and an arm64 Python 3.12, and ran `uv sync --locked`. I did not touch `uv.lock`.
-No remote CI result exists for this PR.
-Leona's reply is only on WhatsApp, not on GitHub.
-I have no saved screenshot of the first old-code run (1 failed, 3 passed on `8eea469`); I only have its terminal output in my notes.
-Lab 2 is not done yet.
+- Initial environment issues on Mac (disk space & `uv` compatibility) were resolved by clearing space and using native arm64 `uv` / Python 3.12 versions.
+- No remote CI checks ran for this PR.
+- Leona's response was shared on WhatsApp rather than GitHub.
+- We do not have a screenshot for the first run on `8eea469` (only terminal logs in notes).
+- Lab 2 is managed by Annabelle FAUTRAD and Jade PARILLA.
 
 ### Assistance and Recovery Acknowledgement
-Starter code and tests were supplied by the course.
-
-
-
-
-
+- Starter code and unit tests were provided by the course.
 
 
