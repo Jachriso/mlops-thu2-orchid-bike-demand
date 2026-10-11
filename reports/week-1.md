@@ -2,10 +2,10 @@
 
 ## Status
 - **Lab 1:** Done by Hajar Benlemqadem and Marie Léona and described below.
-- **Lab 2:** Done by Annabelle FAUTRAD and Jade PARILLA.
+- **Lab 2:** Done by Annabelle Fautrad and Jade Parrilla.
 
 ## Student / team
-- **Students:** Benlemqadem Hajar (`Hajarblmq`) and Marie Léona (`Leona224`)
+- **Students:** Benlemqadem Hajar (`Hajarblmq`), Marie Léona (`Leona224`), Fautrad Annabelle(`annaftrd`), Parrilla Jade (`Jachriso`)
 - **Team:** `mlops-thu2-orchid-bike-demand`
 
 ---
@@ -139,8 +139,12 @@ The test partition is counted and held: it is never passed to fitting or evaluat
 - **Result:** ________
 
 ### Screenshots
-1. **MLflow runs for training commit `61c2ade`:**  
-   ![MLflow runs for commit 61c2ade](../images/lab-02-mlflow-runs.png)
+1. **1st cleared tests**
+    ![first tests.py](../images/lab2-all_tests_cleared.png)
+1. **New test cleared**
+    ![new test cleared.py](../images/lab2-new_validation_test.png)
+3. **MLflow runs for training commit `61c2ade`:**  
+   ![MLflow runs](../images/lab2-experiment_runs.png)
 
 ---
 
