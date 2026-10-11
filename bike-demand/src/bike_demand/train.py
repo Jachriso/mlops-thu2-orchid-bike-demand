@@ -11,6 +11,8 @@ import numpy as np
 import pandas as pd
 import yaml
 from sklearn.metrics import mean_absolute_error
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error
 
 from bike_demand.preflight import check_snapshot, sha256
 from bike_demand.split import partition_summary, split_data
@@ -45,10 +47,9 @@ def load_config(path: Path) -> dict:
 
 
 def select_features(frame: pd.DataFrame, features: list[str]) -> pd.DataFrame:
-    raise NotImplementedError(
-        "TODO(Week 1, Lab 2): select only the ordered predictors, excluding "
-        "labels and identities. See README 'Expected failures'."
-    )
+    if features != list(FEATURES):
+        raise ValueError("features: require the twelve ordered contract predictors")
+    return frame.loc[:, features]
 
 
 def compare_mean(
