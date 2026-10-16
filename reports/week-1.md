@@ -77,13 +77,15 @@ No GitHub CI checks ran on the PR (Checks: 0), so our local runs serve as proof.
 ### Roles & Contributions
 - **Lab 2 Roles:** Jade PARILLA was the lead author (code, tests, training run). Annabelle FAUTRAD acted as peer reviewer.
 - **Jade:** Implemented `check_domains` (`validate.py`), `split_data` (`split.py`), `select_features`, `compare_mean` and `fit_evaluate` (`train.py`), designed Fault B with its fixture and test, and ran the training on Windows 11.
-- **Annabelle:** ________
+- **Annabelle:** RReviewer of PR #2. Read the diff of `validate.py`, `split.py`, `train.py` and the Fault B test. Re-ran the checks on commit `d98bf58` (natively on Windows, where `pytest` and `train` were blocked, then in a Linux Docker container), approved the PR and merged it.
 
 ### Links to Code and Pull Requests
 - **Branch:** `lab-02-data-baseline`
-- **Pull request:** #__
+- **Pull request:** #2 (https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/2)
 - **Training commit:** `61c2ade4c187006f719e3ed7ce04ba0b7fe8698c` (`working_tree_dirty: false`)
 - **Evidence files:** `bike-demand/reports/metrics.json`, `bike-demand/reports/metrics-history.jsonl`
+- **Commit checked by the reviewer:** `d98bf58` (latest commit of the PR, checked on the Commits tab: `../images/lab2-annabelle-15-commit-verification.png`)
+- **Review (Approve):** https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/2#pullrequestreview-5552786087
 
 ### Test and Execution Results
 All commands were run on Windows 11, from the `bike-demand/` folder, on commit `61c2ade`.
@@ -116,7 +118,7 @@ The test partition is counted and held: it is never passed to fitting or evaluat
 **Saved model and readback:** `artifacts/model.joblib`, version `baseline-b45ffdb42287`, SHA-256 `fd98ceafc57a5babce61ce703cbf9cb8d1f83c6820b0b34fe30ad1a0fc49c304`. Its run ID is `0656443c0a4c4ce8a907b8d367515b42` (the `random_forest` run), recorded as `model_run_id` in `artifacts/model-metadata.json` and in `reports/metrics.json`. Reloaded model MAE 86.847, delta 0.0, metadata matches, logged model bytes match (`readback` block of `reports/metrics.json`).
 
 **CI and local evidence, checked separately:**
-- CI checks on the pull request, for pushed revision `________`: ________
+- CI checks on the pull request, for pushed revision `d98bf58`: none ran (Checks: 0, `../images/lab2-annabelle-14-pr-checks0.png`). The reviewer's own runs and `reports/metrics.json` are the only evidence.
 - Local evidence: the MLflow database (`tracking/`) and the saved model (`artifacts/`) are ignored by Git and exist only on Jade's laptop. CI cannot read them, so a green check alone does not verify the runs above; they are verified through `reports/metrics.json`, the MLflow screenshot and the reviewer's inspection.
 
 **Optional stretch (unchanged-config repeat):** not attempted.
@@ -132,11 +134,23 @@ The test partition is counted and held: it is never passed to fitting or evaluat
 - **Reason:** an unknown weather code would otherwise be accepted silently by the Random Forest and produce a prediction for a situation outside the contract.
 - **Result:** rejected with `Validation failed: weathersit: require integers in [1, 4]`; the valid control `missing-hours.csv` passes (6 rows) and the canonical CSV still validates. Limitation: the validator checks each field alone, not consistency between fields (for example `cnt = casual + registered`).
 
+### Reviewer's reproduction 
+ 
+**Reviewer's reproduction (Annabelle).** Natively on Windows, `ruff check`, `ruff format --check`, `preflight` and `validate` worked, but `pytest` and `train` were blocked at import by a Windows application-control policy ("DLL load failed while importing `_radius_neighbors_classmode`", `../images/lab2-annabelle-11-train-blocked.png`). I then ran the same commands in a Linux Docker container (`python:3.12-slim`, repository copied from my clone, `uv.lock` untouched), on commit `d98bf58`, as recommended by the instructor.
+ 
+| Command (Docker, Linux) | Result | Screenshot |
+| --- | --- | --- |
+| `pytest -q -m infra` | 9 passed | `../images/lab2-annabelle-20-docker-pytest-infra.png` |
+| `pytest -q -m exercise` | 36 passed | `../images/lab2-annabelle-21-docker-pytest-exercise.png` |
+| `validate --data data/raw/hour.csv` | Validated 17379 rows; input bytes unchanged | `../images/lab2-annabelle-22-docker-validate.png` |
+| `train --config configs/baseline.yaml` | worked (below) | `../images/lab2-annabelle-23-docker-train.png` |
+| `pytest -q` | 49 passed | `../images/lab2-annabelle-24-docker-pytest-full.png` |
+ 
+My own `train` run: comparator run `2568abd4f54847be80c56b0041ba2885`, MAE 154.23179306864967; random forest run `1083fdcbf5474c19aa71b935099113ae`, MAE 86.84685685591091; readback delta 0.0, `metadata_matches` and `logged_model_bytes_match` true. The MAEs, train mean, CSV hash and partition counts match Jade's to every digit printed; run IDs, model hash and training commit differ, as expected for a separate run.
+
 ### Review and Response
-- **Reviewer retrieval (without verbal hints, from this report only):** saved model's run ID found: ________; MAE read: ________; reload evidence inspected: ________
-- **Reviewer finding:** ________
-- **Author response:** ________
-- **Result:** ________
+- **Reviewer retrieval (without verbal hints, from this report only):** saved model's run ID found: `0656443c0a4c4ce8a907b8d367515b42` (the `random_forest` run, equal to `model_run_id`); MAE read: 86.847 (random forest) and 154.232 (train-mean comparator); reload evidence inspected: reload MAE 86.847, delta 0.0, metadata matches, logged model bytes match. These come from the report and `reports/metrics.json`; I then reproduced the run myself in Docker (section above).
+- **Result:** PR #2 approved at commit `d98bf58` after the Docker run, then merged by me (`../images/lab2-annabelle-15-review-submitted.png`, `../images/lab2-annabelle-25-merge-pull-request.png`).
 
 ### Screenshots
 1. **1st cleared tests**
@@ -145,7 +159,24 @@ The test partition is counted and held: it is never passed to fitting or evaluat
     ![new test cleared.py](../images/lab2-new_validation_test.png)
 3. **MLflow runs for training commit `61c2ade`:**  
    ![MLflow runs](../images/lab2-experiment_runs.png)
-
+4. **PR #2, Commits tab:** latest commit is `d98bf58`.
+   ![Commit verification](../images/lab2-annabelle-15-commit-verification.png)
+5. **PR page showing "Checks: 0":** no CI on this revision.
+   ![PR checks 0](../images/lab2-annabelle-14-pr-checks0.png)
+6. **Windows, `train` blocked** (commit `d98bf58`): DLL load failed.
+   ![train blocked](../images/lab2-annabelle-11-train-blocked.png)
+7. **Docker, `pytest -q -m infra`** (commit `d98bf58`): 9 passed.
+   ![Docker pytest infra](../images/lab2-annabelle-20-docker-pytest-infra.png)
+8. **Docker, `pytest -q -m exercise`:** 36 passed.
+   ![Docker pytest exercise](../images/lab2-annabelle-21-docker-pytest-exercise.png)
+9. **Docker, `train`:** reviewer's own run IDs, validation MAEs and readback (end of the output).
+   ![Docker train](../images/lab2-annabelle-23-docker-train.png)
+10. **Docker, `pytest -q`:** 49 passed.
+    ![Docker pytest full](../images/lab2-annabelle-24-docker-pytest-full.png)
+11. **Review submitted on PR #2 (Approve).**
+    ![Review submitted](../images/lab2-annabelle-15-review-submitted.png)
+12. **Merge of PR #2.**
+    ![Merge pull request](../images/lab2-annabelle-25-merge-pull-request.png)
 ---
 
 ##  General Notes, Blockers & Acknowledgements
@@ -155,7 +186,8 @@ The test partition is counted and held: it is never passed to fitting or evaluat
 - No remote CI checks ran for this PR.
 - Leona's response was shared on WhatsApp rather than GitHub.
 - We do not have a screenshot for the first run on `8eea469` (only terminal logs in notes).
-- Lab 2 is managed by Annabelle FAUTRAD and Jade PARILLA.
+- Annabelle's Windows workstation blocks the scikit-learn/scipy DLLs (application control), so native `pytest` and `train` failed. The checks were re-run in a Linux Docker container; Docker is not the course setup.
+- The reviewer's `train` screenshot is cropped
 
 ### Assistance and Recovery Acknowledgement
 - Starter code and unit tests were provided by the course.
