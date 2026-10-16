@@ -6,6 +6,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from bike_demand.split import WINDOWS
+
 FEATURES = (
     "season",
     "yr",
@@ -36,10 +38,26 @@ COUNTS = ("cnt", "casual", "registered")
 
 
 def check_domains(frame: pd.DataFrame) -> None:
-    raise NotImplementedError(
-        "TODO(Week 1, Lab 2): validate domains, finite ranges and date "
-        "windows. See README 'Expected failures'."
-    )
+    for field, (low, high) in DOMAINS.items():
+        values = frame[field]
+        if not ((values % 1 == 0) & values.between(low, high)).all():
+            raise ValueError(f"{field}: require integers in [{low}, {high}]")
+    for field in NORMALISED:
+        values = frame[field]
+        if not (np.isfinite(values) & values.between(0, 1)).all():
+            raise ValueError(f"{field}: require finite numbers in [0, 1]")
+    for field in COUNTS:
+        values = frame[field]
+        if not ((values % 1 == 0) & (values >= 0)).all():
+            raise ValueError(f"{field}: require nonnegative integers")
+    dates = frame["dteday"]
+    inside = pd.Series(False, index=frame.index)
+    for start, end in WINDOWS.values():
+        inside |= dates.between(pd.Timestamp(start), pd.Timestamp(end))
+    if not inside.all():
+        raise ValueError(
+            "dteday: require dates inside the train/validation/test windows"
+        )
 
 
 def load_data(path: Path | str) -> pd.DataFrame:
