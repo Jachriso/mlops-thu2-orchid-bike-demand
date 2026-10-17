@@ -16,7 +16,7 @@
 
 ## Links to Code and Pull Requests
 - **Branch:** `lab3-docker` (from `main` at `37d5781`, the merge of PR #2)
-- **Pull request:** TODO: PR number and link
+- **Pull request:** https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/3
 - **Commit packaged:** `cd25a99` (on top of `37d5781`, Lab 2 merged)
 - **Review / approval:** TODO: link to Marie's review
 
