@@ -28,9 +28,7 @@ and evidence that it works and can be recovered.
   and the model beats the baseline.
 ## Lab 3: Docker rerun
 
-**Goal** Run the Lab 2 baseline in a clean container, from the locked dependencies.
-
-**How to rebuild** (from the repository root, Docker Desktop running)
+Rebuild and rerun the Lab 2 baseline in a clean container (from the repository root, Docker Desktop running):
 
     docker build -t orchid-bike:lab3 .
     docker run --name c1 orchid-bike:lab3
@@ -38,13 +36,4 @@ and evidence that it works and can be recovered.
     docker cp c1:/app/reports ./out-reports
     docker rm c1
 
-**How success is checked**
-
-* 49 tests pass in the container.
-* Validation MAE matches Lab 2: random forest 86.8469, train-mean comparator 154.2318.
-* A stale `uv.lock` makes `docker build` fail at `uv sync --locked --no-install-project`.
-
-**Notes**
-
-* Evidence (logs, screenshots) is in `reports/lab3/` and `images/lab3-*.png`. Details are in `reports/week-2.md`.
-* `.git` is not in the image, so the metrics record `training_commit: "unavailable"`.
+Expected: 49 tests pass, and the validation MAE matches Lab 2 (random forest 86.8469, train-mean comparator 154.2318).
