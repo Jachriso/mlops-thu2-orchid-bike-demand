@@ -1,0 +1,11 @@
+   Building bike-demand @ file:///app
+      Built bike-demand @ file:///app
+Uninstalled 1 package in 3ms
+Installed 1 package in 1ms
+INFO:     Started server process [32]
+INFO:     Waiting for application startup.
+ERROR:    no usable model, /health and /predict answer 503: model file not found: /nonexistent/model.joblib
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     172.17.0.1:33612 - "GET /health HTTP/1.1" 503 Service Unavailable
+INFO:     172.17.0.1:57566 - "POST /predict HTTP/1.1" 503 Service Unavailable
