@@ -12,14 +12,14 @@
 
 ## Roles & Contributions
 - **Hajar (lead author):** wrote `Dockerfile` and `.dockerignore`, built the image, ran the baseline and the tests in the container, compared with Lab 2, proved that a stale lock fails, wrote the README section.
-- **Marie (reviewer):** TODO (she writes her own section below).
+- **Marie (reviewer):** checked out `lab3-docker` and rebuilt the image on Windows 11 following the README only, ran the baseline, the tests and `docker cp` in the container, compared the results with Hajar's and Lab 2, and left 5 findings on PR #3.
 - TODO: Annabelle / Jade, if they own an area.
 
 ## Links to Code and Pull Requests
 - **Branch:** `lab3-docker` (from `main` at `37d5781`, the merge of PR #2)
 - **Pull request:** https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/3
 - **Commit packaged:** `cd25a99` (on top of `37d5781`, Lab 2 merged)
-- **Review / approval:** TODO: link to Marie's review
+- **Review / approval:** https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/3#pullrequestreview-5562709916
 
 ## Locked
 - Lockfile: `bike-demand/uv.lock`, committed and unchanged by this PR.
@@ -86,14 +86,31 @@ Inputs unchanged from Lab 2: same data snapshot, same `configs/baseline.yaml`, s
 ## Review and Response
 
 ### Reviewer's reproduction (Marie)
-TODO: Marie writes this section: clean clone of `lab3-docker`, README only, her build, run and test results, her image ID and `model_sha256`, her finding(s), and the approval commit.
+Local checkout of `lab3-docker` at `d16aa11` (`git diff --stat cd25a99 d16aa11` touches only <fichiers affichés>, so the packaged code is the same). Image rebuilt with Docker Desktop 29.4.2 on Windows 11, following the README only, from the repository root.
+
+| Check | Command | Result |
+| --- | --- | --- |
+| Build | `docker build -t orchid-bike:lab3 .` | built, image ID `sha256:2913eb69d93aa638a7382b9ec7f366c89915b6e899f08deaf9df3145a8085c5c` |
+| Baseline run | `docker run --name c1 orchid-bike:lab3` | random_forest **86.84685685591091**, naive_train_mean **154.23179306864967**, reload_mae_delta 0.0 |
+| Model hash | (same run) | `model_sha256` `d24c050e…8c07`, same as Hajar's container |
+| Tests in the image | `docker run --rm orchid-bike:lab3 uv run --locked pytest -q` | **49 passed**, 1 warning (MLflow `noload` deprecation) |
+| Copy results out | `docker cp c1:/app/reports ./out-reports` | `metrics.json` copied, same values |
+
+The MAEs match Hajar's container and Lab 2 to every printed digit. My image ID differs from Hajar's (`15c6c02a…`), which is expected for a separate build. The `model_run_id` differs, as expected for a new run.
+
+#### Findings
+1. **TODO about owners:** Annabelle's and Jade's areas were still missing.
+2. **Stale-lock evidence:** the first screenshot showed `uv sync --locked` on the host, not `docker build`. Addressed: see "Locked".
+3. **Commit behind the image:** not stated at first. Addressed: see "Review follow-up".
+4. **Question (non-blocking):** `uv run` reinstalls the project at each container start (`Uninstalled 1 package / Installed 1 package`).
+
 
 ## Local vs remote checks
 All runs above are local (Docker Desktop on a Mac). No GitHub CI check was used as evidence for this lab.
 
 ## Blockers / Missing Evidence
 - The cause of the different `model_sha256` is not established (see Rerun).
-- TODO: add anything Marie could not reproduce.
+- Marie reproduced every step of the README on Windows 11 with the same MAEs and the same `model_sha256`; nothing failed to reproduce.
 
 ## Screenshots
 1. Build and image ID: ![build](../images/lab3-build.png)
