@@ -115,8 +115,8 @@ docker run --rm -p 127.0.0.1:8000:8000 orchid-bike:lab4
  
 - `GET /health`: `200 {"status": "ok", "model_version": "..."}` when a model is loaded, `503` otherwise.
 - `POST /predict`: flat JSON object with the 12 predictors (`season` 1-4, `yr` 0-1, `mnth` 1-12, `hr` 0-23, `holiday` 0-1, `weekday` 0-6, `workingday` 0-1, `weathersit` 1-4 as JSON integers; `temp`, `atemp`, `hum`, `windspeed` as numbers in 0-1). Returns `200 {"prediction": <finite number >= 0>, "model_version": "..."}`.
+
 | Case | Status |
-| --- | --- |
 | Valid request, model loaded | 200 |
 | Invalid request (missing/extra field, wrong type, out of range, NaN/Infinity, malformed JSON) | 422, even if no model is loaded |
 | Valid request, model missing or unusable | 503 |
@@ -128,6 +128,7 @@ docker run --rm -p 127.0.0.1:8000:8000 orchid-bike:lab4
  
 - `MODEL_PATH` (default `artifacts/model.joblib`)
 - `METADATA_PATH` (default `model-metadata.json` next to the model)
+
 `model_version` comes from the metadata file. Only load model files you trust (joblib uses pickle).
  
 ### Limits
