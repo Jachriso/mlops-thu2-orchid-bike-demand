@@ -26,14 +26,3 @@ and evidence that it works and can be recovered.
 - Lab 1: `ruff`, `pytest -m infra` and `pytest -m lab1` pass on the merged commit.
 - Later: the API returns a valid prediction and the model version,
   and the model beats the baseline.
-## Lab 3: Docker rerun
-
-Rebuild and rerun the Lab 2 baseline in a clean container (from the repository root, Docker Desktop running):
-
-    docker build -t orchid-bike:lab3 .
-    docker run --name c1 orchid-bike:lab3
-    docker run --rm orchid-bike:lab3 uv run --locked pytest -q
-    docker cp c1:/app/reports ./out-reports
-    docker rm c1
-
-Expected: 49 tests pass, and the validation MAE matches Lab 2 (random forest 86.8469, train-mean comparator 154.2318).
