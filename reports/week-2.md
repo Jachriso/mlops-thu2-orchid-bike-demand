@@ -114,13 +114,13 @@ All runs above are local (Docker Desktop on a Mac). No GitHub CI check was used 
 
 ### Roles & Contributions
 - **Annabelle (lead author):** input validation, model loading + `/health` + `/predict`, tests, container, README, report.
-- **Jade (reviewer):** TODO.
+- **Jade (reviewer):** checked out PR #6, ran the tests in the container, tried a valid request, an out-of-range request and a missing model, reported findings and approved/merged the PR.
 
 ### Links to Code and Pull Requests
 - **Branch:** `lab4-api` (from `main` at `13c9408`, the merge of PR #3)
-- **Pull request:** <<PR link>>
+- **Pull request:** https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/6 (merged into `main` as `8e054f4`)
 - **Code tested in the image:** `4f8811f`; later commits add only logs, README and report text.
-- **Review / approval:** TODO: link to Jade's review
+- **Review / approval:** see "Review and Response" below
 
 ### Contract
 | Case | Status |
@@ -154,7 +154,39 @@ All runs above are local (Docker Desktop on a Mac). No GitHub CI check was used 
 ### Limits and Missing Evidence
 - All runs are in Docker; the author's Windows machine blocks the scikit-learn DLLs, so nothing was run natively.
 - No remote CI check was used as evidence.
-- The `model_version` string changes between builds (as observed in Lab 3); we did not investigate why.
+- The `model_version` string changes between builds (as observed in Lab 3, and again in the review: `baseline-b4473271b1e9` vs `baseline-81cdc1fb066e`); we did not investigate why.
+- The reviewer's runs were captured as screenshots only; no raw log files were added for them.
 
 ### Review and Response
-TODO: Jade writes this section: one bad request and one missing model that she tried, her results, her finding(s), and the commit she approved.
+
+#### Reviewer's reproduction
+Local checkout of PR #6 (`pr-6` at `918d245`; `git diff 4f8811f 918d245` touches only `README.md`, `reports/` and `images/`, so the code is the one Annabelle tested). Image rebuilt as `orchid-bike:lab4` with Docker Desktop on Windows 11, following the README only.
+
+| Check | Command | Result |
+| --- | --- | --- |
+| Tests in the image | `docker run --rm orchid-bike:lab4 uv run --locked pytest -q` | **126 passed**, 2 warnings |
+| Service start | `docker run --rm -p 127.0.0.1:8000:8000 orchid-bike:lab4` | `model loaded: version baseline-81cdc1fb066e` |
+| `GET /health` | `curl.exe -i http://localhost:8000/health` | 200, `{"status":"ok","model_version":"baseline-81cdc1fb066e"}` |
+| `POST /predict`, valid request (`mnth=1`, `hr=8`, `temp=0.3`, `hum=0.5`) | `curl.exe -i -X POST .../predict --data-binary "@valid.json"` | 200, `prediction` 149.05910457539449, same `model_version` |
+| **Bad request:** `hum = 1.5` | same, with `bad.json` | 422, `{"loc":["body","hum"],"msg":"Input should be less than or equal to 1","type":"less_than_equal"}` (submitted value not echoed) |
+| **Missing model:** `-e MODEL_PATH=/nonexistent/model.joblib` | service start | stays up, logs `ERROR: no usable model, /health and /predict answer 503: model file not found: /nonexistent/model.joblib` |
+| `GET /health`, no model | | 503, `{"detail":"no usable model loaded"}` |
+| `POST /predict` valid, no model | | 503, `{"detail":"no usable model loaded"}` |
+| `POST /predict` bad, no model | | **422** (validation runs before the model check, as the contract says) |
+
+Every row matches the contract table above.
+
+#### Findings
+- **`model_version` differs from the author's build** (`baseline-81cdc1fb066e` for me, `baseline-b4473271b1e9` for Annabelle) on the same code and lock. This confirms the limit already listed: the version string is not reproducible across builds, so it identifies a build, not a revision. Not blocking for this lab; to investigate in Lab 5–6 (model-version checks).
+- **Two warnings in the test run**, both from dependencies, not from our code: `StarletteDeprecationWarning` (`starlette.testclient` with `httpx`) and an SQLAlchemy `noload` deprecation raised inside MLflow. They do not fail any test; noted so a future upgrade does not surprise us.
+- **`uv run` reinstalls the project at each container start** (`Uninstalled 1 package / Installed 1 package` before Uvicorn starts, also before pytest). Harmless (under 1 ms) but it means the container modifies its own environment at start-up; this is the same behaviour as the open Lab 3 question.
+- No blocking defect found.
+
+#### Approval
+- Approved and merged: PR https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/6, head `2ccb1ed`, merge commit `8e054f4` on `main`.
+
+![Tests in the reviewer's image: 126 passed](../images/lab4-jade-01-container-pytest.png)
+![Service start with the model loaded](../images/lab4-jade-02-service-start.png)
+![Health 200, valid predict 200, hum=1.5 gives 422](../images/lab4-jade-03-health-predict-422.png)
+![Service start with MODEL_PATH pointing to a missing file](../images/lab4-jade-04-nomodel-start.png)
+![No model: health and predict 503, bad request still 422](../images/lab4-jade-05-nomodel-503.png)
