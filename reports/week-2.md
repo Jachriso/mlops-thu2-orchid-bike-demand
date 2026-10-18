@@ -1,7 +1,8 @@
 # Week 2, Lab 3: same code, clean environment (locked dependencies, container, rerun)
 
 ## Status
-- **Lab 3:** Lead author Hajar Benlemqadem (`Hajarblmq`); reviewer Marie Léona (`Leona224`). TODO: add who owns which area for Annabelle and Jade, if they took part.
+- **Lab 3:** Lead author Hajar Benlemqadem (`Hajarblmq`); reviewer Marie Léona (`Leona224`). 
+- **Lab 4:** Lead author Fautrad Annabelle (`annaftrd`); reviewer Parrilla Jade (`Jachriso`).
 
 ## Student / team
 - **Team:** `mlops-thu2-orchid-bike-demand`
@@ -107,3 +108,53 @@ All runs above are local (Docker Desktop on a Mac). No GitHub CI check was used 
 - **Why `uv run` reinstalls the project at start-up:** TODO
 
 ## Assistance and recovery acknowledgement
+
+
+## Lab 4: Prediction API
+
+### Roles & Contributions
+- **Annabelle (lead author):** input validation, model loading + `/health` + `/predict`, tests, container, README, report.
+- **Jade (reviewer):** TODO.
+
+### Links to Code and Pull Requests
+- **Branch:** `lab4-api` (from `main` at `13c9408`, the merge of PR #3)
+- **Pull request:** <<PR link>>
+- **Code tested in the image:** `4f8811f`; later commits add only logs, README and report text.
+- **Review / approval:** TODO: link to Jade's review
+
+### Contract
+| Case | Status |
+| --- | --- |
+| Valid request, model loaded | 200, finite `prediction` >= 0 and `model_version` |
+| Invalid request (missing/extra field, wrong type, out of range, NaN/Infinity, malformed JSON) | 422, even without a model |
+| Valid request, model missing or unusable | 503 (`/health` also 503) |
+| Model error or invalid model output | 500 |
+
+### Decisions and Rationale
+- **Extra fields are rejected (422)**, so `cnt`, `casual` and `registered` cannot be sent as inputs.
+- **Strict types:** `"2"`, `2.0` for an integer field and `true` are rejected.
+- **The 422 body contains only `loc`, `msg`, `type`**, never the submitted value (a NaN in the input could otherwise break the error response).
+- **The service never trains.** It loads `model.joblib` at startup and takes `model_version` from `model-metadata.json`. If the file is missing, corrupt, or its feature list differs from the contract, it stays up and answers 503.
+- **Multi-stage Dockerfile:** training runs at build time in a `trainer` stage; the final image only receives `artifacts/`.
+
+### Evidence from the image
+| Item | Value |
+| --- | --- |
+| Image | `orchid-bike:lab4`, ID `02cf013c0f66` (built at `4f8811f`) |
+| Tests in the image | `uv run --locked pytest -q`: 126 passed |
+| `GET /health` | 200, `model_version` `baseline-b4473271b1e9` |
+| `POST /predict` (valid) | 200, `prediction` 436.0155873643862, same `model_version` |
+| `hum = 1.5` | 422 |
+| `MODEL_PATH=/nonexistent/model.joblib` | 503 on `/health` and `/predict` |
+| Raw logs | `reports/lab4/` (`build.log`, `tests.log`, `*-response.json`, `service.log`, `nomodel-service.log`) |
+
+![Tests in the image](../images/lab4-annabelle-01-container-pytest.png)
+![Health and predict call](../images/lab4-annabelle-02-predict-call.png)
+
+### Limits and Missing Evidence
+- All runs are in Docker; the author's Windows machine blocks the scikit-learn DLLs, so nothing was run natively.
+- No remote CI check was used as evidence.
+- The `model_version` string changes between builds (as observed in Lab 3); we did not investigate why.
+
+### Review and Response
+TODO: Jade writes this section: one bad request and one missing model that she tried, her results, her finding(s), and the commit she approved.
