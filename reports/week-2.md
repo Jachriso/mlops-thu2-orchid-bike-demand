@@ -23,10 +23,8 @@
 ## Locked
 - Lockfile: `bike-demand/uv.lock`, committed and unchanged by this PR.
 - Local check on the host: `uv run --locked pytest -q` -> `49 passed`.
-- **A stale lock stops the build.** On a throwaway copy (`/tmp/test-lock`), I added `requests>=2` to `pyproject.toml` without updating the lock, then ran `uv sync --locked`:
-  `error: The lockfile at uv.lock needs to be updated, but --locked was provided.`
-  The lock was not regenerated. My branch was not touched.
-  ![Stale lock fails](../images/lab3-stale-lock.png)
+- **A stale lock stops the build.** On a throwaway copy (`/tmp/stale-repo`), I added `requests>=2` to `pyproject.toml` without updating `uv.lock`, then ran `docker build`. It fails at `RUN uv sync --locked --no-install-project` with `error: The lockfile at uv.lock needs to be updated, but --locked was provided.` The lock was not regenerated and my branch was not touched. Raw log: `reports/lab3/logs-stale-lock-build.txt`. The same check on the host (`uv sync --locked`) fails with the same message.
+  ![Stale lock stops docker build](../images/lab3-stale-lock.png)
 
 ## Packaged
 - Files at the repository root: `Dockerfile`, `.dockerignore`, `README.md` (new section "Lab 3").
@@ -99,6 +97,13 @@ All runs above are local (Docker Desktop on a Mac). No GitHub CI check was used 
 ## Screenshots
 1. Build and image ID: ![build](../images/lab3-build.png)
 2. Run and tests: ![run](../images/lab3-run.png)
-3. Stale lock fails: ![stale lock](../images/lab3-stale-lock.png)
+3. Stale lock stops `docker build`: ![stale lock](../images/lab3-stale-lock.png)
+
+## Review follow-up (Marie's findings on PR #3)
+- **Stale lock in `docker build`:** shown on a throwaway copy, see "Locked" and `reports/lab3/logs-stale-lock-build.txt`. The README wording was fixed accordingly.
+- **Commit behind the image:** image `15c6c02a…` was built from the working directory (base commit `37d5781` plus the `Dockerfile` and `.dockerignore`, committed afterwards in `cd25a99`). `git diff 37d5781 cd25a99 -- bike-demand` is empty, so the project code is identical.
+- **`model_sha256`:** Marie reproduced `d24c050e…` inside Docker on Windows 11. Jade's Lab 2 run on Windows outside Docker gave `fd98ceaf…`. This suggests the difference comes from the host environment, but we did not isolate the exact cause.
+- **Owners (Annabelle, Jade):** TODO
+- **Why `uv run` reinstalls the project at start-up:** TODO
 
 ## Assistance and recovery acknowledgement

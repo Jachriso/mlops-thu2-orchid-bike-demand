@@ -57,6 +57,8 @@ Pour comparer avec le Lab 2, ouvrir `out-reports/metrics.json` et le comparer à
 | Tests dans le conteneur | 49 passed |
 | Logs bruts | `reports/lab3/logs-build.txt`, `logs-run.txt`, `logs-tests.txt` |
 
+L'image a été construite depuis le dossier de travail au commit de base `37d5781`, plus le `Dockerfile` et le `.dockerignore`, commités ensuite dans `cd25a99` ; `git diff 37d5781 cd25a99 -- bike-demand` est vide (le code du projet est identique).
+
 Build et image ID :
 
 ![Build et image ID](images/lab3-build.png)
@@ -65,7 +67,7 @@ Run et tests :
 
 ![Run et tests](images/lab3-run.png)
 
-Un lock périmé fait échouer le build (testé sur une copie jetable, en ajoutant `requests>=2` à `pyproject.toml` sans mettre à jour `uv.lock`) :
+Un lock périmé fait échouer `docker build` à l'étape `uv sync --locked --no-install-project` (testé sur une copie jetable, en ajoutant `requests>=2` à `pyproject.toml` sans mettre à jour `uv.lock` ; log brut : `reports/lab3/logs-stale-lock-build.txt`) :
 
 ![Lock périmé](images/lab3-stale-lock.png)
 
