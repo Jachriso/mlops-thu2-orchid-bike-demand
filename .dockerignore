@@ -1,0 +1,11 @@
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/.DS_Store
+.git
+.env
+.env.*
+**/artifacts
+**/tracking
+**/roster.txt
