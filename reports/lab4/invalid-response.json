@@ -1,0 +1,1 @@
+{"detail":[{"loc":["body","hum"],"msg":"Input should be less than or equal to 1","type":"less_than_equal"}]}
