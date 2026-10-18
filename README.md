@@ -135,3 +135,4 @@ docker run --rm -p 127.0.0.1:8000:8000 orchid-bike:lab4
  
 The model is a baseline random forest; the API checks input ranges but cannot tell whether a prediction is good. A missing model keeps the service up and answering 503; there is no reload without restart.
  
+  and the model beats the baseline.
