@@ -13,7 +13,6 @@
 ## Roles & Contributions
 - **Hajar (lead author):** wrote `Dockerfile` and `.dockerignore`, built the image, ran the baseline and the tests in the container, compared with Lab 2, proved that a stale lock fails, wrote the README section.
 - **Marie (reviewer):** checked out `lab3-docker` and rebuilt the image on Windows 11 following the README only, ran the baseline, the tests and `docker cp` in the container, compared the results with Hajar's and Lab 2, and left 5 findings on PR #3.
-- TODO: Annabelle / Jade, if they own an area.
 
 ## Links to Code and Pull Requests
 - **Branch:** `lab3-docker` (from `main` at `37d5781`, the merge of PR #2)
