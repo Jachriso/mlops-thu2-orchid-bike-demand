@@ -1,4 +1,4 @@
-# Week 2, Lab 3: same code, clean environment (locked dependencies, container, rerun)
+# Week 2
 
 ## Status
 - **Lab 3:** Lead author Hajar Benlemqadem (`Hajarblmq`); reviewer Marie Léona (`Leona224`). 
@@ -9,6 +9,8 @@
 - **Students:** Benlemqadem Hajar (`Hajarblmq`), Marie Léona (`Leona224`), Fautrad Annabelle (`annaftrd`), Parrilla Jade (`Jachriso`)
 
 ---
+
+# Lab 3: same code, clean environment (locked dependencies, container, rerun)
 
 ## Roles & Contributions
 - **Hajar (lead author):** wrote `Dockerfile` and `.dockerignore`, built the image, ran the baseline and the tests in the container, compared with Lab 2, proved that a stale lock fails, wrote the README section.
@@ -126,7 +128,7 @@ All runs above are local (Docker Desktop on a Mac). No GitHub CI check was used 
 ## Assistance and recovery acknowledgement
 
 
-## Lab 4: Prediction API
+# Lab 4: Prediction API
 
 ### Roles & Contributions
 - **Annabelle (lead author):** input validation, model loading + `/health` + `/predict`, tests, container, README, report.
