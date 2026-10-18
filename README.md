@@ -97,3 +97,40 @@ Aucun test n'a été désactivé ni modifié.
 - Ce `model_sha256` diffère de celui du Lab 2 (`fd98ceaf…`, run de Jade sous Windows 11). Les MAE sont identiques, Python est le même (3.12.15) et le lock aussi. La cause n'est pas établie.
 - `.git` est exclu de l'image : le commit se note à l'extérieur du conteneur avec `git rev-parse HEAD`.
 - Ces vérifications sont locales (Docker Desktop sur Mac), pas une CI distante.
+
+
+## Lab 4: Prediction API
+ 
+The service loads the saved baseline model at startup and answers predictions. It never trains: training happens when the image is built (`trainer` stage of the `Dockerfile`).
+ 
+### Build, test, run (Docker)
+ 
+```
+docker build -t orchid-bike:lab4 .
+docker run --rm orchid-bike:lab4 uv run --locked pytest -q
+docker run --rm -p 127.0.0.1:8000:8000 orchid-bike:lab4
+```
+ 
+### Endpoints
+ 
+- `GET /health`: `200 {"status": "ok", "model_version": "..."}` when a model is loaded, `503` otherwise.
+- `POST /predict`: flat JSON object with the 12 predictors (`season` 1-4, `yr` 0-1, `mnth` 1-12, `hr` 0-23, `holiday` 0-1, `weekday` 0-6, `workingday` 0-1, `weathersit` 1-4 as JSON integers; `temp`, `atemp`, `hum`, `windspeed` as numbers in 0-1). Returns `200 {"prediction": <finite number >= 0>, "model_version": "..."}`.
+| Case | Status |
+| --- | --- |
+| Valid request, model loaded | 200 |
+| Invalid request (missing/extra field, wrong type, out of range, NaN/Infinity, malformed JSON) | 422, even if no model is loaded |
+| Valid request, model missing or unusable | 503 |
+| Model fails or returns a non-finite/negative value | 500 |
+ 
+**Extra fields are rejected (422).** In particular `cnt`, `casual` and `registered` are labels, not inputs. Numbers must be real JSON numbers: `"2"`, `2.0` for an integer field, and `true` are rejected. The 422 body lists only `loc`, `msg` and `type`, never the submitted value.
+ 
+### Configuration
+ 
+- `MODEL_PATH` (default `artifacts/model.joblib`)
+- `METADATA_PATH` (default `model-metadata.json` next to the model)
+`model_version` comes from the metadata file. Only load model files you trust (joblib uses pickle).
+ 
+### Limits
+ 
+The model is a baseline random forest; the API checks input ranges but cannot tell whether a prediction is good. A missing model keeps the service up and answering 503; there is no reload without restart.
+ 
