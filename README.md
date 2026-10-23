@@ -136,3 +136,67 @@ docker run --rm -p 127.0.0.1:8000:8000 orchid-bike:lab4
 The model is a baseline random forest; the API checks input ranges but cannot tell whether a prediction is good. A missing model keeps the service up and answering 503; there is no reload without restart.
  
   and the model beats the baseline.
+
+
+
+## Lab 5: Deploy
+
+Run the Lab 4 service from its image, with settings passed in at start-up. These are the only steps needed to start it.
+
+### Start it
+
+```
+docker build -t orchid-bike:lab5 .
+docker run -d --name bike -p 127.0.0.1:8000:8000 -e MODEL_PATH=artifacts/model.joblib orchid-bike:lab5
+curl -i http://127.0.0.1:8000/health
+```
+
+- `-p 127.0.0.1:8000:8000` publishes the port to your own machine only.
+- On Windows PowerShell, use `curl.exe` instead of `curl`. If a long command gets cut when pasted, put the setting in a variable first: `$m = "MODEL_PATH=artifacts/model.joblib"`, then `-e $m`.
+- Read what the service says with `docker logs bike`. Stop it with `docker rm -f bike`.
+
+### Settings
+
+| Variable | Default | If wrong |
+| --- | --- | --- |
+| `MODEL_PATH` | `artifacts/model.joblib` (inside the image) | service stays up, `/health` and `/predict` answer 503, one `ERROR` line at start-up names the cause |
+| `METADATA_PATH` | `model-metadata.json` next to the model | same as above |
+
+### Start-up decisions
+
+**Settings: what changes between laptop and container?**
+Only the model location is configurable, through environment variables passed with `-e` at `docker run`. The image is the same everywhere. *Rejected:* hard-coding paths in the code or baking a per-machine config file into the image, because the same image could then not run elsewhere without a rebuild.
+
+**Model: where does it come from at start-up?**
+The model is trained once at build time (`trainer` stage) and copied into the final image under `artifacts/`. The service only loads it, once, when it starts; it never trains. `MODEL_PATH` can point to another trusted file. *Rejected:* training at start-up (slow, and each start could produce a different model) and downloading the model at start-up (needs network and credentials).
+
+**Ready: when do we call the service ready?**
+When `GET /health` answers `200` with a `model_version`, which only happens after the model and its metadata were loaded and checked. *Rejected:* "the container is running" or the log line `Application startup complete`: both appear even when no model is loaded.
+
+**Broken: what does it say if the model is missing?**
+It stays up and fails closed: `/health` and a valid `/predict` answer `503 {"detail":"no usable model loaded"}`, while an invalid request still gets `422` (validation runs before the model check). The start-up log names the cause in one line. *Rejected:* crashing at start-up (the operator gets no `/health` answer to read) and answering with a default prediction (a confident wrong answer).
+
+### Break it on purpose
+
+Start it with a model path that does not exist:
+
+```
+docker run -d --name bike-broken -p 127.0.0.1:8000:8000 -e MODEL_PATH=/nonexistent/model.joblib orchid-bike:lab5
+```
+
+Observed (commit `cab9507`, image `sha256:76a4c875…`):
+
+| Request | Status |
+| --- | --- |
+| `GET /health` | 503 `no usable model loaded` |
+| `POST /predict`, valid body | 503 |
+| `POST /predict`, `hum = 1.5` | 422 |
+
+What it leaves behind in `docker logs bike-broken`:
+
+```
+ERROR:    no usable model, /health and /predict answer 503: model file not found: /nonexistent/model.joblib
+INFO:     Application startup complete.
+```
+
+Someone can find the cause from this one `ERROR` line. Two limits: the cause appears only at start-up, so the per-request lines show `503` without the reason; and `Application startup complete` is printed even though the service is not ready, so readiness must be read from `/health`, not from that line.
