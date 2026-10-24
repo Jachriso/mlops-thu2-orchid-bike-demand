@@ -1,0 +1,7 @@
+claim                       expected                  observed                    result
+health status               200                       200                         ok
+health model_version        mauvaise-valeur           baseline-32b2127e4f74       FAIL
+predict valid               200 + prediction >= 0     200 149.2911970908957       ok
+predict model_version       mauvaise-valeur           baseline-32b2127e4f74       FAIL
+predict invalid (hum=1.5)   422                       422                         ok
+exit status 1
