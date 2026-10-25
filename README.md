@@ -217,7 +217,7 @@ The script calls the running container over HTTP (no TestClient): GET /health,
 a valid POST /predict, and an invalid POST /predict (hum = 1.5, expected 422).
 It expects the service on http://127.0.0.1:8000.
 
-### identity: which id shows which model is running?
+### Identity : which id shows which model is running?
 
 Choice: `model_version`, returned by /health and /predict. It comes from
 `artifacts/model-metadata.json`, which also stores `model_sha256`. I checked that
@@ -228,7 +228,7 @@ only, because /health does not return `model_sha256`.
 Rejected: the image tag can be moved and says nothing about the model inside; the
 image ID identifies one build, not the model.
 
-### expected: who knows the expected model, and when?
+### Expected : who knows the expected model, and when?
 
 Choice: whoever builds the image reads the metadata from the image right after the
 build (step 2) and passes `model_version` to the script as an argument.
@@ -243,7 +243,7 @@ Limits: the expected value comes from the same image, so the check detects a wro
 or stale container, not a bad build. The metadata has `training_commit:
 "unavailable"`, so this check does NOT verify which code is running.
 
-### promise: what does "deployed" promise to others?
+### Promise : what does "deployed" promise to others?
 
 Choice: the container started from the README steps; /health returns 200; a valid
 /predict returns 200 with a finite, non-negative prediction; an invalid input gets
@@ -263,3 +263,50 @@ otherwise it follows "Start it".
 - Image: sha256:53a5ab37451b4017b93c7d05665768bf9f2190a403feb0a5b14877f2b3ac95e4
 - Run: `evidence/lab5-check-ok.txt` (exit 0), `evidence/lab5-check-fail.txt`
   (wrong expected version, exit 1), `evidence/lab5-logs-raw.txt`.
+
+## Lab 5 : Logging (log line, secrets)
+
+ Every request writes one JSON line to stdout. Read them with `docker logs bike` (use `docker logs bike | Select-String '"status":422'` in PowerShell to filter). 
+The `uvicorn` access log is turned off (`--no-access-log` in the `Dockerfile`) so each request appears once.
+Build with the code revision, so the logs say which code answered. 
+In PowerShell, from the repository root, with a clean tree (`git status --short` empty):
+ 
+    $rev = git rev-parse --short HEAD
+    docker build --build-arg SERVICE_REVISION=$rev -t orchid-bike:lab5 .
+ 
+Without `--build-arg`, `service_revision` is `"unknown"`.
+ 
+Example lines from this run (commit `6b85a88`, image `orchid-bike:lab5`, ID `8c5567d14241` as shown by `docker image ls`; raw logs in `evidence/`). 
+
+A valid request, a rejected one, and a rejected one on a container started without a model:
+ 
+    {"timestamp":"2026-10-25T13:26:40.416+00:00","event":"request","request_id":"ca7faa38cbb1","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":78.3,"model_version":"baseline-657f25b9a370","service_revision":"6b85a88"}
+    {"timestamp":"2026-10-25T13:26:54.999+00:00","event":"request","request_id":"1c6bb5cafae3","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":0.7,"model_version":"baseline-657f25b9a370","service_revision":"6b85a88","error_fields":["body.hum"]}
+    {"timestamp":"2026-10-25T13:41:30.003+00:00","event":"request","request_id":"dbf8b5e13088","method":"POST","path":"/predict","status":503,"outcome":"unavailable","duration_ms":2.0,"model_version":null,"service_revision":"6b85a88","reason":"no_model"}
+ 
+The response carries the same id in the `x-request-id` header, so a client can quote it to the operator. 
+The `model_version` string differs between builds (the check PR reports two different strings for one commit; my two builds gave `baseline-d1ba4d1b98e6` and `baseline-657f25b9a370`). 
+For the first one I read `model_sha256` `d24c050e…8c07`, the same value as in Lab 2; I did not read it for the second.
+ 
+**Log line : what must one request tell an operator?**
+
+Choice : `timestamp`, `request_id` (also returned in the `X-Request-ID` header), `method`, `path`, `status`, `outcome` (`ok`, `rejected`, `unavailable`, `error`, `refused`), `duration_ms`, `model_version` (null when no model is loaded) and `service_revision`. 
+Two optional fields explain failures: `reason` (`no_model`, `prediction_failed`, `invalid_prediction`) and `error_fields` (for a 422, the names of the wrong fields, for example `body.hum`). 
+An operator reading only these lines can tell which request it was, what happened, how long it took, and which model and code answered. 
+The `reason` field closes the gap noted in "Break it on purpose": a 503 per-request line now says why.
+ 
+Rejected : the default `uvicorn` access line (it shows the status but no model, code, reason or request id, and would duplicate ours); free-text messages (hard to search); logging the request body or the prediction to make debugging easier (see secrets).
+ 
+**Secrets : what must never appear in a log?**
+
+Choice : request bodies, query strings, headers (for example `Authorization`), environment variables, prediction values, text chosen by the client (any path other than `/health` and `/predict` is logged as `(other)`), and any metric computed on the test period. 
+The service has no secret today, so the rule is "log metadata, not payloads". 
+For a 422, the line lists the wrong field names, never the values sent. 
+Tests check that a body value, a query-string value, a header value and an unknown path do not appear in the line.
+ 
+Rejected : logging the whole request for easier debugging, because a payload can carry private or sensitive data, and the same rule already keeps values out of the 422 response.
+ 
+Limits :
+- If the model raises an unexpected error, the traceback is still written to the container log by the `uvicorn.error` logger, with the exception text. We did not review what such a text could contain.
+- `service_revision` is only as good as the value passed at build time (a dirty tree or a forgotten `--build-arg` gives a wrong or `"unknown"` value). The Lab 5 check script does not compare it yet, so code identity is visible in the logs but not verified by the check.
+- No log retention or access control is defined; these are local logs.
