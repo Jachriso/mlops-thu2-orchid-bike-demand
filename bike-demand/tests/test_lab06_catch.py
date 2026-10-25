@@ -25,7 +25,7 @@ def test_baseline_recompute_metric_with_tolerance():
     # 1. Strict read of metrics.json
     metrics_path = base_dir / "reports" / "metrics.json"
     if not metrics_path.exists():
-        metrics_path = base_dis.parent / "reports" / "metrics.json"
+        metrics_path = base_dir.parent / "reports" / "metrics.json"
 
     with open(metrics_path, "r") as f:
         metrics = json.load(f)
