@@ -11,7 +11,8 @@ src_path = base_dir / "src"
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
-from bike_demand.data import load_data, split_data  # noqa: E402
+from bike_demand.split import split_data  # noqa: E402
+from bike_demand.validate import load_data  # noqa: E402
 
 
 def test_baseline_recompute_metric_with_tolerance():
