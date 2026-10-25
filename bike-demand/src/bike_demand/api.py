@@ -11,19 +11,19 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
- 
+
 import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
- 
+
 from bike_demand.validate import FEATURES
- 
+
 # The uvicorn logger shows INFO lines in the container output.
 log = logging.getLogger("uvicorn.error")
- 
+
 # One JSON line per request goes to stdout, so 'docker logs' shows it.
 request_log = logging.getLogger("bike_demand.request")
 request_log.setLevel(logging.INFO)
@@ -31,39 +31,39 @@ if not request_log.handlers:
     _handler = logging.StreamHandler(sys.stdout)
     _handler.setFormatter(logging.Formatter("%(message)s"))
     request_log.addHandler(_handler)
- 
+
 DEFAULT_MODEL_PATH = "artifacts/model.joblib"
 METADATA_NAME = "model-metadata.json"
 # Only these paths are logged as they are; any other path is logged as "(other)".
 KNOWN_PATHS = {"/health", "/predict"}
 MAX_LOGGED_FIELDS = 12
- 
- 
+
+
 class ModelUnavailable(Exception):
     """Raised when the saved model cannot be used for predictions."""
- 
- 
+
+
 @dataclass(frozen=True)
 class LoadedModel:
     model: object
     version: str
- 
- 
+
+
 def _whole(low: int, high: int):
     """Integer field: JSON integers only (no strings, floats or booleans)."""
     return Field(strict=True, ge=low, le=high)
- 
- 
+
+
 def _unit():
     """Normalised weather value: a finite number in 0..1 (no strings)."""
     return Field(strict=True, ge=0, le=1, allow_inf_nan=False)
- 
- 
+
+
 class PredictRequest(BaseModel):
     """The twelve training predictors, as one flat JSON object."""
- 
+
     model_config = ConfigDict(extra="forbid")
- 
+
     season: int = _whole(1, 4)
     yr: int = _whole(0, 1)
     mnth: int = _whole(1, 12)
@@ -76,13 +76,13 @@ class PredictRequest(BaseModel):
     atemp: float = _unit()
     hum: float = _unit()
     windspeed: float = _unit()
- 
- 
+
+
 class PredictResponse(BaseModel):
     prediction: float
     model_version: str
- 
- 
+
+
 def load_model(model_path: Path, metadata_path: Path) -> LoadedModel:
     """Load the trusted local artifact or raise ``ModelUnavailable``."""
     if not model_path.is_file():
@@ -107,8 +107,8 @@ def load_model(model_path: Path, metadata_path: Path) -> LoadedModel:
     if not callable(getattr(model, "predict", None)):
         raise ModelUnavailable("loaded object has no predict method")
     return LoadedModel(model=model, version=version)
- 
- 
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Load the model once at startup; stay up (and answer 503) if unusable."""
@@ -123,8 +123,8 @@ async def lifespan(app: FastAPI):
     except ModelUnavailable as error:
         log.error("no usable model, /health and /predict answer 503: %s", error)
     yield
- 
- 
+
+
 def outcome_for(status: int | None) -> str:
     """Short word for what happened to a request, from its status code."""
     if status is None:
@@ -138,8 +138,8 @@ def outcome_for(status: int | None) -> str:
     if status >= 500:
         return "error"
     return "refused"
- 
- 
+
+
 def request_event(
     *,
     request_id: str,
@@ -153,7 +153,7 @@ def request_event(
     error_fields: list[str] | None = None,
 ) -> dict:
     """Build the one event logged for a request.
- 
+
     Only metadata: no request body, no query string, no header, no prediction
     value, no environment variable, no path chosen by the client.
     """
@@ -174,11 +174,11 @@ def request_event(
     if error_fields:
         event["error_fields"] = error_fields[:MAX_LOGGED_FIELDS]
     return event
- 
- 
+
+
 app = FastAPI(title="Bike demand prediction API", lifespan=lifespan)
- 
- 
+
+
 @app.middleware("http")
 async def log_request(request: Request, call_next):
     """Write one JSON line per request, whatever its outcome."""
@@ -207,12 +207,12 @@ async def log_request(request: Request, call_next):
             error_fields=getattr(request.state, "error_fields", None),
         )
         request_log.info(json.dumps(event, separators=(",", ":")))
- 
- 
+
+
 @app.exception_handler(RequestValidationError)
 async def invalid_request(request: Request, exc: RequestValidationError):
     """422 with location, message and type only (never echo the input).
- 
+
     Echoing the input could even break the response for values like NaN.
     The log line gets the field locations only, never the values.
     """
@@ -225,8 +225,8 @@ async def invalid_request(request: Request, exc: RequestValidationError):
         for err in errors
     ]
     return JSONResponse(status_code=422, content={"detail": detail})
- 
- 
+
+
 @app.get("/health")
 def health(request: Request):
     loaded = app.state.loaded
@@ -234,8 +234,8 @@ def health(request: Request):
         request.state.reason = "no_model"
         raise HTTPException(status_code=503, detail="no usable model loaded")
     return {"status": "ok", "model_version": loaded.version}
- 
- 
+
+
 @app.post("/predict", response_model=PredictResponse)
 def predict(payload: PredictRequest, request: Request):
     loaded = app.state.loaded
