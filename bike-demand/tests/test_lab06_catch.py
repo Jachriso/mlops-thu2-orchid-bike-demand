@@ -33,11 +33,7 @@ def test_baseline_recompute_metric_with_tolerance():
     if not data_path.exists():
         data_path = base_dir.parent / "data" / "bike_sharing_demand.csv"
 
-    try:
-        df = load_data(str(data_path))
-    except Exception:
-        df = load_data()
-
+    df = load_data(str(data_path))
     X_train, X_val, y_train, y_val = split_data(df)
 
     model = RandomForestRegressor(random_state=42)
