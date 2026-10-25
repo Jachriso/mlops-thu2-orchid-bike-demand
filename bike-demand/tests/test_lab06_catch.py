@@ -12,6 +12,7 @@ if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
 from bike_demand.split import split_data  # noqa: E402
+from bike_demand.train import DEFAULT_MODEL  # noqa: E402
 from bike_demand.validate import FEATURES, load_data  # noqa: E402
 
 
@@ -24,7 +25,7 @@ def test_baseline_recompute_metric_with_tolerance():
     # 1. Strict read of metrics.json
     metrics_path = base_dir / "reports" / "metrics.json"
     if not metrics_path.exists():
-        metrics_path = base_dir.parent / "reports" / "metrics.json"
+        metrics_path = base_dis.parent / "reports" / "metrics.json"
 
     with open(metrics_path, "r") as f:
         metrics = json.load(f)
@@ -60,7 +61,8 @@ def test_baseline_recompute_metric_with_tolerance():
     X_val = val_df[list(FEATURES)]
     y_val = val_df[target_col]
 
-    model = RandomForestRegressor(random_state=42)
+    # Use the project's exact default model hyperparameters
+    model = RandomForestRegressor(**DEFAULT_MODEL)
     model.fit(X_train, y_train)
     preds = model.predict(X_val)
     recomputed_mae = float(mean_absolute_error(y_val, preds))
