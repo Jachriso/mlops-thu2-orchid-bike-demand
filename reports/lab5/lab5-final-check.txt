@@ -1,0 +1,270 @@
+Lab 5 final check
+=================
+
+Run by:   Jade Parrilla (Jachriso), Windows 11, Windows PowerShell, Docker Desktop
+Date:     2026-10-25, 17:41-17:44 UTC
+Branch:   main
+Method:   README section "Lab 5: Deploy, log and check the service", steps 1 to 9,
+          Windows (PowerShell) blocks only, nothing else.
+
+Commit -> image -> run
+----------------------
+Commit:   d41f51c (merge of PR #11), `git rev-parse --short HEAD`
+Image:    orchid-bike:lab5, built with `docker build --build-arg SERVICE_REVISION=d41f51c -t orchid-bike:lab5 .`
+          `docker image inspect --format '{{.Id}}'` -> sha256:c2907919860ebc88360a5d187e289d45ec7765d3784b031601d7e4fe42f85abd
+          All build steps were CACHED, including the `trainer` stage: the model was trained by an
+          earlier build (metadata timestamp 2026-10-25T16:48:57Z), not by this one.
+Model:    model_version baseline-b71392fa90e5
+          model_sha256  d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07
+          training_commit "unavailable"
+Run:      container `bike` (model loaded), then container `bike-broken` (MODEL_PATH=/nonexistent/model.joblib)
+
+Results (expected from the README vs observed)
+----------------------------------------------
+Step | Claim                                   | Expected                          | Observed                                  | Result
+3    | container state                         | Up, 127.0.0.1:8000->8000/tcp      | Up, 127.0.0.1:8000->8000/tcp              | ok
+4    | GET /health                             | 200 + baseline-b71392fa90e5       | 200 {"status":"ok","model_version":"baseline-b71392fa90e5"} | ok
+5    | POST /predict ok.json                   | 200, prediction >= 0              | 200, 519.4906075228514                    | ok
+5    | POST /predict bad.json (hum=1.5)        | 422 on body.hum                   | 422 on body.hum                           | ok
+6    | log lines                               | one JSON line per request         | 3 requests -> 3 lines, service_revision d41f51c | ok
+6    | X-Request-ID = logged request_id        | same id                           | 872ce1085605 in header and in log         | ok
+7    | check_deployed.py $expected             | exit 0                            | 5 ok, exit 0                              | ok
+8    | GET /health, no model                   | 503 no usable model loaded        | 503 {"detail":"no usable model loaded"}   | ok
+8    | POST /predict ok.json, no model         | 503                               | 503                                       | ok
+8    | POST /predict bad.json, no model        | 422                               | 422                                       | ok
+8    | check_deployed.py $expected, no model   | 4 FAIL, predict invalid ok, exit 1 | 4 FAIL, predict invalid ok, exit 1       | ok
+8    | logs, no model                          | one ERROR line naming the file, reason no_model on 503 lines | both present | ok
+9    | stop                                    | containers removed                | bike-broken removed (bike removed in step 8) | ok
+
+Conclusion: every claim of the README "promise" held on main at d41f51c.
+
+Notes (what this run does not show)
+-----------------------------------
+- The check script sends its own body, so its prediction (149.29...) differs from the curl
+  prediction with ok.json (519.49...). Both are 200 with a prediction >= 0.
+- The check compares model_version only. model_sha256 and service_revision were read here by hand
+  (metadata and logs), not verified by the script.
+- In the bike-broken logs there are 6 request lines: 3 from the curl commands and 3 from the check script.
+- `ok.json` and `bad.json` were created in step 5 after the build; they are scratch files and were not committed.
+- Local run on one machine; this is not a remote CI result.
+
+
+Raw terminal output (copied unchanged)
+======================================
+
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> $rev = git rev-parse --short HEAD
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> docker build --build-arg SERVICE_REVISION=$rev -t orchid-bike:lab5 .
+[+] Building 7.7s (24/24) FINISHED                                                                                                                     docker:desktop-linux
+ => [internal] load build definition from Dockerfile                                                                                                                   0.0s
+ => => transferring dockerfile: 1.42kB                                                                                                                                 0.0s
+ => [internal] load metadata for ghcr.io/astral-sh/uv:0.12.24                                                                                                          0.7s
+ => [internal] load metadata for docker.io/library/python:3.12-slim                                                                                                    0.7s
+ => [internal] load .dockerignore                                                                                                                                      0.0s
+ => => transferring context: 178B                                                                                                                                      0.0s
+ => [base  1/15] FROM docker.io/library/python:3.12-slim@sha256:a0f57064cbdcd6285fa45f51237ab0b35ea8ebaed06a1f5973e89e19dfb86704                                       0.0s
+ => => resolve docker.io/library/python:3.12-slim@sha256:a0f57064cbdcd6285fa45f51237ab0b35ea8ebaed06a1f5973e89e19dfb86704                                              0.0s
+ => [internal] load build context                                                                                                                                      0.0s
+ => => transferring context: 2.26kB                                                                                                                                    0.0s
+ => FROM ghcr.io/astral-sh/uv:0.12.24@sha256:3af4716e991d6956a41e573eab705d0ee08500cd829ed30293eb8472f372c65a                                                          0.0s
+ => => resolve ghcr.io/astral-sh/uv:0.12.24@sha256:3af4716e991d6956a41e573eab705d0ee08500cd829ed30293eb8472f372c65a                                                    0.0s
+ => CACHED [base  2/15] RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*                                            0.0s
+ => CACHED [base  3/15] WORKDIR /app                                                                                                                                   0.0s
+ => CACHED [base  4/15] COPY --from=ghcr.io/astral-sh/uv:0.12.24 /uv /bin/                                                                                             0.0s
+ => CACHED [base  5/15] COPY bike-demand/pyproject.toml bike-demand/uv.lock ./                                                                                         0.0s
+ => CACHED [base  6/15] RUN uv sync --locked --no-install-project                                                                                                      0.0s
+ => CACHED [base  7/15] COPY bike-demand/src ./src                                                                                                                     0.0s
+ => CACHED [base  8/15] COPY bike-demand/configs ./configs                                                                                                             0.0s
+ => CACHED [base  9/15] COPY bike-demand/data ./data                                                                                                                   0.0s
+ => CACHED [base 10/15] COPY bike-demand/tests ./tests                                                                                                                 0.0s
+ => CACHED [base 11/15] COPY bike-demand/README.md bike-demand/.python-version ./                                                                                      0.0s
+ => CACHED [base 12/15] COPY bike-demand/.github ./.github                                                                                                             0.0s
+ => CACHED [base 13/15] COPY bike-demand/reports/week-01-team.md ./reports/week-01-team.md                                                                             0.0s
+ => CACHED [base 14/15] RUN uv sync --locked                                                                                                                           0.0s
+ => CACHED [base 15/15] RUN mkdir -p reports artifacts tracking                                                                                                        0.0s
+ => CACHED [trainer 1/1] RUN uv run --locked python -m bike_demand.train --config configs/baseline.yaml                                                                0.0s
+ => CACHED [stage-2 1/1] COPY --from=trainer /app/artifacts ./artifacts                                                                                                0.0s
+ => exporting to image                                                                                                                                                 6.7s
+ => => exporting layers                                                                                                                                                0.0s
+ => => exporting manifest sha256:2c2bb68f014b67d715034574f1e96cc9c0248956d5ff0738cf0aec50293b1d96                                                                      0.0s
+ => => exporting config sha256:c926eb56c70493af130a6d3e827f04935e7a92a5d874fd73484d86ae49905812                                                                        0.0s
+ => => exporting attestation manifest sha256:009996b36dcefb46cef9d7cc74dea2d35634622e986cb685fc9c4d907c143408                                                          0.0s
+ => => exporting manifest list sha256:c2907919860ebc88360a5d187e289d45ec7765d3784b031601d7e4fe42f85abd                                                                 0.0s
+ => => naming to docker.io/library/orchid-bike:lab5                                                                                                                    0.0s
+ => => unpacking to docker.io/library/orchid-bike:lab5                                                                                                                 6.6s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/jxzbaqgujnobqe2pfn8jxdzxo
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> docker image inspect --format '{{.Id}}' orchid-bike:lab5
+sha256:c2907919860ebc88360a5d187e289d45ec7765d3784b031601d7e4fe42f85abd
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> docker run --rm orchid-bike:lab5 cat artifacts/model-metadata.json
+{
+  "timestamp": "2026-10-25T16:48:57.468064+00:00",
+  "training_commit": "unavailable",
+  "working_tree_dirty": null,
+  "data_sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+  "features": [
+    "season",
+    "yr",
+    "mnth",
+    "hr",
+    "holiday",
+    "weekday",
+    "workingday",
+    "weathersit",
+    "temp",
+    "atemp",
+    "hum",
+    "windspeed"
+  ],
+  "partitions": {
+    "train": {
+      "rows": 8645,
+      "date_min": "2011-01-01",
+      "date_max": "2011-12-31"
+    },
+    "validation": {
+      "rows": 4358,
+      "date_min": "2012-01-01",
+      "date_max": "2012-06-30"
+    },
+    "test": {
+      "rows": 4376,
+      "date_min": "2012-07-01",
+      "date_max": "2012-12-31"
+    }
+  },
+  "config": {
+    "data": "data/raw/hour.csv",
+    "features": [
+      "season",
+      "yr",
+      "mnth",
+      "hr",
+      "holiday",
+      "weekday",
+      "workingday",
+      "weathersit",
+      "temp",
+      "atemp",
+      "hum",
+      "windspeed"
+    ],
+    "model": {
+      "n_estimators": 50,
+      "max_depth": 10,
+      "random_state": 42,
+      "n_jobs": 1
+    }
+  },
+  "effective_model_settings": {
+    "bootstrap": true,
+    "ccp_alpha": 0.0,
+    "criterion": "squared_error",
+    "max_depth": 10,
+    "max_features": 1.0,
+    "max_leaf_nodes": null,
+    "max_samples": null,
+    "min_impurity_decrease": 0.0,
+    "min_samples_leaf": 1,
+    "min_samples_split": 2,
+    "min_weight_fraction_leaf": 0.0,
+    "monotonic_cst": null,
+    "n_estimators": 50,
+    "n_jobs": 1,
+    "oob_score": false,
+    "random_state": 42,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "model_version": "baseline-b71392fa90e5",
+  "model_run_id": "bdd7db0c11e54283bd842aef97887048",
+  "model_sha256": "d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07"
+}
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> $expected = (docker run --rm orchid-bike:lab5 cat artifacts/model-metadata.json | Out-String | ConvertFrom-Json).model_version
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> echo $expected
+baseline-b71392fa90e5
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> docker run -d --name bike -p 127.0.0.1:8000:8000 -e MODEL_PATH=artifacts/model.joblib orchid-bike:lab5
+07643aaa991999ecc29d96758710107c14f744b8dd3a49af708f251d598e5020
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> docker ps --filter name=bike
+CONTAINER ID   IMAGE              COMMAND                  CREATED         STATUS         PORTS                      NAMES
+07643aaa9919   orchid-bike:lab5   "uv run --locked uvi…"   7 seconds ago   Up 6 seconds   127.0.0.1:8000->8000/tcp   bike
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> curl.exe -i http://127.0.0.1:8000/health
+HTTP/1.1 200 OK
+date: Sun, 25 Oct 2026 17:41:54 GMT
+server: uvicorn
+content-length: 55
+content-type: application/json
+x-request-id: 872ce1085605
+
+{"status":"ok","model_version":"baseline-b71392fa90e5"}
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> '{"season":3,"yr":1,"mnth":7,"hr":17,"holiday":0,"weekday":3,"workingday":1,"weathersit":1,"temp":0.7,"atemp":0.65,"hum":0.5,"windspeed":0.2}' | Out-File -Encoding ascii ok.json
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> '{"season":3,"yr":1,"mnth":7,"hr":17,"holiday":0,"weekday":3,"workingday":1,"weathersit":1,"temp":0.7,"atemp":0.65,"hum":1.5,"windspeed":0.2}' | Out-File -Encoding ascii bad.json
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> curl.exe -s -w " [%{http_code}]`n" -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" --data "@ok.json"
+{"prediction":519.4906075228514,"model_version":"baseline-b71392fa90e5"} [200]
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> curl.exe -s -w " [%{http_code}]`n" -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" --data "@bad.json"
+{"detail":[{"loc":["body","hum"],"msg":"Input should be less than or equal to 1","type":"less_than_equal"}]} [422]
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> docker logs bike
+   Building bike-demand @ file:///app
+      Built bike-demand @ file:///app
+Uninstalled 1 package in 1ms
+Installed 1 package in 0.98ms
+INFO:     Started server process [31]
+INFO:     Waiting for application startup.
+INFO:     model loaded: version baseline-b71392fa90e5
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+{"timestamp":"2026-10-25T17:41:55.561+00:00","event":"request","request_id":"872ce1085605","method":"GET","path":"/health","status":200,"outcome":"ok","duration_ms":1.9,"model_version":"baseline-b71392fa90e5","service_revision":"d41f51c"}
+{"timestamp":"2026-10-25T17:42:16.239+00:00","event":"request","request_id":"f3ea86d0d098","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":52.8,"model_version":"baseline-b71392fa90e5","service_revision":"d41f51c"}
+{"timestamp":"2026-10-25T17:42:21.996+00:00","event":"request","request_id":"b324bf8b5cb4","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":0.7,"model_version":"baseline-b71392fa90e5","service_revision":"d41f51c","error_fields":["body.hum"]}
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> python scripts/check_deployed.py $expected
+claim                       expected                  observed                    result
+health status               200                       200                         ok
+health model_version        baseline-b71392fa90e5     baseline-b71392fa90e5       ok
+predict valid               200 + prediction >= 0     200 149.2911970908957       ok
+predict model_version       baseline-b71392fa90e5     baseline-b71392fa90e5       ok
+predict invalid (hum=1.5)   422                       422                         ok
+exit status 0
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> echo $LASTEXITCODE
+0
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> docker rm -f bike
+bike
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> docker run -d --name bike-broken -p 127.0.0.1:8000:8000 -e MODEL_PATH=/nonexistent/model.joblib orchid-bike:lab5
+15d63322d5de84652e743560d0f91dd98d9958e17fa2b1204ca273a1f33eb307
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> curl.exe -i http://127.0.0.1:8000/health
+HTTP/1.1 503 Service Unavailable
+date: Sun, 25 Oct 2026 17:43:28 GMT
+server: uvicorn
+content-length: 35
+content-type: application/json
+x-request-id: c476d935a857
+
+{"detail":"no usable model loaded"}
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> curl.exe -s -w " [%{http_code}]`n" -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" --data "@ok.json"
+{"detail":"no usable model loaded"} [503]
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> curl.exe -s -w " [%{http_code}]`n" -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" --data "@bad.json"
+{"detail":[{"loc":["body","hum"],"msg":"Input should be less than or equal to 1","type":"less_than_equal"}]} [422]
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> python scripts/check_deployed.py $expected
+claim                       expected                  observed                    result
+health status               200                       503                         FAIL
+health model_version        baseline-b71392fa90e5     None                        FAIL
+predict valid               200 + prediction >= 0     503 None                    FAIL
+predict model_version       baseline-b71392fa90e5     None                        FAIL
+predict invalid (hum=1.5)   422                       422                         ok
+exit status 1
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> docker logs bike-broken
+   Building bike-demand @ file:///app
+      Built bike-demand @ file:///app
+Uninstalled 1 package in 1ms
+Installed 1 package in 1ms
+INFO:     Started server process [31]
+INFO:     Waiting for application startup.
+ERROR:    no usable model, /health and /predict answer 503: model file not found: /nonexistent/model.joblib
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+{"timestamp":"2026-10-25T17:43:28.990+00:00","event":"request","request_id":"c476d935a857","method":"GET","path":"/health","status":503,"outcome":"unavailable","duration_ms":1.9,"model_version":null,"service_revision":"d41f51c","reason":"no_model"}
+{"timestamp":"2026-10-25T17:43:34.704+00:00","event":"request","request_id":"59ed10cb238f","method":"POST","path":"/predict","status":503,"outcome":"unavailable","duration_ms":1.3,"model_version":null,"service_revision":"d41f51c","reason":"no_model"}
+{"timestamp":"2026-10-25T17:43:40.089+00:00","event":"request","request_id":"0f71a2296b31","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":1.5,"model_version":null,"service_revision":"d41f51c","error_fields":["body.hum"]}
+{"timestamp":"2026-10-25T17:43:45.528+00:00","event":"request","request_id":"d62ef7e24156","method":"GET","path":"/health","status":503,"outcome":"unavailable","duration_ms":0.5,"model_version":null,"service_revision":"d41f51c","reason":"no_model"}
+{"timestamp":"2026-10-25T17:43:45.532+00:00","event":"request","request_id":"76fe5a8479be","method":"POST","path":"/predict","status":503,"outcome":"unavailable","duration_ms":0.7,"model_version":null,"service_revision":"d41f51c","reason":"no_model"}
+{"timestamp":"2026-10-25T17:43:45.534+00:00","event":"request","request_id":"76221434c0ad","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":0.6,"model_version":null,"service_revision":"d41f51c","error_fields":["body.hum"]}
+PS C:\Users\jadep\OneDrive - Groupe INSEEC (POCE)\ECE\Inge 5\Machine learning in Production\mlops-thu2-orchid-bike-demand> docker rm -f bike bike-broken
+bike-broken
