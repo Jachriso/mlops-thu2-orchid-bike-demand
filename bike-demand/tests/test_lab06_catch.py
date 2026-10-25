@@ -12,7 +12,7 @@ if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
 from bike_demand.split import split_data  # noqa: E402
-from bike_demand.validate import load_data  # noqa: E402
+from bike_demand.validate import FEATURES, load_data  # noqa: E402
 
 
 def test_baseline_recompute_metric_with_tolerance():
@@ -31,7 +31,7 @@ def test_baseline_recompute_metric_with_tolerance():
 
     recorded_rf_mae = metrics["validation_mae"]["random_forest"]
 
-    # 2. Use the correct project raw data file: data/raw/hour.csv
+    # 2. Load data and split using project partitions
     possible_paths = [
         base_dir / "data" / "raw" / "hour.csv",
         base_dir.parent / "data" / "raw" / "hour.csv",
@@ -49,7 +49,16 @@ def test_baseline_recompute_metric_with_tolerance():
         raise FileNotFoundError("Could not locate hour.csv dataset in data/raw/.")
 
     df = load_data(str(data_path))
-    X_train, X_val, y_train, y_val = split_data(df)
+    partitions = split_data(df)
+
+    train_df = partitions["train"]
+    val_df = partitions["validation"]
+
+    target_col = "cnt"
+    X_train = train_df[list(FEATURES)]
+    y_train = train_df[target_col]
+    X_val = val_df[list(FEATURES)]
+    y_val = val_df[target_col]
 
     model = RandomForestRegressor(random_state=42)
     model.fit(X_train, y_train)
