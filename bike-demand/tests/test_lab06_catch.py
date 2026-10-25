@@ -1,9 +1,17 @@
 import json
+import sys
 from pathlib import Path
 
-from bike_demand.data import load_data, split_data
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
+
+# Ensure src directory is in sys.path for robust module import
+base_dir = Path(__file__).resolve().parent.parent
+src_path = base_dir / "src"
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
+
+from bike_demand.data import load_data, split_data
 
 
 def test_baseline_recompute_metric_with_tolerance():
@@ -13,7 +21,6 @@ def test_baseline_recompute_metric_with_tolerance():
     and verifies that recomputed MAE matches the recorded baseline within strict tolerance.
     """
     # 1. Strict read of metrics.json
-    base_dir = Path(__file__).resolve().parent.parent
     metrics_path = base_dir / "reports" / "metrics.json"
     with open(metrics_path, "r") as f:
         metrics = json.load(f)
@@ -21,7 +28,6 @@ def test_baseline_recompute_metric_with_tolerance():
     recorded_rf_mae = metrics["validation_mae"]["random_forest"]
 
     # 2. Recompute validation MAE using project data and model configuration (random_state=42)
-    # Ensuring data path resolves correctly in CI and locally
     data_path = base_dir / "data" / "bike_sharing_demand.csv"
     if not data_path.exists():
         data_path = base_dir.parent / "data" / "bike_sharing_demand.csv"
