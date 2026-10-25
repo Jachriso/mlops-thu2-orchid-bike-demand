@@ -21,17 +21,34 @@ def test_baseline_recompute_metric_with_tolerance():
     Strictly reads recorded metrics, re-runs the model pipeline using project code,
     and verifies that recomputed MAE matches the recorded baseline within strict tolerance.
     """
-    # 1. Strict read of metrics.json (no .get(), no pytest.skip)
+    # 1. Strict read of metrics.json
     metrics_path = base_dir / "reports" / "metrics.json"
+    if not metrics_path.exists():
+        metrics_path = base_dir.parent / "reports" / "metrics.json"
+
     with open(metrics_path, "r") as f:
         metrics = json.load(f)
 
     recorded_rf_mae = metrics["validation_mae"]["random_forest"]
 
-    # 2. Recompute validation MAE using project code
-    data_path = base_dir / "data" / "bike_sharing_demand.csv"
-    if not data_path.exists():
-        data_path = base_dir.parent / "data" / "bike_sharing_demand.csv"
+    # 2. Robustly find data file across all possible workspace structures
+    possible_paths = [
+        base_dir / "data" / "bike_sharing_demand.csv",
+        base_dir.parent / "data" / "bike_sharing_demand.csv",
+        Path("data/bike_sharing_demand.csv"),
+        Path("../data/bike_sharing_demand.csv"),
+    ]
+
+    data_path = None
+    for p in possible_paths:
+        if p.exists():
+            data_path = p
+            break
+
+    if data_path is None:
+        raise FileNotFoundError(
+            "Could not locate bike_sharing_demand.csv in any expected directory."
+        )
 
     df = load_data(str(data_path))
     X_train, X_val, y_train, y_val = split_data(df)
