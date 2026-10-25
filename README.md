@@ -181,13 +181,23 @@ Note the commit (`echo $rev`) and the image ID: they are the first two links of 
 
 ### 2. Record the expected model
 
-**Windows and macOS / Linux:**
+**Windows (PowerShell):**
 
-```
+```powershell
 docker run --rm orchid-bike:lab5 cat artifacts/model-metadata.json
+$expected = (docker run --rm orchid-bike:lab5 cat artifacts/model-metadata.json | Out-String | ConvertFrom-Json).model_version
+echo $expected
 ```
 
-Note `model_version` (for example `baseline-4afd7a832628`). It is read from the image, before the service runs, so the check cannot validate itself (see *expected*). It changes each time the model is retrained, so read it again after every build (see *identity*).
+**macOS / Linux (Terminal):**
+
+```bash
+docker run --rm orchid-bike:lab5 cat artifacts/model-metadata.json
+expected=$(docker run --rm orchid-bike:lab5 cat artifacts/model-metadata.json | python3 -c "import sys, json; print(json.load(sys.stdin)['model_version'])")
+echo $expected
+```
+
+The first command shows the whole metadata (keep `model_version` and `model_sha256` for your evidence); the second stores `model_version` in `$expected` (for example `baseline-b71392fa90e5`), used in steps 7 and 8. Keep the same terminal open until step 8. The value is read from the image, before the service runs, so the check cannot validate itself (see *expected*). It changes each time the model is retrained, so read it again after every build (see *identity*).
 
 ### 3. Start the service
 
@@ -267,14 +277,14 @@ To keep the logs as a raw file:
 **Windows (PowerShell):**
 
 ```powershell
-python scripts/check_deployed.py <model_version from step 2>
+python scripts/check_deployed.py $expected
 echo $LASTEXITCODE
 ```
 
 **macOS / Linux (Terminal):**
 
 ```bash
-python3 scripts/check_deployed.py <model_version from step 2>
+python3 scripts/check_deployed.py $expected
 echo $?
 ```
 
@@ -290,7 +300,7 @@ predict invalid (hum=1.5)   422                       422                       
 exit status 0
 ```
 
-To see it fail, pass a wrong value: the two `model_version` rows become `FAIL` and the exit status is 1.
+To see it fail, pass a wrong value (`python scripts/check_deployed.py wrong-version` on Windows, `python3 …` on macOS / Linux): the two `model_version` rows become `FAIL` and the exit status is 1.
 
 ### 8. Break it on purpose
 
@@ -304,7 +314,7 @@ docker run -d --name bike-broken -p 127.0.0.1:8000:8000 -e MODEL_PATH=/nonexiste
 curl.exe -i http://127.0.0.1:8000/health
 curl.exe -s -w " [%{http_code}]`n" -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" --data "@ok.json"
 curl.exe -s -w " [%{http_code}]`n" -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" --data "@bad.json"
-python scripts/check_deployed.py <model_version from step 2>
+python scripts/check_deployed.py $expected
 docker logs bike-broken
 ```
 
@@ -318,7 +328,7 @@ docker run -d --name bike-broken -p 127.0.0.1:8000:8000 -e MODEL_PATH=/nonexiste
 curl -i http://127.0.0.1:8000/health
 curl -s -w ' [%{http_code}]\n' -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" --data "@ok.json"
 curl -s -w ' [%{http_code}]\n' -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" --data "@bad.json"
-python3 scripts/check_deployed.py <model_version from step 2>
+python3 scripts/check_deployed.py $expected
 docker logs bike-broken
 ```
 
