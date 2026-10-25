@@ -1,0 +1,12 @@
+   Building bike-demand @ file:///app
+      Built bike-demand @ file:///app
+Uninstalled 1 package in 3ms
+Installed 1 package in 1ms
+INFO:     Started server process [32]
+INFO:     Waiting for application startup.
+ERROR:    no usable model, /health and /predict answer 503: model file not found: /nonexistent/model.joblib
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+{"timestamp":"2026-10-25T13:41:08.498+00:00","event":"request","request_id":"90f281804ce2","method":"GET","path":"/health","status":503,"outcome":"unavailable","duration_ms":2.3,"model_version":null,"service_revision":"6b85a88","reason":"no_model"}
+{"timestamp":"2026-10-25T13:41:30.003+00:00","event":"request","request_id":"dbf8b5e13088","method":"POST","path":"/predict","status":503,"outcome":"unavailable","duration_ms":2.0,"model_version":null,"service_revision":"6b85a88","reason":"no_model"}
+{"timestamp":"2026-10-25T13:41:54.544+00:00","event":"request","request_id":"25c1907cb32d","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":2.3,"model_version":null,"service_revision":"6b85a88","error_fields":["body.hum"]}

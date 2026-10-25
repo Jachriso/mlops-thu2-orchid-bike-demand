@@ -1,0 +1,17 @@
+   Building bike-demand @ file:///app
+      Built bike-demand @ file:///app
+Uninstalled 1 package in 5ms
+Installed 1 package in 1ms
+INFO:     Started server process [32]
+INFO:     Waiting for application startup.
+INFO:     model loaded: version baseline-657f25b9a370
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+{"timestamp":"2026-10-25T13:26:23.858+00:00","event":"request","request_id":"a81ea1112feb","method":"GET","path":"/health","status":200,"outcome":"ok","duration_ms":2.0,"model_version":"baseline-657f25b9a370","service_revision":"6b85a88"}
+{"timestamp":"2026-10-25T13:26:40.416+00:00","event":"request","request_id":"ca7faa38cbb1","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":78.3,"model_version":"baseline-657f25b9a370","service_revision":"6b85a88"}
+{"timestamp":"2026-10-25T13:26:54.999+00:00","event":"request","request_id":"1c6bb5cafae3","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":0.7,"model_version":"baseline-657f25b9a370","service_revision":"6b85a88","error_fields":["body.hum"]}
+{"timestamp":"2026-10-25T13:27:17.075+00:00","event":"request","request_id":"778709383c03","method":"GET","path":"(other)","status":404,"outcome":"refused","duration_ms":0.3,"model_version":"baseline-657f25b9a370","service_revision":"6b85a88"}
+{"timestamp":"2026-10-25T13:32:55.679+00:00","event":"request","request_id":"e56d7c9aa630","method":"GET","path":"/health","status":200,"outcome":"ok","duration_ms":1.0,"model_version":"baseline-657f25b9a370","service_revision":"6b85a88"}
+{"timestamp":"2026-10-25T13:32:55.718+00:00","event":"request","request_id":"fefed8b2bd55","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":7.7,"model_version":"baseline-657f25b9a370","service_revision":"6b85a88"}
+{"timestamp":"2026-10-25T13:32:55.747+00:00","event":"request","request_id":"2293b3572d32","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":0.6,"model_version":"baseline-657f25b9a370","service_revision":"6b85a88","error_fields":["body.hum"]}
+{"timestamp":"2026-10-25T13:34:25.056+00:00","event":"request","request_id":"617f9bec35e3","method":"GET","path":"/health","status":200,"outcome":"ok","duration_ms":1.2,"model_version":"baseline-657f25b9a370","service_revision":"6b85a88"}
