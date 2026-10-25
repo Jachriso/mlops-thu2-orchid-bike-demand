@@ -31,12 +31,12 @@ def test_baseline_recompute_metric_with_tolerance():
 
     recorded_rf_mae = metrics["validation_mae"]["random_forest"]
 
-    # 2. Robustly find data file across all possible workspace structures
+    # 2. Use the correct project raw data file: data/raw/hour.csv
     possible_paths = [
-        base_dir / "data" / "bike_sharing_demand.csv",
-        base_dir.parent / "data" / "bike_sharing_demand.csv",
-        Path("data/bike_sharing_demand.csv"),
-        Path("../data/bike_sharing_demand.csv"),
+        base_dir / "data" / "raw" / "hour.csv",
+        base_dir.parent / "data" / "raw" / "hour.csv",
+        Path("data/raw/hour.csv"),
+        Path("../data/raw/hour.csv"),
     ]
 
     data_path = None
@@ -46,9 +46,7 @@ def test_baseline_recompute_metric_with_tolerance():
             break
 
     if data_path is None:
-        raise FileNotFoundError(
-            "Could not locate bike_sharing_demand.csv in any expected directory."
-        )
+        raise FileNotFoundError("Could not locate hour.csv dataset in data/raw/.")
 
     df = load_data(str(data_path))
     X_train, X_val, y_train, y_val = split_data(df)
