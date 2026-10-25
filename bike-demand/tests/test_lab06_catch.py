@@ -1,75 +1,41 @@
 import json
-import sys
 from pathlib import Path
 
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error
+import pytest
 
-# Ensure src directory is in sys.path
-base_dir = Path(__file__).resolve().parent.parent
-src_path = base_dir / "src"
-if str(src_path) not in sys.path:
-    sys.path.insert(0, str(src_path))
+from bike_demand.split import split_data
+from bike_demand.train import compare_mean, fit_evaluate, load_config
+from bike_demand.validate import load_data
 
-from bike_demand.split import split_data  # noqa: E402
-from bike_demand.train import DEFAULT_MODEL  # noqa: E402
-from bike_demand.validate import FEATURES, load_data  # noqa: E402
+pytestmark = pytest.mark.regression
+ROOT = Path(__file__).parents[1]
+
+# Measured variation: the seed is fixed (random_state=42, n_jobs=1) and the
+# recorded readback gives reload_mae_delta = 0.0. Three recomputations on
+# Windows gave a delta of exactly 0.0 for both MAEs; the CI run on
+# ubuntu-24.04 is the second platform. The tolerance only absorbs float
+# rounding across platforms.
+TOLERANCE = 1e-6
 
 
-def test_baseline_recompute_metric_with_tolerance():
-    """
-    Lab 6 - Catch test:
-    Strictly reads recorded metrics, re-runs the model pipeline using project code,
-    and verifies that recomputed MAE matches the recorded baseline within strict tolerance.
-    """
-    # 1. Strict read of metrics.json
-    metrics_path = base_dir / "reports" / "metrics.json"
-    if not metrics_path.exists():
-        metrics_path = base_dir.parent / "reports" / "metrics.json"
+@pytest.fixture(scope="module")
+def recorded():
+    return json.loads((ROOT / "reports/metrics.json").read_text())["validation_mae"]
 
-    with open(metrics_path, "r") as f:
-        metrics = json.load(f)
 
-    recorded_rf_mae = metrics["validation_mae"]["random_forest"]
+@pytest.fixture(scope="module")
+def partitions():
+    config = load_config(ROOT / "configs/baseline.yaml")
+    return config, split_data(load_data(ROOT / config["data"]))
 
-    # 2. Load data and split using project partitions
-    possible_paths = [
-        base_dir / "data" / "raw" / "hour.csv",
-        base_dir.parent / "data" / "raw" / "hour.csv",
-        Path("data/raw/hour.csv"),
-        Path("../data/raw/hour.csv"),
-    ]
 
-    data_path = None
-    for p in possible_paths:
-        if p.exists():
-            data_path = p
-            break
+def test_random_forest_validation_mae_matches_recorded(recorded, partitions):
+    config, parts = partitions
+    _, _, mae = fit_evaluate(parts["train"], parts["validation"], config)
+    assert mae == pytest.approx(recorded["random_forest"], abs=TOLERANCE)
 
-    if data_path is None:
-        raise FileNotFoundError("Could not locate hour.csv dataset in data/raw/.")
 
-    df = load_data(str(data_path))
-    partitions = split_data(df)
-
-    train_df = partitions["train"]
-    val_df = partitions["validation"]
-
-    target_col = "cnt"
-    X_train = train_df[list(FEATURES)]
-    y_train = train_df[target_col]
-    X_val = val_df[list(FEATURES)]
-    y_val = val_df[target_col]
-
-    # Use the project's exact default model hyperparameters
-    model = RandomForestRegressor(**DEFAULT_MODEL)
-    model.fit(X_train, y_train)
-    preds = model.predict(X_val)
-    recomputed_mae = float(mean_absolute_error(y_val, preds))
-
-    # 3. Tolerance justified by metrics.json reload_mae_delta = 0.0 with fixed seed
-    tolerance = 1e-5
-
-    assert abs(recomputed_mae - recorded_rf_mae) <= tolerance, (
-        f"Recomputed MAE ({recomputed_mae}) diverged from recorded baseline ({recorded_rf_mae})"
-    )
+def test_naive_mean_validation_mae_matches_recorded(recorded, partitions):
+    _, parts = partitions
+    _, mae = compare_mean(parts["train"]["cnt"], parts["validation"]["cnt"])
+    assert mae == pytest.approx(recorded["naive_train_mean"], abs=TOLERANCE)
