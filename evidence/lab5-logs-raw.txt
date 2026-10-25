@@ -1,0 +1,20 @@
+INFO:     Started server process [9]
+INFO:     Waiting for application startup.
+INFO:     model loaded: version baseline-32b2127e4f74
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     172.17.0.1:59326 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59420 - "POST /predict HTTP/1.1" 200 OK
+INFO:     172.17.0.1:62902 - "POST /predict HTTP/1.1" 422 Unprocessable Entity
+INFO:     172.17.0.1:58990 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59002 - "POST /predict HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59010 - "POST /predict HTTP/1.1" 422 Unprocessable Entity
+INFO:     172.17.0.1:59014 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59022 - "POST /predict HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59038 - "POST /predict HTTP/1.1" 422 Unprocessable Entity
+INFO:     172.17.0.1:60098 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:60114 - "POST /predict HTTP/1.1" 200 OK
+INFO:     172.17.0.1:60118 - "POST /predict HTTP/1.1" 422 Unprocessable Entity
+INFO:     172.17.0.1:61086 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:61088 - "POST /predict HTTP/1.1" 200 OK
+INFO:     172.17.0.1:61090 - "POST /predict HTTP/1.1" 422 Unprocessable Entity

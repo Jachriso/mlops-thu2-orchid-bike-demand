@@ -200,3 +200,66 @@ INFO:     Application startup complete.
 ```
 
 Someone can find the cause from this one `ERROR` line. Two limits: the cause appears only at start-up, so the per-request lines show `503` without the reason; and `Application startup complete` is printed even though the service is not ready, so readiness must be read from `/health`, not from that line.
+## Lab 5: Check (identity, expected, promise)
+
+### How to run the check
+
+1. Build and start the container exactly as in "Lab 5: Deploy / Start it" above
+   (image `orchid-bike:lab5`, container `bike`).
+2. Record the expected values from the image, not from the running service:
+   `docker run --rm orchid-bike:lab5 cat artifacts/model-metadata.json`
+   and note `model_version` and `model_sha256`.
+3. From another terminal, at the repository root (Python 3, standard library only):
+   `python3 scripts/check_deployed.py <expected_model_version>`
+   Exit status 0 means every claim matched; 1 means at least one FAIL line.
+
+The script calls the running container over HTTP (no TestClient): GET /health,
+a valid POST /predict, and an invalid POST /predict (hum = 1.5, expected 422).
+It expects the service on http://127.0.0.1:8000.
+
+### identity: which id shows which model is running?
+
+Choice: `model_version`, returned by /health and /predict. It comes from
+`artifacts/model-metadata.json`, which also stores `model_sha256`. I checked that
+`sha256sum artifacts/model.joblib` in the container gives the same value as
+`model_sha256` in the metadata (d24c050e...). The check compares `model_version`
+only, because /health does not return `model_sha256`.
+
+Rejected: the image tag can be moved and says nothing about the model inside; the
+image ID identifies one build, not the model.
+
+### expected: who knows the expected model, and when?
+
+Choice: whoever builds the image reads the metadata from the image right after the
+build (step 2) and passes `model_version` to the script as an argument.
+
+Rejected: reading the expected value from the running service (the check would
+validate itself), and hard-coding it in the repository. On the same commit
+(cab9507), my build gave `baseline-32b2127e4f74` and PR #8 reports
+`baseline-42b3b51f3431`; I do not know why they differ, so a fixed value in the
+repo would fail.
+
+Limits: the expected value comes from the same image, so the check detects a wrong
+or stale container, not a bad build. The metadata has `training_commit:
+"unavailable"`, so this check does NOT verify which code is running.
+
+### promise: what does "deployed" promise to others?
+
+Choice: the container started from the README steps; /health returns 200; a valid
+/predict returns 200 with a finite, non-negative prediction; an invalid input gets
+422; and `model_version` equals the value recorded at build time. The check exits 0.
+
+It does not promise model quality, code identity, CI results or load behaviour.
+
+Rejected: "the container is running", which does not show which model answers.
+
+### Evidence (this run)
+
+My run used `docker build -t bike-demand:dev .` and a container named `c1`
+(`docker run --rm --name c1 -p 127.0.0.1:8000:8000 -e MODEL_PATH=artifacts/model.joblib bike-demand:dev`);
+otherwise it follows "Start it".
+
+- Commit: cab9507b000c6c7ce408eadfc618526eb6e92bc7
+- Image: sha256:53a5ab37451b4017b93c7d05665768bf9f2190a403feb0a5b14877f2b3ac95e4
+- Run: `evidence/lab5-check-ok.txt` (exit 0), `evidence/lab5-check-fail.txt`
+  (wrong expected version, exit 1), `evidence/lab5-logs-raw.txt`.
