@@ -1,0 +1,28 @@
+# Why uv run reinstalls bike-demand at each container start
+# Run by Jade on Windows 11, Docker Desktop, 2026-11-08T15:30Z, image orchid-bike:lab5 sha256:c2907919860ebc88360a5d187e289d45ec7765d3784b031601d7e4fe42f85abd (built at d41f51c)
+
+$ docker run --rm orchid-bike:lab5 uv run --locked -v python -c "print(1)"   (filtered: lines about bike-demand)
+DEBUG Discovered project `bike-demand` at: /app
+DEBUG Computed cache info: Timestamp(SystemTime { tv_sec: 1792950053, tv_nsec: 332345872 }), None, None, {}, {"src": Some(Timestamp(Timestamp(SystemTime { tv_sec: 1792950058, tv_nsec: 825124074 })))}. Most recently modified: pyproject.toml
+DEBUG Requirement installed, but not fresh: bike-demand==0.1.0 (from file:///app)
+DEBUG Computed cache info: Timestamp(SystemTime { tv_sec: 1792950053, tv_nsec: 332345872 }), None, None, {}, {"src": Some(Timestamp(Timestamp(SystemTime { tv_sec: 1792950058, tv_nsec: 825124074 })))}. Most recently modified: pyproject.toml
+DEBUG Identified uncached distribution: bike-demand @ file:///app
+DEBUG Computed cache info: Timestamp(SystemTime { tv_sec: 1792950053, tv_nsec: 332345872 }), None, None, {}, {"src": Some(Timestamp(Timestamp(SystemTime { tv_sec: 1792950058, tv_nsec: 825124074 })))}. Most recently modified: pyproject.toml
+DEBUG Cached revision does not match expected cache info for: bike-demand @ file:///app
+   Building bike-demand @ file:///app
+DEBUG Building: bike-demand @ file:///app
+DEBUG Creating build environment for: bike-demand @ file:///app
+DEBUG Built `bike-demand @ file:///app` into `bike_demand-0.1.0-py3-none-any.whl`
+      Built bike-demand @ file:///app
+DEBUG Uninstalled bike-demand (9 files, 1 directory)
+Uninstalled 1 package in 0.90ms
+Installed 1 package in 0.68ms
+ ~ bike-demand==0.1.0 (from file:///app)
+1
+
+$ cat .venv/lib/python3.12/site-packages/bike_demand-0.1.0.dist-info/uv_cache.json   (recorded by uv sync --locked during the build)
+{"timestamp":{"secs_since_epoch":1792773102,"nanos_since_epoch":299937723},"commit":null,"tags":null,"env":{},"directories":{"src":{"secs_since_epoch":1792946927,"nanos_since_epoch":751122323}}}
+
+$ stat -c "%n mtime=%Y ctime=%Z" pyproject.toml src
+/app/pyproject.toml mtime=1792355281 ctime=1792950053
+/app/src mtime=1791473067 ctime=1792950058

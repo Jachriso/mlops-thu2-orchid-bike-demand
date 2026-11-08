@@ -1,0 +1,1173 @@
+﻿2026-11-08T14:59:36.0280285Z Current runner version: '2.338.2'
+2026-11-08T14:59:36.0302498Z ##[group]Runner Image Provisioner
+2026-11-08T14:59:36.0303258Z Hosted Compute Agent
+2026-11-08T14:59:36.0303754Z Version: 20261028.624
+2026-11-08T14:59:36.0304597Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-08T14:59:36.0305251Z Build Date: 2026-10-28T21:51:42Z
+2026-11-08T14:59:36.0305902Z Worker ID: {94d6bd86-bcd7-45e1-a7bd-a1d1c52028d3}
+2026-11-08T14:59:36.0306507Z Region: westus3
+2026-11-08T14:59:36.0306969Z Cloud: Azure
+2026-11-08T14:59:36.0307488Z ##[endgroup]
+2026-11-08T14:59:36.0308659Z ##[group]Operating System
+2026-11-08T14:59:36.0309235Z Ubuntu
+2026-11-08T14:59:36.0309744Z 24.04.5
+2026-11-08T14:59:36.0310202Z LTS
+2026-11-08T14:59:36.0310700Z ##[endgroup]
+2026-11-08T14:59:36.0311184Z ##[group]Runner Image
+2026-11-08T14:59:36.0311850Z Image: ubuntu-24.04
+2026-11-08T14:59:36.0312389Z Version: 20261101.360.1
+2026-11-08T14:59:36.0313503Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-08T14:59:36.0315165Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-08T14:59:36.0316101Z ##[endgroup]
+2026-11-08T14:59:36.0317047Z ##[group]GITHUB_TOKEN Permissions
+2026-11-08T14:59:36.0318750Z Contents: read
+2026-11-08T14:59:36.0319277Z Metadata: read
+2026-11-08T14:59:36.0319761Z ##[endgroup]
+2026-11-08T14:59:36.0321652Z Secret source: Actions
+2026-11-08T14:59:36.0322477Z Cache mode: write
+2026-11-08T14:59:36.0323147Z Prepare workflow directory
+2026-11-08T14:59:36.0759765Z Prepare all required actions
+2026-11-08T14:59:36.0801613Z Getting action download info
+2026-11-08T14:59:36.3925240Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-08T14:59:36.5444816Z Download action repository 'google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093' (SHA:7c6bc770dae815cd3e89ee6cdf493a5fab2cc093)
+2026-11-08T14:59:37.0583618Z Download action repository 'google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db' (SHA:aa5489c8933f4cc7a4f7d45035b3b1440c9c10db)
+2026-11-08T14:59:37.5564684Z Download action repository 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-11-08T14:59:37.7738101Z Complete job name: deploy
+2026-11-08T14:59:37.8448003Z ##[group]Run for v in WIF_PROVIDER DEPLOY_SA AR_REPO; do
+2026-11-08T14:59:37.8449290Z [36;1mfor v in WIF_PROVIDER DEPLOY_SA AR_REPO; do[0m
+2026-11-08T14:59:37.8450675Z [36;1m  if [ -z "${!v}" ]; then echo "::error::missing repository variable for $v"; exit 1; fi[0m
+2026-11-08T14:59:37.8451936Z [36;1mdone[0m
+2026-11-08T14:59:37.8475676Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-08T14:59:37.8476929Z env:
+2026-11-08T14:59:37.8477593Z   PROJECT_ID: mlops-demo-512323
+2026-11-08T14:59:37.8478408Z   REGION: europe-west1
+2026-11-08T14:59:37.8479228Z   SERVICE: mlops-thu2-orchid-bike-demand-demo
+2026-11-08T14:59:37.8480893Z   WIF_PROVIDER: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T14:59:37.8482750Z   DEPLOY_SA: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T14:59:37.8483933Z   AR_REPO: orchid-bike
+2026-11-08T14:59:37.8484861Z   SHA: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T14:59:37.8485791Z ##[endgroup]
+2026-11-08T14:59:37.8899116Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-08T14:59:37.8900300Z with:
+2026-11-08T14:59:37.8900998Z   ref: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T14:59:37.8901935Z   persist-credentials: false
+2026-11-08T14:59:37.8902830Z   repository: Jachriso/mlops-thu2-orchid-bike-demand
+2026-11-08T14:59:37.8910033Z   token: ***
+2026-11-08T14:59:37.8910690Z   ssh-strict: true
+2026-11-08T14:59:37.8911345Z   ssh-user: git
+2026-11-08T14:59:37.8911975Z   clean: true
+2026-11-08T14:59:37.8912651Z   sparse-checkout-cone-mode: true
+2026-11-08T14:59:37.8913734Z   fetch-depth: 1
+2026-11-08T14:59:37.8914616Z   fetch-tags: false
+2026-11-08T14:59:37.8915313Z   show-progress: true
+2026-11-08T14:59:37.8916033Z   lfs: false
+2026-11-08T14:59:37.8916667Z   submodules: false
+2026-11-08T14:59:37.8917358Z   set-safe-directory: true
+2026-11-08T14:59:37.8918144Z   allow-unsafe-pr-checkout: false
+2026-11-08T14:59:37.8918934Z env:
+2026-11-08T14:59:37.8919618Z   PROJECT_ID: mlops-demo-512323
+2026-11-08T14:59:37.8920562Z   REGION: europe-west1
+2026-11-08T14:59:37.8921356Z   SERVICE: mlops-thu2-orchid-bike-demand-demo
+2026-11-08T14:59:37.8922965Z   WIF_PROVIDER: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T14:59:37.8924975Z   DEPLOY_SA: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T14:59:37.8926110Z   AR_REPO: orchid-bike
+2026-11-08T14:59:37.8926890Z   SHA: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T14:59:37.8927764Z ##[endgroup]
+2026-11-08T14:59:38.1962974Z Syncing repository: Jachriso/mlops-thu2-orchid-bike-demand
+2026-11-08T14:59:38.1965483Z ##[group]Getting Git version info
+2026-11-08T14:59:38.1966952Z Working directory is '/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand'
+2026-11-08T14:59:38.1968919Z [command]/usr/bin/git version
+2026-11-08T14:59:38.2262498Z git version 2.56.0
+2026-11-08T14:59:38.2283705Z ##[endgroup]
+2026-11-08T14:59:38.2300762Z Temporarily overriding HOME='/home/runner/work/_temp/b132c1fb-3ae0-48d3-8262-139718e318c6' before making global git config changes
+2026-11-08T14:59:38.2304566Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-08T14:59:38.2308481Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand
+2026-11-08T14:59:38.2357333Z Deleting the contents of '/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand'
+2026-11-08T14:59:38.2363916Z ##[group]Determining repository object format
+2026-11-08T14:59:38.2366080Z ##[endgroup]
+2026-11-08T14:59:38.2367663Z ##[group]Initializing the repository
+2026-11-08T14:59:38.2371516Z [command]/usr/bin/git init /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand
+2026-11-08T14:59:38.2485633Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-08T14:59:38.2487976Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-08T14:59:38.2490335Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-08T14:59:38.2492161Z hint: call:
+2026-11-08T14:59:38.2493291Z hint:
+2026-11-08T14:59:38.2494767Z hint: 	git config --global init.defaultBranch <name>
+2026-11-08T14:59:38.2496674Z hint:
+2026-11-08T14:59:38.2498337Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-08T14:59:38.2501093Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-08T14:59:38.2503280Z hint:
+2026-11-08T14:59:38.2504964Z hint: 	git branch -m <name>
+2026-11-08T14:59:38.2506544Z hint:
+2026-11-08T14:59:38.2508386Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-08T14:59:38.2512073Z Initialized empty Git repository in /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/.git/
+2026-11-08T14:59:38.2518567Z [command]/usr/bin/git remote add origin https://github.com/Jachriso/mlops-thu2-orchid-bike-demand
+2026-11-08T14:59:38.2561484Z ##[endgroup]
+2026-11-08T14:59:38.2563199Z ##[group]Disabling automatic garbage collection
+2026-11-08T14:59:38.2565182Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-08T14:59:38.2597275Z ##[endgroup]
+2026-11-08T14:59:38.2599014Z ##[group]Setting up auth
+2026-11-08T14:59:38.2600343Z Removing SSH command configuration
+2026-11-08T14:59:38.2602985Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-08T14:59:38.2658150Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-08T14:59:38.3373340Z Removing HTTP extra header
+2026-11-08T14:59:38.3376420Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-08T14:59:38.3406071Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-08T14:59:38.3625097Z Removing includeIf entries pointing to credentials config files
+2026-11-08T14:59:38.3633007Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-08T14:59:38.3673487Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-08T14:59:38.3884410Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-08T14:59:38.3927810Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/.git.path /home/runner/work/_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:38.3968351Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:38.4005559Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:38.4042607Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:38.4077772Z ##[endgroup]
+2026-11-08T14:59:38.4078981Z ##[group]Fetching the repository
+2026-11-08T14:59:38.4084618Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T14:59:39.2321441Z From https://github.com/Jachriso/mlops-thu2-orchid-bike-demand
+2026-11-08T14:59:39.2322667Z  * branch            4287323da4162adfc1d8039b29e050ae9dbfc4ee -> FETCH_HEAD
+2026-11-08T14:59:39.2332500Z [command]/usr/bin/git rev-parse --verify --quiet 4287323da4162adfc1d8039b29e050ae9dbfc4ee^{object}
+2026-11-08T14:59:39.2366104Z 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T14:59:39.2371008Z ##[endgroup]
+2026-11-08T14:59:39.2371591Z ##[group]Determining the checkout info
+2026-11-08T14:59:39.2375202Z ##[endgroup]
+2026-11-08T14:59:39.2375865Z [command]/usr/bin/git sparse-checkout disable
+2026-11-08T14:59:39.2434964Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-08T14:59:39.2475109Z ##[group]Checking out the ref
+2026-11-08T14:59:39.2479466Z [command]/usr/bin/git checkout --progress --force 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T14:59:39.2721776Z Note: switching to '4287323da4162adfc1d8039b29e050ae9dbfc4ee'.
+2026-11-08T14:59:39.2722169Z 
+2026-11-08T14:59:39.2722368Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-08T14:59:39.2723013Z changes and commit them, and you can discard any commits you make in this
+2026-11-08T14:59:39.2723420Z state without impacting any branches by switching back to a branch.
+2026-11-08T14:59:39.2723752Z 
+2026-11-08T14:59:39.2723912Z If you want to create a new branch to retain commits you create, you may
+2026-11-08T14:59:39.2724520Z do so (now or later) by using -c with the switch command. Example:
+2026-11-08T14:59:39.2724740Z 
+2026-11-08T14:59:39.2724847Z   git switch -c <new-branch-name>
+2026-11-08T14:59:39.2725007Z 
+2026-11-08T14:59:39.2725117Z Or undo this operation with:
+2026-11-08T14:59:39.2725252Z 
+2026-11-08T14:59:39.2725476Z   git switch -
+2026-11-08T14:59:39.2725596Z 
+2026-11-08T14:59:39.2725793Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-08T14:59:39.2726039Z 
+2026-11-08T14:59:39.2726199Z HEAD is now at 4287323 Merge pull request #15 from Jachriso/lab-06-deploy
+2026-11-08T14:59:39.2735863Z ##[endgroup]
+2026-11-08T14:59:39.2787049Z [command]/usr/bin/git log -1 --format=%H
+2026-11-08T14:59:39.2820504Z 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T14:59:39.2828972Z ##[group]Removing auth
+2026-11-08T14:59:39.2829474Z Removing SSH command configuration
+2026-11-08T14:59:39.2832867Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-08T14:59:39.2872661Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-08T14:59:39.3099771Z Removing HTTP extra header
+2026-11-08T14:59:39.3103763Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-08T14:59:39.3146235Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-08T14:59:39.3364468Z Removing includeIf entries pointing to credentials config files
+2026-11-08T14:59:39.3368693Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-08T14:59:39.3402862Z includeif.gitdir:/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/.git.path
+2026-11-08T14:59:39.3403780Z includeif.gitdir:/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/.git/worktrees/*.path
+2026-11-08T14:59:39.3404615Z includeif.gitdir:/github/workspace/.git.path
+2026-11-08T14:59:39.3405284Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-08T14:59:39.3426064Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/.git.path
+2026-11-08T14:59:39.3451930Z /home/runner/work/_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:39.3462824Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/.git.path /home/runner/work/_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:39.3509723Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/.git/worktrees/*.path
+2026-11-08T14:59:39.3540962Z /home/runner/work/_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:39.3549961Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:39.3588265Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-08T14:59:39.3617276Z /github/runner_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:39.3625320Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:39.3663631Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-08T14:59:39.3691170Z /github/runner_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:39.3699130Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config
+2026-11-08T14:59:39.3737826Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-08T14:59:39.3941543Z Removing credentials config '/home/runner/work/_temp/git-credentials-81f86bd6-4d6f-49dc-98c4-2728862e4c30.config'
+2026-11-08T14:59:39.3950816Z ##[endgroup]
+2026-11-08T14:59:39.4127389Z ##[group]Run google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093
+2026-11-08T14:59:39.4127754Z with:
+2026-11-08T14:59:39.4128162Z   workload_identity_provider: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T14:59:39.4128710Z   service_account: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T14:59:39.4129055Z   create_credentials_file: true
+2026-11-08T14:59:39.4129303Z   export_environment_variables: true
+2026-11-08T14:59:39.4129566Z   universe: googleapis.com
+2026-11-08T14:59:39.4129782Z   cleanup_credentials: true
+2026-11-08T14:59:39.4129988Z   access_token_lifetime: 3600s
+2026-11-08T14:59:39.4130293Z   access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+2026-11-08T14:59:39.4130637Z   id_token_include_email: false
+2026-11-08T14:59:39.4130837Z env:
+2026-11-08T14:59:39.4131006Z   PROJECT_ID: mlops-demo-512323
+2026-11-08T14:59:39.4131210Z   REGION: europe-west1
+2026-11-08T14:59:39.4131465Z   SERVICE: mlops-thu2-orchid-bike-demand-demo
+2026-11-08T14:59:39.4131902Z   WIF_PROVIDER: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T14:59:39.4132392Z   DEPLOY_SA: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T14:59:39.4132692Z   AR_REPO: orchid-bike
+2026-11-08T14:59:39.4132899Z   SHA: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T14:59:39.4133137Z ##[endgroup]
+2026-11-08T14:59:39.7459321Z Created credentials file at "/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json"
+2026-11-08T14:59:39.9256482Z ##[group]Run google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db
+2026-11-08T14:59:39.9256870Z with:
+2026-11-08T14:59:39.9257050Z   version: latest
+2026-11-08T14:59:39.9257236Z   skip_install: false
+2026-11-08T14:59:39.9257423Z   cache: false
+2026-11-08T14:59:39.9257594Z env:
+2026-11-08T14:59:39.9257770Z   PROJECT_ID: mlops-demo-512323
+2026-11-08T14:59:39.9257989Z   REGION: europe-west1
+2026-11-08T14:59:39.9258208Z   SERVICE: mlops-thu2-orchid-bike-demand-demo
+2026-11-08T14:59:39.9258646Z   WIF_PROVIDER: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T14:59:39.9259149Z   DEPLOY_SA: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T14:59:39.9259452Z   AR_REPO: orchid-bike
+2026-11-08T14:59:39.9259661Z   SHA: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T14:59:39.9260226Z   CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T14:59:39.9261007Z   GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T14:59:39.9261728Z   GOOGLE_GHA_CREDS_PATH: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T14:59:39.9262201Z   CLOUDSDK_CORE_PROJECT: mlops-demo-512323
+2026-11-08T14:59:39.9262440Z   CLOUDSDK_PROJECT: mlops-demo-512323
+2026-11-08T14:59:39.9262670Z   GCLOUD_PROJECT: mlops-demo-512323
+2026-11-08T14:59:39.9262893Z   GCP_PROJECT: mlops-demo-512323
+2026-11-08T14:59:39.9263123Z   GOOGLE_CLOUD_PROJECT: mlops-demo-512323
+2026-11-08T14:59:39.9263345Z ##[endgroup]
+2026-11-08T14:59:40.7753564Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/41e1916c-a132-473b-80c1-489c57a37727 -f /home/runner/work/_temp/12ae7b23-1cc7-4a20-9261-6d68c60b53f9
+2026-11-08T14:59:44.9979622Z Successfully authenticated
+2026-11-08T14:59:45.0146548Z ##[group]Run IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${AR_REPO}/orchid-bike:${SHA}"
+2026-11-08T14:59:45.0147562Z [36;1mIMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${AR_REPO}/orchid-bike:${SHA}"[0m
+2026-11-08T14:59:45.0148140Z [36;1mecho "IMAGE=$IMAGE" >> "$GITHUB_ENV"[0m
+2026-11-08T14:59:45.0148654Z [36;1mdocker build --build-arg SERVICE_REVISION="${SHA::7}" -t "$IMAGE" .[0m
+2026-11-08T14:59:45.0149316Z [36;1m# The model is trained inside this build, so the expected model_version[0m
+2026-11-08T14:59:45.0149867Z [36;1m# comes from this image, not from a laptop.[0m
+2026-11-08T14:59:45.0150473Z [36;1mEXPECTED=$(docker run --rm --entrypoint cat "$IMAGE" artifacts/model-metadata.json \[0m
+2026-11-08T14:59:45.0151215Z [36;1m  | python3 -c "import json,sys; print(json.load(sys.stdin)['model_version'])")[0m
+2026-11-08T14:59:45.0151815Z [36;1mecho "EXPECTED_MODEL_VERSION=$EXPECTED" >> "$GITHUB_ENV"[0m
+2026-11-08T14:59:45.0152254Z [36;1mecho "commit $SHA"[0m
+2026-11-08T14:59:45.0152628Z [36;1mecho "image  $IMAGE"[0m
+2026-11-08T14:59:45.0153000Z [36;1mecho "model  $EXPECTED"[0m
+2026-11-08T14:59:45.0172993Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-08T14:59:45.0173289Z env:
+2026-11-08T14:59:45.0173481Z   PROJECT_ID: mlops-demo-512323
+2026-11-08T14:59:45.0173704Z   REGION: europe-west1
+2026-11-08T14:59:45.0173928Z   SERVICE: mlops-thu2-orchid-bike-demand-demo
+2026-11-08T14:59:45.0174551Z   WIF_PROVIDER: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T14:59:45.0175055Z   DEPLOY_SA: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T14:59:45.0175352Z   AR_REPO: orchid-bike
+2026-11-08T14:59:45.0175557Z   SHA: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T14:59:45.0176092Z   CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T14:59:45.0176869Z   GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T14:59:45.0177594Z   GOOGLE_GHA_CREDS_PATH: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T14:59:45.0178082Z   CLOUDSDK_CORE_PROJECT: mlops-demo-512323
+2026-11-08T14:59:45.0178343Z   CLOUDSDK_PROJECT: mlops-demo-512323
+2026-11-08T14:59:45.0178572Z   GCLOUD_PROJECT: mlops-demo-512323
+2026-11-08T14:59:45.0178789Z   GCP_PROJECT: mlops-demo-512323
+2026-11-08T14:59:45.0179004Z   GOOGLE_CLOUD_PROJECT: mlops-demo-512323
+2026-11-08T14:59:45.0179291Z   CLOUDSDK_METRICS_ENVIRONMENT: github-actions-setup-gcloud
+2026-11-08T14:59:45.0179583Z   CLOUDSDK_METRICS_ENVIRONMENT_VERSION: 3.0.1
+2026-11-08T14:59:45.0179812Z ##[endgroup]
+2026-11-08T14:59:45.6770546Z #0 building with "default" instance using docker driver
+2026-11-08T14:59:45.6770870Z 
+2026-11-08T14:59:45.6771087Z #1 [internal] load build definition from Dockerfile
+2026-11-08T14:59:45.6771530Z #1 transferring dockerfile: 1.39kB done
+2026-11-08T14:59:45.6771930Z #1 DONE 0.0s
+2026-11-08T14:59:45.6772093Z 
+2026-11-08T14:59:45.6772299Z #2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.24
+2026-11-08T14:59:45.8761164Z #2 ...
+2026-11-08T14:59:45.8761357Z 
+2026-11-08T14:59:45.8761581Z #3 [auth] library/python:pull token for registry-1.docker.io
+2026-11-08T14:59:45.8761966Z #3 DONE 0.0s
+2026-11-08T14:59:46.0269558Z 
+2026-11-08T14:59:46.0269975Z #4 [internal] load metadata for docker.io/library/python:3.12-slim
+2026-11-08T14:59:46.2753389Z #4 ...
+2026-11-08T14:59:46.2753554Z 
+2026-11-08T14:59:46.2753726Z #2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.24
+2026-11-08T14:59:46.2754110Z #2 DONE 0.7s
+2026-11-08T14:59:46.3796264Z 
+2026-11-08T14:59:46.3796780Z #4 [internal] load metadata for docker.io/library/python:3.12-slim
+2026-11-08T14:59:46.3797124Z #4 DONE 0.8s
+2026-11-08T14:59:46.3797226Z 
+2026-11-08T14:59:46.3797322Z #5 [internal] load .dockerignore
+2026-11-08T14:59:46.3797840Z #5 transferring context: 165B done
+2026-11-08T14:59:46.3798226Z #5 DONE 0.0s
+2026-11-08T14:59:46.3798521Z 
+2026-11-08T14:59:46.3798632Z #6 [internal] load build context
+2026-11-08T14:59:46.3798890Z #6 DONE 0.0s
+2026-11-08T14:59:46.3799020Z 
+2026-11-08T14:59:46.3799408Z #7 FROM ghcr.io/astral-sh/uv:0.12.24@sha256:3af4716e991d6956a41e573eab705d0ee08500cd829ed30293eb8472f372c65a
+2026-11-08T14:59:46.3800342Z #7 resolve ghcr.io/astral-sh/uv:0.12.24@sha256:3af4716e991d6956a41e573eab705d0ee08500cd829ed30293eb8472f372c65a done
+2026-11-08T14:59:46.4832434Z #7 ...
+2026-11-08T14:59:46.4832638Z 
+2026-11-08T14:59:46.4832855Z #6 [internal] load build context
+2026-11-08T14:59:46.4833278Z #6 transferring context: 1.43MB 0.0s done
+2026-11-08T14:59:46.4833645Z #6 DONE 0.0s
+2026-11-08T14:59:46.4833799Z 
+2026-11-08T14:59:46.4834353Z #7 FROM ghcr.io/astral-sh/uv:0.12.24@sha256:3af4716e991d6956a41e573eab705d0ee08500cd829ed30293eb8472f372c65a
+2026-11-08T14:59:46.4834953Z #7 sha256:3af4716e991d6956a41e573eab705d0ee08500cd829ed30293eb8472f372c65a 2.20kB / 2.20kB done
+2026-11-08T14:59:46.4835443Z #7 sha256:dc1f306f26ba5ec796d32b4a30053a2f61192514d01c42278c8e5e0e90b11b22 669B / 669B done
+2026-11-08T14:59:46.4835937Z #7 sha256:8de7d3c8e6ce72bc403908f2bc223d7659d1219d7ddb24e8be96a22369db812e 1.30kB / 1.30kB done
+2026-11-08T14:59:46.4836436Z #7 sha256:c53152fe4895cf386c6807ce09261763a3a3770d045729785134b9ac6542ebc3 0B / 20.08MB 0.1s
+2026-11-08T14:59:46.4836897Z #7 sha256:5d4c069d50eff8a133b6aa75d6952b5c8d96712a8b719503ad2d37f95e700768 0B / 98B 0.1s
+2026-11-08T14:59:46.6834470Z #7 sha256:c53152fe4895cf386c6807ce09261763a3a3770d045729785134b9ac6542ebc3 20.08MB / 20.08MB 0.3s
+2026-11-08T14:59:46.6835029Z #7 sha256:5d4c069d50eff8a133b6aa75d6952b5c8d96712a8b719503ad2d37f95e700768 98B / 98B 0.3s
+2026-11-08T14:59:46.8514464Z #7 extracting sha256:c53152fe4895cf386c6807ce09261763a3a3770d045729785134b9ac6542ebc3
+2026-11-08T14:59:46.9818476Z #7 sha256:c53152fe4895cf386c6807ce09261763a3a3770d045729785134b9ac6542ebc3 20.08MB / 20.08MB 0.4s done
+2026-11-08T14:59:46.9819388Z #7 sha256:5d4c069d50eff8a133b6aa75d6952b5c8d96712a8b719503ad2d37f95e700768 98B / 98B 0.4s done
+2026-11-08T14:59:47.1929430Z #7 extracting sha256:c53152fe4895cf386c6807ce09261763a3a3770d045729785134b9ac6542ebc3 0.2s done
+2026-11-08T14:59:47.1930361Z #7 extracting sha256:5d4c069d50eff8a133b6aa75d6952b5c8d96712a8b719503ad2d37f95e700768 done
+2026-11-08T14:59:53.2175968Z #7 DONE 6.7s
+2026-11-08T14:59:53.2177078Z 
+2026-11-08T14:59:53.2177798Z #8 [base  1/15] FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+2026-11-08T14:59:53.2179210Z #8 resolve docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b done
+2026-11-08T14:59:53.2183412Z #8 sha256:37fb86c2a767b88d500c6872195f88078f64765fe0d2f9cc375cc2efbd4c0a41 29.86MB / 29.86MB 0.4s done
+2026-11-08T14:59:53.2189386Z #8 sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b 10.37kB / 10.37kB done
+2026-11-08T14:59:53.2190131Z #8 sha256:05a994d2344eb364cc186910f4fc8786a38215f39f00d0acc25bff33a08f4177 1.75kB / 1.75kB done
+2026-11-08T14:59:53.2190890Z #8 sha256:78976a69c067520ef8be34cde307ef9f6fea6dcefa50edb57039773d241ca0db 5.66kB / 5.66kB done
+2026-11-08T14:59:53.2191632Z #8 extracting sha256:37fb86c2a767b88d500c6872195f88078f64765fe0d2f9cc375cc2efbd4c0a41 0.8s done
+2026-11-08T14:59:53.2192205Z #8 sha256:68bced9e0afa4479df17c3646e27c7c7e9ce9ba70c0e6c73b6826487b89037d9 1.29MB / 1.29MB 0.5s done
+2026-11-08T14:59:53.2192954Z #8 sha256:2dc99d2d0a39fce31e37615eb4c932e16dcc4c2b0ce9993714280081b5dbe085 12.12MB / 12.12MB 0.7s done
+2026-11-08T14:59:53.2193765Z #8 sha256:05e0eee5572e9c9f50408a2132590133b830a668a1cf2ff2b150f19c57707e2b 248B / 248B 0.6s done
+2026-11-08T14:59:53.2194732Z #8 extracting sha256:68bced9e0afa4479df17c3646e27c7c7e9ce9ba70c0e6c73b6826487b89037d9 0.3s done
+2026-11-08T14:59:53.2195347Z #8 extracting sha256:2dc99d2d0a39fce31e37615eb4c932e16dcc4c2b0ce9993714280081b5dbe085 0.1s
+2026-11-08T14:59:53.6798604Z #8 extracting sha256:2dc99d2d0a39fce31e37615eb4c932e16dcc4c2b0ce9993714280081b5dbe085 0.4s done
+2026-11-08T14:59:53.7738160Z #8 extracting sha256:05e0eee5572e9c9f50408a2132590133b830a668a1cf2ff2b150f19c57707e2b
+2026-11-08T14:59:53.9396442Z #8 extracting sha256:05e0eee5572e9c9f50408a2132590133b830a668a1cf2ff2b150f19c57707e2b done
+2026-11-08T14:59:53.9396845Z #8 DONE 7.4s
+2026-11-08T14:59:53.9396955Z 
+2026-11-08T14:59:53.9397253Z #9 [base  2/15] RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+2026-11-08T14:59:54.1084469Z #9 0.319 Hit:1 http://deb.debian.org/debian trixie InRelease
+2026-11-08T14:59:54.3586027Z #9 0.319 Get:2 http://deb.debian.org/debian trixie-updates InRelease [47.3 kB]
+2026-11-08T14:59:54.3586747Z #9 0.328 Get:3 http://deb.debian.org/debian-security trixie-security InRelease [43.4 kB]
+2026-11-08T14:59:54.3587437Z #9 0.340 Get:4 http://deb.debian.org/debian trixie/main amd64 Packages [9678 kB]
+2026-11-08T14:59:54.3588108Z #9 0.418 Get:5 http://deb.debian.org/debian trixie-updates/main amd64 Packages [1108 B]
+2026-11-08T14:59:54.3588849Z #9 0.418 Get:6 http://deb.debian.org/debian-security trixie-security/main amd64 Packages [300 kB]
+2026-11-08T14:59:54.7576830Z #9 0.968 Fetched 10.1 MB in 1s (14.3 MB/s)
+2026-11-08T14:59:55.1838814Z #9 0.968 Reading package lists...
+2026-11-08T14:59:55.6157402Z #9 1.413 Reading package lists...
+2026-11-08T14:59:55.7598638Z #9 1.836 Building dependency tree...
+2026-11-08T14:59:55.7599066Z #9 1.971 Reading state information...
+2026-11-08T14:59:55.8824326Z #9 2.093 The following additional packages will be installed:
+2026-11-08T14:59:56.0261496Z #9 2.093   git-man libbrotli1 libcom-err2 libcurl3t64-gnutls liberror-perl libexpat1
+2026-11-08T14:59:56.0262233Z #9 2.094   libgdbm-compat4t64 libgnutls30t64 libgssapi-krb5-2 libidn2-0 libk5crypto3
+2026-11-08T14:59:56.0262946Z #9 2.094   libkeyutils1 libkrb5-3 libkrb5support0 libldap2 libnghttp2-14 libnghttp3-9
+2026-11-08T14:59:56.0263657Z #9 2.094   libngtcp2-16 libngtcp2-crypto-gnutls8 libp11-kit0 libperl5.40 libpsl5t64
+2026-11-08T14:59:56.0264431Z #9 2.094   librtmp1 libsasl2-2 libsasl2-modules-db libssh2-1t64 libtasn1-6
+2026-11-08T14:59:56.0264964Z #9 2.094   libunistring5 perl perl-modules-5.40
+2026-11-08T14:59:56.0265345Z #9 2.095 Suggested packages:
+2026-11-08T14:59:56.0265739Z #9 2.095   gettext-base git-doc git-email git-gui gitk gitweb git-cvs git-mediawiki
+2026-11-08T14:59:56.0266137Z #9 2.095   git-svn gnutls-bin krb5-doc krb5-user sensible-utils perl-doc
+2026-11-08T14:59:56.0266580Z #9 2.095   libterm-readline-gnu-perl | libterm-readline-perl-perl make
+2026-11-08T14:59:56.0267082Z #9 2.095   libtap-harness-archive-perl
+2026-11-08T14:59:56.0267474Z #9 2.095 Recommended packages:
+2026-11-08T14:59:56.0267917Z #9 2.095   patch less ssh-client krb5-locales libldap-common publicsuffix
+2026-11-08T14:59:56.0268388Z #9 2.095   libsasl2-modules
+2026-11-08T14:59:56.0268705Z #9 2.237 The following NEW packages will be installed:
+2026-11-08T14:59:56.1358653Z #9 2.237   git git-man libbrotli1 libcom-err2 libcurl3t64-gnutls liberror-perl
+2026-11-08T14:59:56.1359410Z #9 2.237   libexpat1 libgdbm-compat4t64 libgnutls30t64 libgssapi-krb5-2 libidn2-0
+2026-11-08T14:59:56.1359998Z #9 2.237   libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 libldap2 libnghttp2-14
+2026-11-08T14:59:56.1360487Z #9 2.237   libnghttp3-9 libngtcp2-16 libngtcp2-crypto-gnutls8 libp11-kit0 libperl5.40
+2026-11-08T14:59:56.1361050Z #9 2.238   libpsl5t64 librtmp1 libsasl2-2 libsasl2-modules-db libssh2-1t64 libtasn1-6
+2026-11-08T14:59:56.1361574Z #9 2.238   libunistring5 perl perl-modules-5.40
+2026-11-08T14:59:56.1362068Z #9 2.278 0 upgraded, 31 newly installed, 0 to remove and 1 not upgraded.
+2026-11-08T14:59:56.1362532Z #9 2.278 Need to get 23.6 MB of archives.
+2026-11-08T14:59:56.1362988Z #9 2.278 After this operation, 119 MB of additional disk space will be used.
+2026-11-08T14:59:56.1364102Z #9 2.278 Get:1 http://deb.debian.org/debian-security trixie-security/main amd64 libexpat1 amd64 2.9.0-1~deb13u1 [126 kB]
+2026-11-08T14:59:56.1365212Z #9 2.298 Get:2 http://deb.debian.org/debian trixie/main amd64 perl-modules-5.40 all 5.40.1-6+deb13u1 [3014 kB]
+2026-11-08T14:59:56.1366182Z #9 2.334 Get:3 http://deb.debian.org/debian trixie/main amd64 libgdbm-compat4t64 amd64 1.24-2 [50.3 kB]
+2026-11-08T14:59:56.1366994Z #9 2.335 Get:4 http://deb.debian.org/debian trixie/main amd64 libperl5.40 amd64 5.40.1-6+deb13u1 [4326 kB]
+2026-11-08T14:59:56.1367782Z #9 2.347 Get:5 http://deb.debian.org/debian trixie/main amd64 perl amd64 5.40.1-6+deb13u1 [268 kB]
+2026-11-08T14:59:56.3018954Z #9 2.348 Get:6 http://deb.debian.org/debian-security trixie-security/main amd64 libbrotli1 amd64 1.1.0-2+deb13u1 [304 kB]
+2026-11-08T14:59:56.3019963Z #9 2.348 Get:7 http://deb.debian.org/debian trixie/main amd64 libunistring5 amd64 1.3-2 [477 kB]
+2026-11-08T14:59:56.3020718Z #9 2.350 Get:8 http://deb.debian.org/debian trixie/main amd64 libidn2-0 amd64 2.3.8-2 [109 kB]
+2026-11-08T14:59:56.3021504Z #9 2.350 Get:9 http://deb.debian.org/debian trixie/main amd64 libp11-kit0 amd64 0.25.5-3 [425 kB]
+2026-11-08T14:59:56.3022305Z #9 2.352 Get:10 http://deb.debian.org/debian trixie/main amd64 libtasn1-6 amd64 4.20.0-2+deb13u1 [50.1 kB]
+2026-11-08T14:59:56.3023145Z #9 2.352 Get:11 http://deb.debian.org/debian trixie/main amd64 libgnutls30t64 amd64 3.8.9-3+deb13u4 [1469 kB]
+2026-11-08T14:59:56.3024000Z #9 2.356 Get:12 http://deb.debian.org/debian trixie/main amd64 libkrb5support0 amd64 1.21.3-5+deb13u1 [33.1 kB]
+2026-11-08T14:59:56.3024970Z #9 2.356 Get:13 http://deb.debian.org/debian trixie/main amd64 libcom-err2 amd64 1.47.2-3+b12 [25.0 kB]
+2026-11-08T14:59:56.3025761Z #9 2.361 Get:14 http://deb.debian.org/debian trixie/main amd64 libk5crypto3 amd64 1.21.3-5+deb13u1 [81.2 kB]
+2026-11-08T14:59:56.3026637Z #9 2.362 Get:15 http://deb.debian.org/debian trixie/main amd64 libkeyutils1 amd64 1.6.3-6 [9456 B]
+2026-11-08T14:59:56.3027251Z #9 2.362 Get:16 http://deb.debian.org/debian trixie/main amd64 libkrb5-3 amd64 1.21.3-5+deb13u1 [326 kB]
+2026-11-08T14:59:56.3027767Z #9 2.363 Get:17 http://deb.debian.org/debian trixie/main amd64 libgssapi-krb5-2 amd64 1.21.3-5+deb13u1 [138 kB]
+2026-11-08T14:59:56.3028326Z #9 2.364 Get:18 http://deb.debian.org/debian trixie/main amd64 libsasl2-modules-db amd64 2.1.28+dfsg1-9 [19.8 kB]
+2026-11-08T14:59:56.3028922Z #9 2.364 Get:19 http://deb.debian.org/debian trixie/main amd64 libsasl2-2 amd64 2.1.28+dfsg1-9 [57.5 kB]
+2026-11-08T14:59:56.3029606Z #9 2.365 Get:20 http://deb.debian.org/debian trixie/main amd64 libldap2 amd64 2.6.10+dfsg-1 [194 kB]
+2026-11-08T14:59:56.3030128Z #9 2.370 Get:21 http://deb.debian.org/debian trixie/main amd64 libnghttp2-14 amd64 1.64.0-1.1+deb13u1 [76.2 kB]
+2026-11-08T14:59:56.3030635Z #9 2.370 Get:22 http://deb.debian.org/debian trixie/main amd64 libnghttp3-9 amd64 1.8.0-1 [67.7 kB]
+2026-11-08T14:59:56.3031122Z #9 2.371 Get:23 http://deb.debian.org/debian trixie/main amd64 libngtcp2-16 amd64 1.11.0-1+deb13u1 [132 kB]
+2026-11-08T14:59:56.3031657Z #9 2.378 Get:24 http://deb.debian.org/debian trixie/main amd64 libngtcp2-crypto-gnutls8 amd64 1.11.0-1+deb13u1 [29.5 kB]
+2026-11-08T14:59:56.3032437Z #9 2.379 Get:25 http://deb.debian.org/debian trixie/main amd64 libpsl5t64 amd64 0.21.2-1.1+b1 [57.2 kB]
+2026-11-08T14:59:56.3032995Z #9 2.379 Get:26 http://deb.debian.org/debian trixie/main amd64 librtmp1 amd64 2.4+20151223.gitfa8646d.1-2+b5 [58.8 kB]
+2026-11-08T14:59:56.3033517Z #9 2.380 Get:27 http://deb.debian.org/debian trixie/main amd64 libssh2-1t64 amd64 1.11.1-1+deb13u2 [245 kB]
+2026-11-08T14:59:56.3034076Z #9 2.381 Get:28 http://deb.debian.org/debian-security trixie-security/main amd64 libcurl3t64-gnutls amd64 8.14.1-2+deb13u7 [385 kB]
+2026-11-08T14:59:56.3034856Z #9 2.383 Get:29 http://deb.debian.org/debian trixie/main amd64 liberror-perl all 0.17030-1 [26.9 kB]
+2026-11-08T14:59:56.3035322Z #9 2.383 Get:30 http://deb.debian.org/debian trixie/main amd64 git-man all 1:2.47.3-0+deb13u1 [2205 kB]
+2026-11-08T14:59:56.3036559Z #9 2.389 Get:31 http://deb.debian.org/debian trixie/main amd64 git amd64 1:2.47.3-0+deb13u1 [8862 kB]
+2026-11-08T14:59:56.3037416Z #9 2.512 debconf: unable to initialize frontend: Dialog
+2026-11-08T14:59:56.3038092Z #9 2.512 debconf: (TERM is not set, so the dialog frontend is not usable.)
+2026-11-08T14:59:56.3038593Z #9 2.512 debconf: falling back to frontend: Readline
+2026-11-08T14:59:56.4571846Z #9 2.513 debconf: unable to initialize frontend: Readline
+2026-11-08T14:59:56.4577982Z #9 2.513 debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 31.)
+2026-11-08T14:59:56.4579282Z #9 2.513 debconf: falling back to frontend: Teletype
+2026-11-08T14:59:56.4579584Z #9 2.518 debconf: unable to initialize frontend: Teletype
+2026-11-08T14:59:56.4579931Z #9 2.518 debconf: (This frontend requires a controlling tty.)
+2026-11-08T14:59:56.4580265Z #9 2.518 debconf: falling back to frontend: Noninteractive
+2026-11-08T14:59:57.1994055Z #9 3.410 Fetched 23.6 MB in 0s (142 MB/s)
+2026-11-08T14:59:57.3855003Z #9 3.422 Selecting previously unselected package libexpat1:amd64.
+2026-11-08T14:59:57.3855356Z #9 3.422 (Reading database ... 
+2026-11-08T14:59:57.3855582Z (Reading database ... 5%
+2026-11-08T14:59:57.3855791Z (Reading database ... 10%
+2026-11-08T14:59:57.3855995Z (Reading database ... 15%
+2026-11-08T14:59:57.3856214Z (Reading database ... 20%
+2026-11-08T14:59:57.3856451Z (Reading database ... 25%
+2026-11-08T14:59:57.3856650Z (Reading database ... 30%
+2026-11-08T14:59:57.3856902Z (Reading database ... 35%
+2026-11-08T14:59:57.3857084Z (Reading database ... 40%
+2026-11-08T14:59:57.3857263Z (Reading database ... 45%
+2026-11-08T14:59:57.3857460Z (Reading database ... 50%
+2026-11-08T14:59:57.3857647Z (Reading database ... 55%
+2026-11-08T14:59:57.3857860Z (Reading database ... 60%
+2026-11-08T14:59:57.3858041Z (Reading database ... 65%
+2026-11-08T14:59:57.3858233Z (Reading database ... 70%
+2026-11-08T14:59:57.3858418Z (Reading database ... 75%
+2026-11-08T14:59:57.3858668Z (Reading database ... 80%
+2026-11-08T14:59:57.3858851Z (Reading database ... 85%
+2026-11-08T14:59:57.3859066Z (Reading database ... 90%
+2026-11-08T14:59:57.3859273Z (Reading database ... 95%
+2026-11-08T14:59:57.3859470Z (Reading database ... 100%
+2026-11-08T14:59:57.3859741Z (Reading database ... 5658 files and directories currently installed.)
+2026-11-08T14:59:57.3860186Z #9 3.427 Preparing to unpack .../00-libexpat1_2.9.0-1~deb13u1_amd64.deb ...
+2026-11-08T14:59:57.3860525Z #9 3.429 Unpacking libexpat1:amd64 (2.9.0-1~deb13u1) ...
+2026-11-08T14:59:57.3860946Z #9 3.444 Selecting previously unselected package perl-modules-5.40.
+2026-11-08T14:59:57.3861387Z #9 3.445 Preparing to unpack .../01-perl-modules-5.40_5.40.1-6+deb13u1_all.deb ...
+2026-11-08T14:59:57.3861787Z #9 3.446 Unpacking perl-modules-5.40 (5.40.1-6+deb13u1) ...
+2026-11-08T14:59:57.4465844Z #9 3.657 Selecting previously unselected package libgdbm-compat4t64:amd64.
+2026-11-08T14:59:57.6135747Z #9 3.659 Preparing to unpack .../02-libgdbm-compat4t64_1.24-2_amd64.deb ...
+2026-11-08T14:59:57.6136321Z #9 3.659 Unpacking libgdbm-compat4t64:amd64 (1.24-2) ...
+2026-11-08T14:59:57.6136661Z #9 3.672 Selecting previously unselected package libperl5.40:amd64.
+2026-11-08T14:59:57.6137040Z #9 3.673 Preparing to unpack .../03-libperl5.40_5.40.1-6+deb13u1_amd64.deb ...
+2026-11-08T14:59:57.6137382Z #9 3.674 Unpacking libperl5.40:amd64 (5.40.1-6+deb13u1) ...
+2026-11-08T14:59:57.6465139Z #9 3.857 Selecting previously unselected package perl.
+2026-11-08T14:59:57.7766400Z #9 3.859 Preparing to unpack .../04-perl_5.40.1-6+deb13u1_amd64.deb ...
+2026-11-08T14:59:57.7767153Z #9 3.859 Unpacking perl (5.40.1-6+deb13u1) ...
+2026-11-08T14:59:57.7767894Z #9 3.880 Selecting previously unselected package libbrotli1:amd64.
+2026-11-08T14:59:57.7768749Z #9 3.882 Preparing to unpack .../05-libbrotli1_1.1.0-2+deb13u1_amd64.deb ...
+2026-11-08T14:59:57.7769480Z #9 3.882 Unpacking libbrotli1:amd64 (1.1.0-2+deb13u1) ...
+2026-11-08T14:59:57.7769913Z #9 3.916 Selecting previously unselected package libunistring5:amd64.
+2026-11-08T14:59:57.7770384Z #9 3.917 Preparing to unpack .../06-libunistring5_1.3-2_amd64.deb ...
+2026-11-08T14:59:57.7770796Z #9 3.954 Unpacking libunistring5:amd64 (1.3-2) ...
+2026-11-08T14:59:57.7771211Z #9 3.987 Selecting previously unselected package libidn2-0:amd64.
+2026-11-08T14:59:57.8895698Z #9 3.989 Preparing to unpack .../07-libidn2-0_2.3.8-2_amd64.deb ...
+2026-11-08T14:59:57.8896167Z #9 3.989 Unpacking libidn2-0:amd64 (2.3.8-2) ...
+2026-11-08T14:59:57.8896586Z #9 4.005 Selecting previously unselected package libp11-kit0:amd64.
+2026-11-08T14:59:57.8897065Z #9 4.007 Preparing to unpack .../08-libp11-kit0_0.25.5-3_amd64.deb ...
+2026-11-08T14:59:57.8897485Z #9 4.007 Unpacking libp11-kit0:amd64 (0.25.5-3) ...
+2026-11-08T14:59:57.8897970Z #9 4.084 Selecting previously unselected package libtasn1-6:amd64.
+2026-11-08T14:59:57.8898467Z #9 4.086 Preparing to unpack .../09-libtasn1-6_4.20.0-2+deb13u1_amd64.deb ...
+2026-11-08T14:59:57.8898951Z #9 4.086 Unpacking libtasn1-6:amd64 (4.20.0-2+deb13u1) ...
+2026-11-08T14:59:57.8899405Z #9 4.100 Selecting previously unselected package libgnutls30t64:amd64.
+2026-11-08T14:59:58.0045493Z #9 4.102 Preparing to unpack .../10-libgnutls30t64_3.8.9-3+deb13u4_amd64.deb ...
+2026-11-08T14:59:58.0045972Z #9 4.102 Unpacking libgnutls30t64:amd64 (3.8.9-3+deb13u4) ...
+2026-11-08T14:59:58.0046320Z #9 4.150 Selecting previously unselected package libkrb5support0:amd64.
+2026-11-08T14:59:58.0046730Z #9 4.151 Preparing to unpack .../11-libkrb5support0_1.21.3-5+deb13u1_amd64.deb ...
+2026-11-08T14:59:58.0047116Z #9 4.152 Unpacking libkrb5support0:amd64 (1.21.3-5+deb13u1) ...
+2026-11-08T14:59:58.0047452Z #9 4.215 Selecting previously unselected package libcom-err2:amd64.
+2026-11-08T14:59:58.1557632Z #9 4.217 Preparing to unpack .../12-libcom-err2_1.47.2-3+b12_amd64.deb ...
+2026-11-08T14:59:58.1558229Z #9 4.217 Unpacking libcom-err2:amd64 (1.47.2-3+b12) ...
+2026-11-08T14:59:58.1558766Z #9 4.230 Selecting previously unselected package libk5crypto3:amd64.
+2026-11-08T14:59:58.1559343Z #9 4.231 Preparing to unpack .../13-libk5crypto3_1.21.3-5+deb13u1_amd64.deb ...
+2026-11-08T14:59:58.1559889Z #9 4.232 Unpacking libk5crypto3:amd64 (1.21.3-5+deb13u1) ...
+2026-11-08T14:59:58.1560388Z #9 4.248 Selecting previously unselected package libkeyutils1:amd64.
+2026-11-08T14:59:58.1560906Z #9 4.249 Preparing to unpack .../14-libkeyutils1_1.6.3-6_amd64.deb ...
+2026-11-08T14:59:58.1561210Z #9 4.249 Unpacking libkeyutils1:amd64 (1.6.3-6) ...
+2026-11-08T14:59:58.1561518Z #9 4.261 Selecting previously unselected package libkrb5-3:amd64.
+2026-11-08T14:59:58.1561877Z #9 4.262 Preparing to unpack .../15-libkrb5-3_1.21.3-5+deb13u1_amd64.deb ...
+2026-11-08T14:59:58.1562209Z #9 4.264 Unpacking libkrb5-3:amd64 (1.21.3-5+deb13u1) ...
+2026-11-08T14:59:58.1562549Z #9 4.288 Selecting previously unselected package libgssapi-krb5-2:amd64.
+2026-11-08T14:59:58.1562969Z #9 4.290 Preparing to unpack .../16-libgssapi-krb5-2_1.21.3-5+deb13u1_amd64.deb ...
+2026-11-08T14:59:58.1563344Z #9 4.290 Unpacking libgssapi-krb5-2:amd64 (1.21.3-5+deb13u1) ...
+2026-11-08T14:59:58.1563694Z #9 4.367 Selecting previously unselected package libsasl2-modules-db:amd64.
+2026-11-08T14:59:58.2696958Z #9 4.368 Preparing to unpack .../17-libsasl2-modules-db_2.1.28+dfsg1-9_amd64.deb ...
+2026-11-08T14:59:58.2697624Z #9 4.368 Unpacking libsasl2-modules-db:amd64 (2.1.28+dfsg1-9) ...
+2026-11-08T14:59:58.2698325Z #9 4.381 Selecting previously unselected package libsasl2-2:amd64.
+2026-11-08T14:59:58.2699006Z #9 4.382 Preparing to unpack .../18-libsasl2-2_2.1.28+dfsg1-9_amd64.deb ...
+2026-11-08T14:59:58.2699533Z #9 4.382 Unpacking libsasl2-2:amd64 (2.1.28+dfsg1-9) ...
+2026-11-08T14:59:58.2699948Z #9 4.396 Selecting previously unselected package libldap2:amd64.
+2026-11-08T14:59:58.2700847Z #9 4.397 Preparing to unpack .../19-libldap2_2.6.10+dfsg-1_amd64.deb ...
+2026-11-08T14:59:58.2701194Z #9 4.397 Unpacking libldap2:amd64 (2.6.10+dfsg-1) ...
+2026-11-08T14:59:58.2701659Z #9 4.416 Selecting previously unselected package libnghttp2-14:amd64.
+2026-11-08T14:59:58.2702053Z #9 4.417 Preparing to unpack .../20-libnghttp2-14_1.64.0-1.1+deb13u1_amd64.deb ...
+2026-11-08T14:59:58.2702408Z #9 4.417 Unpacking libnghttp2-14:amd64 (1.64.0-1.1+deb13u1) ...
+2026-11-08T14:59:58.2702745Z #9 4.465 Selecting previously unselected package libnghttp3-9:amd64.
+2026-11-08T14:59:58.2703083Z #9 4.466 Preparing to unpack .../21-libnghttp3-9_1.8.0-1_amd64.deb ...
+2026-11-08T14:59:58.2703388Z #9 4.467 Unpacking libnghttp3-9:amd64 (1.8.0-1) ...
+2026-11-08T14:59:58.2703690Z #9 4.481 Selecting previously unselected package libngtcp2-16:amd64.
+2026-11-08T14:59:58.3923717Z #9 4.482 Preparing to unpack .../22-libngtcp2-16_1.11.0-1+deb13u1_amd64.deb ...
+2026-11-08T14:59:58.3924357Z #9 4.482 Unpacking libngtcp2-16:amd64 (1.11.0-1+deb13u1) ...
+2026-11-08T14:59:58.3924771Z #9 4.498 Selecting previously unselected package libngtcp2-crypto-gnutls8:amd64.
+2026-11-08T14:59:58.3925246Z #9 4.499 Preparing to unpack .../23-libngtcp2-crypto-gnutls8_1.11.0-1+deb13u1_amd64.deb ...
+2026-11-08T14:59:58.3925687Z #9 4.500 Unpacking libngtcp2-crypto-gnutls8:amd64 (1.11.0-1+deb13u1) ...
+2026-11-08T14:59:58.3926071Z #9 4.512 Selecting previously unselected package libpsl5t64:amd64.
+2026-11-08T14:59:58.3926450Z #9 4.513 Preparing to unpack .../24-libpsl5t64_0.21.2-1.1+b1_amd64.deb ...
+2026-11-08T14:59:58.3926776Z #9 4.514 Unpacking libpsl5t64:amd64 (0.21.2-1.1+b1) ...
+2026-11-08T14:59:58.3927085Z #9 4.527 Selecting previously unselected package librtmp1:amd64.
+2026-11-08T14:59:58.3927459Z #9 4.528 Preparing to unpack .../25-librtmp1_2.4+20151223.gitfa8646d.1-2+b5_amd64.deb ...
+2026-11-08T14:59:58.3927831Z #9 4.529 Unpacking librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2+b5) ...
+2026-11-08T14:59:58.3928169Z #9 4.558 Selecting previously unselected package libssh2-1t64:amd64.
+2026-11-08T14:59:58.3928532Z #9 4.559 Preparing to unpack .../26-libssh2-1t64_1.11.1-1+deb13u2_amd64.deb ...
+2026-11-08T14:59:58.3928873Z #9 4.560 Unpacking libssh2-1t64:amd64 (1.11.1-1+deb13u2) ...
+2026-11-08T14:59:58.3929202Z #9 4.603 Selecting previously unselected package libcurl3t64-gnutls:amd64.
+2026-11-08T14:59:58.5141438Z #9 4.604 Preparing to unpack .../27-libcurl3t64-gnutls_8.14.1-2+deb13u7_amd64.deb ...
+2026-11-08T14:59:58.5141923Z #9 4.605 Unpacking libcurl3t64-gnutls:amd64 (8.14.1-2+deb13u7) ...
+2026-11-08T14:59:58.5142274Z #9 4.629 Selecting previously unselected package liberror-perl.
+2026-11-08T14:59:58.5142644Z #9 4.630 Preparing to unpack .../28-liberror-perl_0.17030-1_all.deb ...
+2026-11-08T14:59:58.5142961Z #9 4.631 Unpacking liberror-perl (0.17030-1) ...
+2026-11-08T14:59:58.5143248Z #9 4.642 Selecting previously unselected package git-man.
+2026-11-08T14:59:58.5143586Z #9 4.643 Preparing to unpack .../29-git-man_1%3a2.47.3-0+deb13u1_all.deb ...
+2026-11-08T14:59:58.5143928Z #9 4.646 Unpacking git-man (1:2.47.3-0+deb13u1) ...
+2026-11-08T14:59:58.5144389Z #9 4.725 Selecting previously unselected package git.
+2026-11-08T14:59:58.6707430Z #9 4.726 Preparing to unpack .../30-git_1%3a2.47.3-0+deb13u1_amd64.deb ...
+2026-11-08T14:59:58.6707912Z #9 4.731 Unpacking git (1:2.47.3-0+deb13u1) ...
+2026-11-08T14:59:58.7644367Z #9 4.975 Setting up libexpat1:amd64 (2.9.0-1~deb13u1) ...
+2026-11-08T14:59:58.9214419Z #9 5.005 Setting up libkeyutils1:amd64 (1.6.3-6) ...
+2026-11-08T14:59:58.9214832Z #9 5.006 Setting up libgdbm-compat4t64:amd64 (1.24-2) ...
+2026-11-08T14:59:58.9215147Z #9 5.008 Setting up libbrotli1:amd64 (1.1.0-2+deb13u1) ...
+2026-11-08T14:59:58.9215460Z #9 5.009 Setting up libnghttp2-14:amd64 (1.64.0-1.1+deb13u1) ...
+2026-11-08T14:59:58.9215767Z #9 5.011 Setting up libcom-err2:amd64 (1.47.2-3+b12) ...
+2026-11-08T14:59:58.9216064Z #9 5.012 Setting up libkrb5support0:amd64 (1.21.3-5+deb13u1) ...
+2026-11-08T14:59:58.9216393Z #9 5.016 Setting up libsasl2-modules-db:amd64 (2.1.28+dfsg1-9) ...
+2026-11-08T14:59:58.9216966Z #9 5.017 Setting up libp11-kit0:amd64 (0.25.5-3) ...
+2026-11-08T14:59:58.9217232Z #9 5.018 Setting up libunistring5:amd64 (1.3-2) ...
+2026-11-08T14:59:58.9217646Z #9 5.020 Setting up libk5crypto3:amd64 (1.21.3-5+deb13u1) ...
+2026-11-08T14:59:58.9217960Z #9 5.021 Setting up libsasl2-2:amd64 (2.1.28+dfsg1-9) ...
+2026-11-08T14:59:58.9218233Z #9 5.023 Setting up libnghttp3-9:amd64 (1.8.0-1) ...
+2026-11-08T14:59:58.9218508Z #9 5.024 Setting up perl-modules-5.40 (5.40.1-6+deb13u1) ...
+2026-11-08T14:59:58.9218789Z #9 5.026 Setting up libtasn1-6:amd64 (4.20.0-2+deb13u1) ...
+2026-11-08T14:59:58.9219051Z #9 5.027 Setting up git-man (1:2.47.3-0+deb13u1) ...
+2026-11-08T14:59:58.9219323Z #9 5.029 Setting up libngtcp2-16:amd64 (1.11.0-1+deb13u1) ...
+2026-11-08T14:59:58.9219604Z #9 5.052 Setting up libkrb5-3:amd64 (1.21.3-5+deb13u1) ...
+2026-11-08T14:59:58.9219893Z #9 5.054 Setting up libssh2-1t64:amd64 (1.11.1-1+deb13u2) ...
+2026-11-08T14:59:58.9220164Z #9 5.055 Setting up libldap2:amd64 (2.6.10+dfsg-1) ...
+2026-11-08T14:59:58.9220431Z #9 5.057 Setting up libidn2-0:amd64 (2.3.8-2) ...
+2026-11-08T14:59:58.9220700Z #9 5.058 Setting up libperl5.40:amd64 (5.40.1-6+deb13u1) ...
+2026-11-08T14:59:58.9220959Z #9 5.060 Setting up perl (5.40.1-6+deb13u1) ...
+2026-11-08T14:59:58.9221235Z #9 5.064 Setting up libgssapi-krb5-2:amd64 (1.21.3-5+deb13u1) ...
+2026-11-08T14:59:58.9221544Z #9 5.067 Setting up libgnutls30t64:amd64 (3.8.9-3+deb13u4) ...
+2026-11-08T14:59:58.9221824Z #9 5.132 Setting up libpsl5t64:amd64 (0.21.2-1.1+b1) ...
+2026-11-08T14:59:59.0883958Z #9 5.135 Setting up liberror-perl (0.17030-1) ...
+2026-11-08T14:59:59.0884511Z #9 5.137 Setting up librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2+b5) ...
+2026-11-08T14:59:59.0884901Z #9 5.139 Setting up libngtcp2-crypto-gnutls8:amd64 (1.11.0-1+deb13u1) ...
+2026-11-08T14:59:59.0885259Z #9 5.140 Setting up libcurl3t64-gnutls:amd64 (8.14.1-2+deb13u7) ...
+2026-11-08T14:59:59.0885551Z #9 5.142 Setting up git (1:2.47.3-0+deb13u1) ...
+2026-11-08T14:59:59.0885865Z #9 5.149 Processing triggers for libc-bin (2.41-12+deb13u4) ...
+2026-11-08T14:59:59.6032944Z #9 DONE 5.8s
+2026-11-08T14:59:59.7617038Z 
+2026-11-08T14:59:59.7617438Z #10 [base  3/15] WORKDIR /app
+2026-11-08T14:59:59.7617702Z #10 DONE 0.0s
+2026-11-08T14:59:59.7617813Z 
+2026-11-08T14:59:59.7617992Z #11 [base  4/15] COPY --from=ghcr.io/astral-sh/uv:0.12.24 /uv /bin/
+2026-11-08T14:59:59.8641471Z #11 DONE 0.3s
+2026-11-08T15:00:00.0223344Z 
+2026-11-08T15:00:00.0224001Z #12 [base  5/15] COPY bike-demand/pyproject.toml bike-demand/uv.lock ./
+2026-11-08T15:00:00.0224764Z #12 DONE 0.0s
+2026-11-08T15:00:00.0224916Z 
+2026-11-08T15:00:00.0225119Z #13 [base  6/15] RUN uv sync --locked --no-install-project
+2026-11-08T15:00:00.1068501Z #13 0.235 Using CPython 3.12.16 interpreter at: /usr/local/bin/python3
+2026-11-08T15:00:00.1068882Z #13 0.235 Creating virtual environment at: .venv
+2026-11-08T15:00:00.3456688Z #13 0.238 Resolved 100 packages in 1ms
+2026-11-08T15:00:00.3457236Z #13 0.306 Downloading pydantic-core (2.0MiB)
+2026-11-08T15:00:00.3458317Z #13 0.306 Downloading aiohttp (1.8MiB)
+2026-11-08T15:00:00.3458725Z #13 0.306 Downloading pygments (1.2MiB)
+2026-11-08T15:00:00.3459084Z #13 0.319 Downloading fonttools (5.1MiB)
+2026-11-08T15:00:00.3459463Z #13 0.319 Downloading mlflow (11.4MiB)
+2026-11-08T15:00:00.3459894Z #13 0.319 Downloading sqlalchemy (4.5MiB)
+2026-11-08T15:00:00.3460261Z #13 0.320 Downloading mlflow-skinny (3.9MiB)
+2026-11-08T15:00:00.3460627Z #13 0.320 Downloading scikit-learn (8.7MiB)
+2026-11-08T15:00:00.3461061Z #13 0.320 Downloading ruff (10.7MiB)
+2026-11-08T15:00:00.3462055Z #13 0.320 Downloading mlflow-tracing (1.9MiB)
+2026-11-08T15:00:00.3462420Z #13 0.320 Downloading numpy (15.9MiB)
+2026-11-08T15:00:00.3462763Z #13 0.320 Downloading pyarrow (47.8MiB)
+2026-11-08T15:00:00.3463129Z #13 0.321 Downloading cryptography (4.5MiB)
+2026-11-08T15:00:00.3463497Z #13 0.321 Downloading scipy (33.7MiB)
+2026-11-08T15:00:00.3463864Z #13 0.322 Downloading pandas (11.8MiB)
+2026-11-08T15:00:00.3464379Z #13 0.322 Downloading kiwisolver (1.4MiB)
+2026-11-08T15:00:00.3465027Z #13 0.323 Downloading databricks-sdk (1.0MiB)
+2026-11-08T15:00:00.3465577Z #13 0.323 Downloading matplotlib (9.4MiB)
+2026-11-08T15:00:00.3465946Z #13 0.323 Downloading pillow (6.6MiB)
+2026-11-08T15:00:00.7733867Z #13 0.793  Downloaded databricks-sdk
+2026-11-08T15:00:00.7734710Z #13 0.797  Downloaded pygments
+2026-11-08T15:00:00.7735323Z #13 0.825  Downloaded kiwisolver
+2026-11-08T15:00:00.7735880Z #13 0.879  Downloaded aiohttp
+2026-11-08T15:00:00.7736253Z #13 0.880  Downloaded pydantic-core
+2026-11-08T15:00:00.9238113Z #13 0.901  Downloaded mlflow-tracing
+2026-11-08T15:00:01.1801271Z #13 1.081  Downloaded fonttools
+2026-11-08T15:00:01.1801812Z #13 1.102  Downloaded sqlalchemy
+2026-11-08T15:00:01.1802166Z #13 1.104  Downloaded cryptography
+2026-11-08T15:00:01.1802584Z #13 1.154  Downloaded mlflow-skinny
+2026-11-08T15:00:01.1802963Z #13 1.157  Downloaded pillow
+2026-11-08T15:00:01.1803312Z #13 1.308  Downloaded scikit-learn
+2026-11-08T15:00:01.3061249Z #13 1.323  Downloaded ruff
+2026-11-08T15:00:01.3062005Z #13 1.351  Downloaded matplotlib
+2026-11-08T15:00:01.3062477Z #13 1.434  Downloaded numpy
+2026-11-08T15:00:01.5177957Z #13 1.482  Downloaded mlflow
+2026-11-08T15:00:01.5178626Z #13 1.533  Downloaded pandas
+2026-11-08T15:00:01.6450802Z #13 1.646  Downloaded scipy
+2026-11-08T15:00:01.6451366Z #13 1.773  Downloaded pyarrow
+2026-11-08T15:00:01.7956810Z #13 1.774 Prepared 96 packages in 1.53s
+2026-11-08T15:00:02.2603238Z #13 2.388 Installed 96 packages in 614ms
+2026-11-08T15:00:02.4127959Z #13 2.388  + aiohappyeyeballs==2.7.1
+2026-11-08T15:00:02.4128420Z #13 2.388  + aiohttp==3.14.4
+2026-11-08T15:00:02.4128726Z #13 2.388  + aiosignal==1.4.0
+2026-11-08T15:00:02.4129031Z #13 2.388  + alembic==1.20.0
+2026-11-08T15:00:02.4129341Z #13 2.388  + annotated-doc==0.0.5
+2026-11-08T15:00:02.4129658Z #13 2.388  + annotated-types==0.8.0
+2026-11-08T15:00:02.4129980Z #13 2.388  + anyio==4.15.1
+2026-11-08T15:00:02.4130246Z #13 2.388  + attrs==26.1.0
+2026-11-08T15:00:02.4130432Z #13 2.388  + blinker==1.9.0
+2026-11-08T15:00:02.4130676Z #13 2.388  + cachetools==7.2.1
+2026-11-08T15:00:02.4130884Z #13 2.388  + certifi==2026.7.22
+2026-11-08T15:00:02.4131096Z #13 2.389  + cffi==2.1.1
+2026-11-08T15:00:02.4131294Z #13 2.389  + charset-normalizer==3.5.2
+2026-11-08T15:00:02.4131515Z #13 2.389  + click==8.5.0
+2026-11-08T15:00:02.4131709Z #13 2.389  + cloudpickle==3.1.2
+2026-11-08T15:00:02.4131912Z #13 2.389  + contourpy==1.4.0
+2026-11-08T15:00:02.4132115Z #13 2.389  + cryptography==50.0.2
+2026-11-08T15:00:02.4132318Z #13 2.389  + cycler==0.12.1
+2026-11-08T15:00:02.4132527Z #13 2.390  + databricks-sdk==0.148.0
+2026-11-08T15:00:02.4132737Z #13 2.390  + docker==7.2.0
+2026-11-08T15:00:02.4132927Z #13 2.390  + fastapi==0.142.2
+2026-11-08T15:00:02.4133116Z #13 2.390  + flask==3.1.3
+2026-11-08T15:00:02.4133335Z #13 2.390  + flask-cors==6.0.5
+2026-11-08T15:00:02.4133529Z #13 2.390  + fonttools==4.66.1
+2026-11-08T15:00:02.4133726Z #13 2.390  + frozenlist==1.8.0
+2026-11-08T15:00:02.4133913Z #13 2.390  + gitdb==4.0.12
+2026-11-08T15:00:02.4134103Z #13 2.390  + gitpython==3.2.0
+2026-11-08T15:00:02.4134505Z #13 2.390  + google-auth==2.60.0
+2026-11-08T15:00:02.4134713Z #13 2.390  + graphene==3.4.3
+2026-11-08T15:00:02.4134917Z #13 2.390  + graphql-core==3.2.13
+2026-11-08T15:00:02.4135126Z #13 2.390  + graphql-relay==3.2.0
+2026-11-08T15:00:02.4135325Z #13 2.390  + gunicorn==26.2.0
+2026-11-08T15:00:02.4135510Z #13 2.390  + h11==0.16.0
+2026-11-08T15:00:02.4135694Z #13 2.390  + httpcore==1.0.9
+2026-11-08T15:00:02.4135887Z #13 2.390  + httpx==0.28.1
+2026-11-08T15:00:02.4136067Z #13 2.390  + huey==3.4.0
+2026-11-08T15:00:02.4136246Z #13 2.390  + idna==3.20
+2026-11-08T15:00:02.4136444Z #13 2.390  + importlib-metadata==9.0.1
+2026-11-08T15:00:02.4136667Z #13 2.390  + iniconfig==2.3.1
+2026-11-08T15:00:02.4136862Z #13 2.390  + itsdangerous==2.2.0
+2026-11-08T15:00:02.4137057Z #13 2.390  + jinja2==3.1.6
+2026-11-08T15:00:02.4137236Z #13 2.390  + joblib==1.6.0
+2026-11-08T15:00:02.4137416Z #13 2.390  + kiwisolver==1.5.1
+2026-11-08T15:00:02.4138001Z #13 2.390  + mako==1.4.3
+2026-11-08T15:00:02.4138191Z #13 2.390  + markupsafe==3.0.4
+2026-11-08T15:00:02.4138530Z #13 2.390  + matplotlib==3.11.2
+2026-11-08T15:00:02.4138725Z #13 2.390  + mlflow==3.17.0
+2026-11-08T15:00:02.4138919Z #13 2.390  + mlflow-skinny==3.17.0
+2026-11-08T15:00:02.4139142Z #13 2.390  + mlflow-tracing==3.17.0
+2026-11-08T15:00:02.4139353Z #13 2.390  + multidict==6.9.1
+2026-11-08T15:00:02.4139550Z #13 2.390  + narwhals==2.26.0
+2026-11-08T15:00:02.4139744Z #13 2.390  + numpy==2.5.3
+2026-11-08T15:00:02.4139941Z #13 2.390  + opentelemetry-api==1.45.1
+2026-11-08T15:00:02.4140167Z #13 2.390  + opentelemetry-proto==1.45.1
+2026-11-08T15:00:02.4140397Z #13 2.390  + opentelemetry-sdk==1.45.1
+2026-11-08T15:00:02.4140646Z #13 2.390  + opentelemetry-semantic-conventions==0.66b1
+2026-11-08T15:00:02.4140919Z #13 2.390  + packaging==26.3
+2026-11-08T15:00:02.4141119Z #13 2.390  + pandas==2.3.3
+2026-11-08T15:00:02.4141304Z #13 2.390  + pillow==12.3.0
+2026-11-08T15:00:02.4141491Z #13 2.390  + pluggy==1.6.0
+2026-11-08T15:00:02.4141682Z #13 2.390  + prettytable==3.18.0
+2026-11-08T15:00:02.4141895Z #13 2.390  + propcache==0.5.4
+2026-11-08T15:00:02.4142093Z #13 2.390  + protobuf==6.33.6
+2026-11-08T15:00:02.4142303Z #13 2.390  + pyarrow==25.0.1
+2026-11-08T15:00:02.4142520Z #13 2.390  + pyasn1==0.6.4
+2026-11-08T15:00:02.4142831Z #13 2.390  + pyasn1-modules==0.4.2
+2026-11-08T15:00:02.4143081Z #13 2.390  + pycparser==3.0
+2026-11-08T15:00:02.4143280Z #13 2.390  + pydantic==2.13.5
+2026-11-08T15:00:02.4143480Z #13 2.390  + pydantic-core==2.46.5
+2026-11-08T15:00:02.4143695Z #13 2.390  + pygments==2.21.0
+2026-11-08T15:00:02.4143889Z #13 2.390  + pyparsing==3.3.3
+2026-11-08T15:00:02.4144081Z #13 2.390  + pytest==9.1.1
+2026-11-08T15:00:02.4144385Z #13 2.390  + python-dateutil==2.9.0.post0
+2026-11-08T15:00:02.4144615Z #13 2.390  + python-dotenv==1.2.4
+2026-11-08T15:00:02.4144825Z #13 2.390  + pytz==2026.5
+2026-11-08T15:00:02.4145011Z #13 2.390  + pyyaml==6.0.3
+2026-11-08T15:00:02.4145196Z #13 2.390  + requests==2.34.2
+2026-11-08T15:00:02.4145386Z #13 2.390  + ruff==0.15.7
+2026-11-08T15:00:02.4145582Z #13 2.390  + scikit-learn==1.9.1
+2026-11-08T15:00:02.4145792Z #13 2.390  + scipy==1.18.1
+2026-11-08T15:00:02.4146039Z #13 2.390  + six==1.17.0
+2026-11-08T15:00:02.4146221Z #13 2.390  + skops==0.16.0
+2026-11-08T15:00:02.4146403Z #13 2.390  + smmap==5.0.3
+2026-11-08T15:00:02.4146598Z #13 2.390  + sqlalchemy==2.1.3
+2026-11-08T15:00:02.4146794Z #13 2.390  + sqlparse==0.6.0
+2026-11-08T15:00:02.4146986Z #13 2.390  + starlette==1.7.0
+2026-11-08T15:00:02.4147181Z #13 2.390  + threadpoolctl==3.7.0
+2026-11-08T15:00:02.4147399Z #13 2.390  + typing-extensions==4.16.0
+2026-11-08T15:00:02.4147638Z #13 2.390  + typing-inspection==0.4.4
+2026-11-08T15:00:02.4147853Z #13 2.390  + tzdata==2026.5
+2026-11-08T15:00:02.4148043Z #13 2.390  + urllib3==2.8.0
+2026-11-08T15:00:02.4148228Z #13 2.391  + uvicorn==0.54.0
+2026-11-08T15:00:02.4148420Z #13 2.391  + wcwidth==0.9.2
+2026-11-08T15:00:02.4148601Z #13 2.391  + werkzeug==3.1.9
+2026-11-08T15:00:02.4148789Z #13 2.391  + yarl==1.25.1
+2026-11-08T15:00:02.4148966Z #13 2.391  + zipp==4.1.1
+2026-11-08T15:00:06.5537707Z #13 DONE 6.7s
+2026-11-08T15:00:06.6537824Z 
+2026-11-08T15:00:06.6538484Z #14 [base  7/15] COPY bike-demand/src ./src
+2026-11-08T15:00:06.6539293Z #14 DONE 0.0s
+2026-11-08T15:00:06.6539597Z 
+2026-11-08T15:00:06.6540057Z #15 [base  8/15] COPY bike-demand/configs ./configs
+2026-11-08T15:00:06.6540558Z #15 DONE 0.0s
+2026-11-08T15:00:06.6540709Z 
+2026-11-08T15:00:06.6540812Z #16 [base  9/15] COPY bike-demand/data ./data
+2026-11-08T15:00:06.6541067Z #16 DONE 0.0s
+2026-11-08T15:00:06.6541241Z 
+2026-11-08T15:00:06.6541402Z #17 [base 10/15] COPY bike-demand/tests ./tests
+2026-11-08T15:00:06.6541663Z #17 DONE 0.1s
+2026-11-08T15:00:06.7991240Z 
+2026-11-08T15:00:06.7991807Z #18 [base 11/15] COPY bike-demand/README.md bike-demand/.python-version ./
+2026-11-08T15:00:06.7992259Z #18 DONE 0.0s
+2026-11-08T15:00:06.7992370Z 
+2026-11-08T15:00:06.7992491Z #19 [base 12/15] COPY bike-demand/.github ./.github
+2026-11-08T15:00:06.7993167Z #19 DONE 0.0s
+2026-11-08T15:00:06.7993280Z 
+2026-11-08T15:00:06.7993465Z #20 [base 13/15] COPY bike-demand/reports/week-01-team.md ./reports/week-01-team.md
+2026-11-08T15:00:06.7994038Z #20 DONE 0.0s
+2026-11-08T15:00:06.7994276Z 
+2026-11-08T15:00:06.7994421Z #21 [base 14/15] RUN uv sync --locked
+2026-11-08T15:00:06.7994689Z #21 0.123 Resolved 100 packages in 0.96ms
+2026-11-08T15:00:06.9552963Z #21 0.129    Building bike-demand @ file:///app
+2026-11-08T15:00:07.1489458Z #21 0.473       Built bike-demand @ file:///app
+2026-11-08T15:00:07.3458190Z #21 0.474 Prepared 1 package in 345ms
+2026-11-08T15:00:07.3458511Z #21 0.475 Installed 1 package in 0.91ms
+2026-11-08T15:00:07.3458785Z #21 0.475  + bike-demand==0.1.0 (from file:///app)
+2026-11-08T15:00:07.3459043Z #21 DONE 0.5s
+2026-11-08T15:00:07.3459148Z 
+2026-11-08T15:00:07.3459272Z #22 [base 15/15] RUN mkdir -p reports artifacts tracking
+2026-11-08T15:00:07.3713566Z #22 DONE 0.2s
+2026-11-08T15:00:07.5223245Z 
+2026-11-08T15:00:07.5223897Z #23 [trainer 1/1] RUN uv run --locked python -m bike_demand.train --config configs/baseline.yaml
+2026-11-08T15:00:15.3337059Z #23 7.962 2026/11/08 15:00:15 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026-11-08T15:00:15.5059821Z #23 7.983 2026/11/08 15:00:15 INFO mlflow.store.db.utils: Updating database tables
+2026-11-08T15:00:16.5758187Z #23 9.204 {
+2026-11-08T15:00:16.5758579Z #23 9.204   "timestamp": "2026-11-08T15:00:13.726806+00:00",
+2026-11-08T15:00:16.5758980Z #23 9.204   "training_commit": "unavailable",
+2026-11-08T15:00:16.5759320Z #23 9.204   "working_tree_dirty": null,
+2026-11-08T15:00:16.5759835Z #23 9.204   "data_sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+2026-11-08T15:00:16.5760333Z #23 9.204   "features": [
+2026-11-08T15:00:16.5760578Z #23 9.204     "season",
+2026-11-08T15:00:16.5760811Z #23 9.204     "yr",
+2026-11-08T15:00:16.5761034Z #23 9.204     "mnth",
+2026-11-08T15:00:16.5761279Z #23 9.204     "hr",
+2026-11-08T15:00:16.5761518Z #23 9.204     "holiday",
+2026-11-08T15:00:16.5761804Z #23 9.204     "weekday",
+2026-11-08T15:00:16.5762047Z #23 9.204     "workingday",
+2026-11-08T15:00:16.5762335Z #23 9.204     "weathersit",
+2026-11-08T15:00:16.5762579Z #23 9.204     "temp",
+2026-11-08T15:00:16.5762804Z #23 9.204     "atemp",
+2026-11-08T15:00:16.5763031Z #23 9.204     "hum",
+2026-11-08T15:00:16.5763260Z #23 9.204     "windspeed"
+2026-11-08T15:00:16.5763506Z #23 9.204   ],
+2026-11-08T15:00:16.5763736Z #23 9.204   "partitions": {
+2026-11-08T15:00:16.5763987Z #23 9.204     "train": {
+2026-11-08T15:00:16.5764383Z #23 9.204       "rows": 8645,
+2026-11-08T15:00:16.5764654Z #23 9.204       "date_min": "2011-01-01",
+2026-11-08T15:00:16.5764959Z #23 9.204       "date_max": "2011-12-31"
+2026-11-08T15:00:16.5765243Z #23 9.204     },
+2026-11-08T15:00:16.5765469Z #23 9.204     "validation": {
+2026-11-08T15:00:16.5765734Z #23 9.204       "rows": 4358,
+2026-11-08T15:00:16.5766006Z #23 9.204       "date_min": "2012-01-01",
+2026-11-08T15:00:16.5766310Z #23 9.204       "date_max": "2012-06-30"
+2026-11-08T15:00:16.5766583Z #23 9.204     },
+2026-11-08T15:00:16.5766796Z #23 9.204     "test": {
+2026-11-08T15:00:16.5767037Z #23 9.204       "rows": 4376,
+2026-11-08T15:00:16.5767509Z #23 9.204       "date_min": "2012-07-01",
+2026-11-08T15:00:16.5767857Z #23 9.204       "date_max": "2012-12-31"
+2026-11-08T15:00:16.5768233Z #23 9.204     }
+2026-11-08T15:00:16.5768562Z #23 9.204   },
+2026-11-08T15:00:16.5768848Z #23 9.204   "config": {
+2026-11-08T15:00:16.5769165Z #23 9.204     "data": "data/raw/hour.csv",
+2026-11-08T15:00:16.5769528Z #23 9.204     "features": [
+2026-11-08T15:00:16.5769844Z #23 9.204       "season",
+2026-11-08T15:00:16.5770151Z #23 9.204       "yr",
+2026-11-08T15:00:16.5770435Z #23 9.204       "mnth",
+2026-11-08T15:00:16.5770717Z #23 9.204       "hr",
+2026-11-08T15:00:16.5771002Z #23 9.204       "holiday",
+2026-11-08T15:00:16.5771303Z #23 9.204       "weekday",
+2026-11-08T15:00:16.5771622Z #23 9.204       "workingday",
+2026-11-08T15:00:16.5781699Z #23 9.204       "weathersit",
+2026-11-08T15:00:16.5782376Z #23 9.204       "temp",
+2026-11-08T15:00:16.5782705Z #23 9.204       "atemp",
+2026-11-08T15:00:16.5783184Z #23 9.204       "hum",
+2026-11-08T15:00:16.5783486Z #23 9.204       "windspeed"
+2026-11-08T15:00:16.5783743Z #23 9.204     ],
+2026-11-08T15:00:16.5783981Z #23 9.204     "model": {
+2026-11-08T15:00:16.5784375Z #23 9.204       "n_estimators": 50,
+2026-11-08T15:00:16.5784667Z #23 9.204       "max_depth": 10,
+2026-11-08T15:00:16.5784945Z #23 9.204       "random_state": 42,
+2026-11-08T15:00:16.5785225Z #23 9.204       "n_jobs": 1
+2026-11-08T15:00:16.5785467Z #23 9.204     }
+2026-11-08T15:00:16.5785682Z #23 9.204   },
+2026-11-08T15:00:16.5785934Z #23 9.204   "effective_model_settings": {
+2026-11-08T15:00:16.5786254Z #23 9.204     "bootstrap": true,
+2026-11-08T15:00:16.5786537Z #23 9.204     "ccp_alpha": 0.0,
+2026-11-08T15:00:16.5786836Z #23 9.204     "criterion": "squared_error",
+2026-11-08T15:00:16.5787149Z #23 9.204     "max_depth": 10,
+2026-11-08T15:00:16.5787421Z #23 9.204     "max_features": 1.0,
+2026-11-08T15:00:16.5787721Z #23 9.204     "max_leaf_nodes": null,
+2026-11-08T15:00:16.5788015Z #23 9.204     "max_samples": null,
+2026-11-08T15:00:16.5788313Z #23 9.204     "min_impurity_decrease": 0.0,
+2026-11-08T15:00:16.5788619Z #23 9.204     "min_samples_leaf": 1,
+2026-11-08T15:00:16.5788926Z #23 9.204     "min_samples_split": 2,
+2026-11-08T15:00:16.5789250Z #23 9.204     "min_weight_fraction_leaf": 0.0,
+2026-11-08T15:00:16.5789579Z #23 9.204     "monotonic_cst": null,
+2026-11-08T15:00:16.5789875Z #23 9.204     "n_estimators": 50,
+2026-11-08T15:00:16.5790150Z #23 9.204     "n_jobs": 1,
+2026-11-08T15:00:16.5790432Z #23 9.204     "oob_score": false,
+2026-11-08T15:00:16.5790707Z #23 9.204     "random_state": 42,
+2026-11-08T15:00:16.5790970Z #23 9.204     "verbose": 0,
+2026-11-08T15:00:16.5791223Z #23 9.204     "warm_start": false
+2026-11-08T15:00:16.5791489Z #23 9.204   },
+2026-11-08T15:00:16.5791755Z #23 9.204   "model_version": "baseline-cf856982003d",
+2026-11-08T15:00:16.5792167Z #23 9.204   "model_run_id": "0bb91eebbe304cf9b2d9a2867e27faa8",
+2026-11-08T15:00:16.5792721Z #23 9.204   "model_sha256": "d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07",
+2026-11-08T15:00:16.5793289Z #23 9.204   "naive_run_id": "688dc4a3ba234d0f84ad5b625b6e91e4",
+2026-11-08T15:00:16.5793661Z #23 9.204   "train_mean": 143.79444765760556,
+2026-11-08T15:00:16.5793968Z #23 9.204   "validation_mae": {
+2026-11-08T15:00:16.5794398Z #23 9.204     "naive_train_mean": 154.23179306864967,
+2026-11-08T15:00:16.5794738Z #23 9.204     "random_forest": 86.84685685591091
+2026-11-08T15:00:16.5795060Z #23 9.204   },
+2026-11-08T15:00:16.5795278Z #23 9.204   "readback": {
+2026-11-08T15:00:16.5795544Z #23 9.204     "reload_mae": 86.84685685591091,
+2026-11-08T15:00:16.5795855Z #23 9.204     "reload_mae_delta": 0.0,
+2026-11-08T15:00:16.5796161Z #23 9.204     "metadata_matches": true,
+2026-11-08T15:00:16.5796479Z #23 9.204     "logged_model_bytes_match": true,
+2026-11-08T15:00:16.5796824Z #23 9.204     "prediction_max_abs_delta": 0.0
+2026-11-08T15:00:16.5797125Z #23 9.204   }
+2026-11-08T15:00:16.5797327Z #23 9.204 }
+2026-11-08T15:00:17.9898150Z #23 DONE 10.6s
+2026-11-08T15:00:18.2577940Z 
+2026-11-08T15:00:18.2578574Z #24 [stage-2 1/1] COPY --from=trainer /app/artifacts ./artifacts
+2026-11-08T15:00:18.4535643Z #24 DONE 0.0s
+2026-11-08T15:00:18.4535855Z 
+2026-11-08T15:00:18.4535974Z #25 exporting to image
+2026-11-08T15:00:18.4536280Z #25 exporting layers
+2026-11-08T15:00:25.6095976Z #25 exporting layers 7.3s done
+2026-11-08T15:00:25.6246014Z #25 writing image sha256:5b6b5bdc30489bde5996c64aa312063508033ab1a07f840d42c238112161c6e1 done
+2026-11-08T15:00:25.6247017Z #25 naming to europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee done
+2026-11-08T15:00:25.6247643Z #25 DONE 7.3s
+2026-11-08T15:00:25.8941702Z commit 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:00:25.8942830Z image  europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:00:25.8943455Z model  baseline-cf856982003d
+2026-11-08T15:00:25.8974044Z ##[group]Run gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+2026-11-08T15:00:25.8974943Z [36;1mgcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet[0m
+2026-11-08T15:00:25.8975271Z [36;1mdocker push "$IMAGE"[0m
+2026-11-08T15:00:25.8992672Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-08T15:00:25.8992939Z env:
+2026-11-08T15:00:25.8993118Z   PROJECT_ID: mlops-demo-512323
+2026-11-08T15:00:25.8993341Z   REGION: europe-west1
+2026-11-08T15:00:25.8993556Z   SERVICE: mlops-thu2-orchid-bike-demand-demo
+2026-11-08T15:00:25.8993986Z   WIF_PROVIDER: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T15:00:25.8994766Z   DEPLOY_SA: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T15:00:25.8995064Z   AR_REPO: orchid-bike
+2026-11-08T15:00:25.8995272Z   SHA: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:00:25.8995845Z   CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:00:25.8996624Z   GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:00:25.8997329Z   GOOGLE_GHA_CREDS_PATH: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:00:25.8997820Z   CLOUDSDK_CORE_PROJECT: mlops-demo-512323
+2026-11-08T15:00:25.8998063Z   CLOUDSDK_PROJECT: mlops-demo-512323
+2026-11-08T15:00:25.8998291Z   GCLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:00:25.8998508Z   GCP_PROJECT: mlops-demo-512323
+2026-11-08T15:00:25.8998736Z   GOOGLE_CLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:00:25.8999013Z   CLOUDSDK_METRICS_ENVIRONMENT: github-actions-setup-gcloud
+2026-11-08T15:00:25.8999310Z   CLOUDSDK_METRICS_ENVIRONMENT_VERSION: 3.0.1
+2026-11-08T15:00:25.8999744Z   IMAGE: europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:00:25.9000189Z   EXPECTED_MODEL_VERSION: baseline-cf856982003d
+2026-11-08T15:00:25.9000430Z ##[endgroup]
+2026-11-08T15:00:26.1692158Z Adding credentials for: europe-west1-docker.pkg.dev
+2026-11-08T15:00:26.1880605Z Docker configuration file updated.
+2026-11-08T15:00:27.1442737Z The push refers to repository [europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike]
+2026-11-08T15:00:28.0899255Z da721a6a298f: Preparing
+2026-11-08T15:00:28.0899630Z b80ee32d639b: Preparing
+2026-11-08T15:00:28.0899879Z 91bde6d7797d: Preparing
+2026-11-08T15:00:28.0900081Z 6cf48d827bd6: Preparing
+2026-11-08T15:00:28.0900264Z b019690124ad: Preparing
+2026-11-08T15:00:28.0900446Z 13b9f2189ae3: Preparing
+2026-11-08T15:00:28.0900634Z 240c4fcbf5ec: Preparing
+2026-11-08T15:00:28.0900831Z 73ee387fe8ec: Preparing
+2026-11-08T15:00:28.0901071Z eb8cfa61ee0b: Preparing
+2026-11-08T15:00:28.0901340Z acb99a84d967: Preparing
+2026-11-08T15:00:28.0901556Z 0c4d1df6b5f3: Preparing
+2026-11-08T15:00:28.0901750Z 42e120a4d5a3: Preparing
+2026-11-08T15:00:28.0901938Z 9c6da99a29de: Preparing
+2026-11-08T15:00:28.0902116Z 85b96d497b67: Preparing
+2026-11-08T15:00:28.0902365Z 1c5fbd7b4a44: Preparing
+2026-11-08T15:00:28.0902626Z 340931a1d986: Preparing
+2026-11-08T15:00:28.0902824Z 96a69f98ae07: Preparing
+2026-11-08T15:00:28.0903125Z 3dc3efdf0110: Preparing
+2026-11-08T15:00:28.0903339Z dd57f90311a2: Preparing
+2026-11-08T15:00:28.0903618Z 13b9f2189ae3: Waiting
+2026-11-08T15:00:28.0903886Z 240c4fcbf5ec: Waiting
+2026-11-08T15:00:28.0904771Z 73ee387fe8ec: Waiting
+2026-11-08T15:00:28.0905069Z eb8cfa61ee0b: Waiting
+2026-11-08T15:00:28.0905332Z acb99a84d967: Waiting
+2026-11-08T15:00:28.0905766Z 0c4d1df6b5f3: Waiting
+2026-11-08T15:00:28.0906022Z 42e120a4d5a3: Waiting
+2026-11-08T15:00:28.0906413Z 9c6da99a29de: Waiting
+2026-11-08T15:00:28.0906654Z 85b96d497b67: Waiting
+2026-11-08T15:00:28.0906899Z 1c5fbd7b4a44: Waiting
+2026-11-08T15:00:28.0907337Z 340931a1d986: Waiting
+2026-11-08T15:00:28.0908421Z 96a69f98ae07: Waiting
+2026-11-08T15:00:28.0908698Z 3dc3efdf0110: Waiting
+2026-11-08T15:00:28.0908949Z dd57f90311a2: Waiting
+2026-11-08T15:00:30.8126496Z b80ee32d639b: Pushed
+2026-11-08T15:00:31.5790885Z da721a6a298f: Pushed
+2026-11-08T15:00:31.9157247Z 6cf48d827bd6: Pushed
+2026-11-08T15:00:32.3299080Z 91bde6d7797d: Pushed
+2026-11-08T15:00:32.4292647Z 240c4fcbf5ec: Pushed
+2026-11-08T15:00:32.5689065Z 13b9f2189ae3: Pushed
+2026-11-08T15:00:32.6519416Z b019690124ad: Pushed
+2026-11-08T15:00:33.9646665Z acb99a84d967: Pushed
+2026-11-08T15:00:34.5448659Z eb8cfa61ee0b: Pushed
+2026-11-08T15:00:34.8884763Z 73ee387fe8ec: Pushed
+2026-11-08T15:00:35.0563243Z 42e120a4d5a3: Pushed
+2026-11-08T15:00:35.2288691Z 340931a1d986: Layer already exists
+2026-11-08T15:00:36.2259739Z 96a69f98ae07: Layer already exists
+2026-11-08T15:00:37.1792068Z 3dc3efdf0110: Layer already exists
+2026-11-08T15:00:37.6931488Z 85b96d497b67: Pushed
+2026-11-08T15:00:40.6598388Z 9c6da99a29de: Pushed
+2026-11-08T15:00:42.0741527Z 1c5fbd7b4a44: Pushed
+2026-11-08T15:00:43.1198612Z dd57f90311a2: Pushed
+2026-11-08T15:00:56.8506577Z 0c4d1df6b5f3: Pushed
+2026-11-08T15:00:59.3266650Z 4287323da4162adfc1d8039b29e050ae9dbfc4ee: digest: sha256:494a3900325ecd1825925ac9dafb0188a1f40ebd231f50fcdaeb42b8b5ae6881 size: 4295
+2026-11-08T15:00:59.3325050Z ##[group]Run PREVIOUS=$(gcloud run services describe "$SERVICE" --region "$REGION" --format=json \
+2026-11-08T15:00:59.3325618Z [36;1mPREVIOUS=$(gcloud run services describe "$SERVICE" --region "$REGION" --format=json \[0m
+2026-11-08T15:00:59.3326249Z [36;1m  | python3 -c "import json,sys; t=json.load(sys.stdin)['status'].get('traffic',[]); print(max(t, key=lambda x: x.get('percent',0)).get('revisionName',''))")[0m
+2026-11-08T15:00:59.3326820Z [36;1mecho "PREVIOUS_REVISION=$PREVIOUS" >> "$GITHUB_ENV"[0m
+2026-11-08T15:00:59.3327164Z [36;1mecho "previous revision: ${PREVIOUS:-none}"[0m
+2026-11-08T15:00:59.3345322Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-08T15:00:59.3345606Z env:
+2026-11-08T15:00:59.3345816Z   PROJECT_ID: mlops-demo-512323
+2026-11-08T15:00:59.3346031Z   REGION: europe-west1
+2026-11-08T15:00:59.3346245Z   SERVICE: mlops-thu2-orchid-bike-demand-demo
+2026-11-08T15:00:59.3346715Z   WIF_PROVIDER: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T15:00:59.3347192Z   DEPLOY_SA: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T15:00:59.3347485Z   AR_REPO: orchid-bike
+2026-11-08T15:00:59.3347696Z   SHA: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:00:59.3348236Z   CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:00:59.3348999Z   GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:00:59.3349711Z   GOOGLE_GHA_CREDS_PATH: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:00:59.3350178Z   CLOUDSDK_CORE_PROJECT: mlops-demo-512323
+2026-11-08T15:00:59.3350414Z   CLOUDSDK_PROJECT: mlops-demo-512323
+2026-11-08T15:00:59.3350639Z   GCLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:00:59.3350864Z   GCP_PROJECT: mlops-demo-512323
+2026-11-08T15:00:59.3351084Z   GOOGLE_CLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:00:59.3351365Z   CLOUDSDK_METRICS_ENVIRONMENT: github-actions-setup-gcloud
+2026-11-08T15:00:59.3351663Z   CLOUDSDK_METRICS_ENVIRONMENT_VERSION: 3.0.1
+2026-11-08T15:00:59.3352106Z   IMAGE: europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:00:59.3352543Z   EXPECTED_MODEL_VERSION: baseline-cf856982003d
+2026-11-08T15:00:59.3352778Z ##[endgroup]
+2026-11-08T15:01:01.3239733Z previous revision: mlops-thu2-orchid-bike-demand-demo-00005-j4x
+2026-11-08T15:01:01.3294910Z ##[group]Run # --no-traffic then an explicit switch: works even when traffic was
+2026-11-08T15:01:01.3295846Z [36;1m# --no-traffic then an explicit switch: works even when traffic was[0m
+2026-11-08T15:01:01.3296406Z [36;1m# pinned to an older revision by a previous rollback.[0m
+2026-11-08T15:01:01.3296960Z [36;1mgcloud run deploy "$SERVICE" --region "$REGION" --image "$IMAGE" \[0m
+2026-11-08T15:01:01.3297489Z [36;1m  --port 8000 --no-traffic --quiet[0m
+2026-11-08T15:01:01.3297993Z [36;1mNEW=$(gcloud run services describe "$SERVICE" --region "$REGION" \[0m
+2026-11-08T15:01:01.3298570Z [36;1m  --format='value(status.latestCreatedRevisionName)')[0m
+2026-11-08T15:01:01.3299055Z [36;1mecho "NEW_REVISION=$NEW" >> "$GITHUB_ENV"[0m
+2026-11-08T15:01:01.3299581Z [36;1mgcloud run services update-traffic "$SERVICE" --region "$REGION" \[0m
+2026-11-08T15:01:01.3300100Z [36;1m  --to-revisions "$NEW=100" --quiet[0m
+2026-11-08T15:01:01.3300743Z [36;1mURL=$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')[0m
+2026-11-08T15:01:01.3301352Z [36;1mecho "SERVICE_URL=$URL" >> "$GITHUB_ENV"[0m
+2026-11-08T15:01:01.3301755Z [36;1mecho "new revision: $NEW"[0m
+2026-11-08T15:01:01.3302107Z [36;1mecho "url:          $URL"[0m
+2026-11-08T15:01:01.3326820Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-08T15:01:01.3327258Z env:
+2026-11-08T15:01:01.3327532Z   PROJECT_ID: mlops-demo-512323
+2026-11-08T15:01:01.3327862Z   REGION: europe-west1
+2026-11-08T15:01:01.3328190Z   SERVICE: mlops-thu2-orchid-bike-demand-demo
+2026-11-08T15:01:01.3328891Z   WIF_PROVIDER: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T15:01:01.3329712Z   DEPLOY_SA: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T15:01:01.3330193Z   AR_REPO: orchid-bike
+2026-11-08T15:01:01.3330516Z   SHA: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:01:01.3331421Z   CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:01:01.3332784Z   GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:01:01.3334013Z   GOOGLE_GHA_CREDS_PATH: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:01:01.3334981Z   CLOUDSDK_CORE_PROJECT: mlops-demo-512323
+2026-11-08T15:01:01.3335367Z   CLOUDSDK_PROJECT: mlops-demo-512323
+2026-11-08T15:01:01.3335735Z   GCLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:01:01.3336089Z   GCP_PROJECT: mlops-demo-512323
+2026-11-08T15:01:01.3336450Z   GOOGLE_CLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:01:01.3336911Z   CLOUDSDK_METRICS_ENVIRONMENT: github-actions-setup-gcloud
+2026-11-08T15:01:01.3337391Z   CLOUDSDK_METRICS_ENVIRONMENT_VERSION: 3.0.1
+2026-11-08T15:01:01.3338145Z   IMAGE: europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:01:01.3338884Z   EXPECTED_MODEL_VERSION: baseline-cf856982003d
+2026-11-08T15:01:01.3339401Z   PREVIOUS_REVISION: mlops-thu2-orchid-bike-demand-demo-00005-j4x
+2026-11-08T15:01:01.3339889Z ##[endgroup]
+2026-11-08T15:01:03.3836856Z Deploying container to Cloud Run service [mlops-thu2-orchid-bike-demand-demo] in project [mlops-demo-512323] region [europe-west1]
+2026-11-08T15:01:03.3837378Z Deploying...
+2026-11-08T15:01:20.0146363Z Creating Revision.............................................................................................................................................................done
+2026-11-08T15:01:21.1078525Z Done.
+2026-11-08T15:01:22.3724932Z Service [mlops-thu2-orchid-bike-demand-demo] revision [mlops-thu2-orchid-bike-demand-demo-00008-z4d] has been deployed and is serving 0 percent of traffic.
+2026-11-08T15:01:22.3726221Z Proxy locally with: gcloud run services proxy mlops-thu2-orchid-bike-demand-demo --region europe-west1 --project mlops-demo-512323
+2026-11-08T15:01:24.4468354Z Updating traffic...
+2026-11-08T15:01:44.0315928Z Routing traffic.....................................................................................................................................................................................done
+2026-11-08T15:01:44.9612241Z Done.
+2026-11-08T15:01:44.9784471Z URL: https://mlops-thu2-orchid-bike-demand-demo-7md3wlybfq-ew.a.run.app
+2026-11-08T15:01:44.9784975Z Traffic:
+2026-11-08T15:01:44.9785221Z   100% mlops-thu2-orchid-bike-demand-demo-00008-z4d
+2026-11-08T15:01:46.7142623Z new revision: mlops-thu2-orchid-bike-demand-demo-00008-z4d
+2026-11-08T15:01:46.7143142Z url:          https://mlops-thu2-orchid-bike-demand-demo-7md3wlybfq-ew.a.run.app
+2026-11-08T15:01:46.7204062Z ##[group]Run google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093
+2026-11-08T15:01:46.7204597Z with:
+2026-11-08T15:01:46.7204996Z   workload_identity_provider: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T15:01:46.7205531Z   service_account: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T15:01:46.7205876Z   token_format: id_token
+2026-11-08T15:01:46.7206222Z   id_token_audience: https://mlops-thu2-orchid-bike-demand-demo-7md3wlybfq-ew.a.run.app
+2026-11-08T15:01:46.7206587Z   id_token_include_email: true
+2026-11-08T15:01:46.7206802Z   create_credentials_file: true
+2026-11-08T15:01:46.7207017Z   export_environment_variables: true
+2026-11-08T15:01:46.7207250Z   universe: googleapis.com
+2026-11-08T15:01:46.7207449Z   cleanup_credentials: true
+2026-11-08T15:01:46.7207788Z   access_token_lifetime: 3600s
+2026-11-08T15:01:46.7208304Z   access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+2026-11-08T15:01:46.7208872Z env:
+2026-11-08T15:01:46.7259996Z   PROJECT_ID: mlops-demo-512323
+2026-11-08T15:01:46.7260338Z   REGION: europe-west1
+2026-11-08T15:01:46.7260568Z   SERVICE: mlops-thu2-orchid-bike-demand-demo
+2026-11-08T15:01:46.7261032Z   WIF_PROVIDER: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T15:01:46.7261600Z   DEPLOY_SA: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T15:01:46.7261907Z   AR_REPO: orchid-bike
+2026-11-08T15:01:46.7262121Z   SHA: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:01:46.7262665Z   CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:01:46.7263435Z   GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:01:46.7264419Z   GOOGLE_GHA_CREDS_PATH: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-9a40f4bfc694cc1e.json
+2026-11-08T15:01:46.7264979Z   CLOUDSDK_CORE_PROJECT: mlops-demo-512323
+2026-11-08T15:01:46.7265222Z   CLOUDSDK_PROJECT: mlops-demo-512323
+2026-11-08T15:01:46.7265455Z   GCLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:01:46.7265676Z   GCP_PROJECT: mlops-demo-512323
+2026-11-08T15:01:46.7265908Z   GOOGLE_CLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:01:46.7266188Z   CLOUDSDK_METRICS_ENVIRONMENT: github-actions-setup-gcloud
+2026-11-08T15:01:46.7266479Z   CLOUDSDK_METRICS_ENVIRONMENT_VERSION: 3.0.1
+2026-11-08T15:01:46.7266922Z   IMAGE: europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:01:46.7267371Z   EXPECTED_MODEL_VERSION: baseline-cf856982003d
+2026-11-08T15:01:46.7267691Z   PREVIOUS_REVISION: mlops-thu2-orchid-bike-demand-demo-00005-j4x
+2026-11-08T15:01:46.7268044Z   NEW_REVISION: mlops-thu2-orchid-bike-demand-demo-00008-z4d
+2026-11-08T15:01:46.7268448Z   SERVICE_URL: https://mlops-thu2-orchid-bike-demand-demo-7md3wlybfq-ew.a.run.app
+2026-11-08T15:01:46.7268787Z ##[endgroup]
+2026-11-08T15:01:47.0245633Z Created credentials file at "/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-fdd18a09b20607ef.json"
+2026-11-08T15:01:47.1989953Z ##[group]Run mkdir -p deploy-logs
+2026-11-08T15:01:47.1990451Z [36;1mmkdir -p deploy-logs[0m
+2026-11-08T15:01:47.1990829Z [36;1mpython3 scripts/check_deployed.py "$EXPECTED_MODEL_VERSION" | tee deploy-logs/live-check.txt[0m
+2026-11-08T15:01:47.1991212Z [36;1m{[0m
+2026-11-08T15:01:47.1991401Z [36;1m  echo "commit           $SHA"[0m
+2026-11-08T15:01:47.1991637Z [36;1m  echo "image            $IMAGE"[0m
+2026-11-08T15:01:47.1991885Z [36;1m  echo "checked revision $NEW_REVISION"[0m
+2026-11-08T15:01:47.1992175Z [36;1m  echo "previous         ${PREVIOUS_REVISION:-none}"[0m
+2026-11-08T15:01:47.1992469Z [36;1m} | tee -a deploy-logs/live-check.txt[0m
+2026-11-08T15:01:47.1992770Z [36;1mgcloud run services describe "$SERVICE" --region "$REGION" \[0m
+2026-11-08T15:01:47.1993185Z [36;1m  --format='table(status.traffic[].revisionName, status.traffic[].percent)' \[0m
+2026-11-08T15:01:47.1993561Z [36;1m  | tee -a deploy-logs/live-check.txt[0m
+2026-11-08T15:01:47.2011170Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-08T15:01:47.2011460Z env:
+2026-11-08T15:01:47.2011650Z   PROJECT_ID: mlops-demo-512323
+2026-11-08T15:01:47.2011864Z   REGION: europe-west1
+2026-11-08T15:01:47.2012079Z   SERVICE: mlops-thu2-orchid-bike-demand-demo
+2026-11-08T15:01:47.2012524Z   WIF_PROVIDER: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T15:01:47.2013004Z   DEPLOY_SA: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T15:01:47.2013303Z   AR_REPO: orchid-bike
+2026-11-08T15:01:47.2013519Z   SHA: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:01:47.2014067Z   CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-fdd18a09b20607ef.json
+2026-11-08T15:01:47.2015057Z   GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-fdd18a09b20607ef.json
+2026-11-08T15:01:47.2015820Z   GOOGLE_GHA_CREDS_PATH: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-fdd18a09b20607ef.json
+2026-11-08T15:01:47.2016302Z   CLOUDSDK_CORE_PROJECT: mlops-demo-512323
+2026-11-08T15:01:47.2016553Z   CLOUDSDK_PROJECT: mlops-demo-512323
+2026-11-08T15:01:47.2016784Z   GCLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:01:47.2017008Z   GCP_PROJECT: mlops-demo-512323
+2026-11-08T15:01:47.2017256Z   GOOGLE_CLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:01:47.2017549Z   CLOUDSDK_METRICS_ENVIRONMENT: github-actions-setup-gcloud
+2026-11-08T15:01:47.2017845Z   CLOUDSDK_METRICS_ENVIRONMENT_VERSION: 3.0.1
+2026-11-08T15:01:47.2018289Z   IMAGE: europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:01:47.2018730Z   EXPECTED_MODEL_VERSION: baseline-cf856982003d
+2026-11-08T15:01:47.2019052Z   PREVIOUS_REVISION: mlops-thu2-orchid-bike-demand-demo-00005-j4x
+2026-11-08T15:01:47.2019404Z   NEW_REVISION: mlops-thu2-orchid-bike-demand-demo-00008-z4d
+2026-11-08T15:01:47.2019818Z   SERVICE_URL: https://mlops-thu2-orchid-bike-demand-demo-7md3wlybfq-ew.a.run.app
+2026-11-08T15:01:47.2020265Z   BASE_URL: https://mlops-thu2-orchid-bike-demand-demo-7md3wlybfq-ew.a.run.app
+2026-11-08T15:01:47.2025090Z   ID_TOKEN: ***
+2026-11-08T15:01:47.2025315Z   CHECK_TIMEOUT: 60
+2026-11-08T15:01:47.2025508Z ##[endgroup]
+2026-11-08T15:01:48.0726673Z target https://mlops-thu2-orchid-bike-demand-demo-7md3wlybfq-ew.a.run.app
+2026-11-08T15:01:48.0727201Z claim                       expected                  observed                    result
+2026-11-08T15:01:48.0727573Z health status               200                       200                         ok
+2026-11-08T15:01:48.0727961Z health model_version        baseline-cf856982003d     baseline-cf856982003d       ok
+2026-11-08T15:01:48.0728349Z predict valid               200 + prediction >= 0     200 149.2911970908957       ok
+2026-11-08T15:01:48.0728984Z predict model_version       baseline-cf856982003d     baseline-cf856982003d       ok
+2026-11-08T15:01:48.0729546Z predict invalid (hum=1.5)   422                       422                         ok
+2026-11-08T15:01:48.0729834Z exit status 0
+2026-11-08T15:01:48.0823608Z commit           4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:01:48.0824348Z image            europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:01:48.0825171Z checked revision mlops-thu2-orchid-bike-demand-demo-00008-z4d
+2026-11-08T15:01:48.0825765Z previous         mlops-thu2-orchid-bike-demand-demo-00005-j4x
+2026-11-08T15:01:48.7805337Z REVISION_NAME                                     PERCENT
+2026-11-08T15:01:48.7805887Z ['mlops-thu2-orchid-bike-demand-demo-00008-z4d']  [100]
+2026-11-08T15:01:48.9848380Z ##[group]Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+2026-11-08T15:01:48.9848715Z with:
+2026-11-08T15:01:48.9848960Z   name: deploy-record-4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:01:48.9849260Z   path: deploy-logs/
+2026-11-08T15:01:48.9849481Z   if-no-files-found: warn
+2026-11-08T15:01:48.9849681Z   retention-days: 30
+2026-11-08T15:01:48.9849861Z   compression-level: 6
+2026-11-08T15:01:48.9850053Z   overwrite: false
+2026-11-08T15:01:48.9850241Z   include-hidden-files: false
+2026-11-08T15:01:48.9850454Z   archive: true
+2026-11-08T15:01:48.9850625Z env:
+2026-11-08T15:01:48.9850803Z   PROJECT_ID: mlops-demo-512323
+2026-11-08T15:01:48.9851021Z   REGION: europe-west1
+2026-11-08T15:01:48.9851242Z   SERVICE: mlops-thu2-orchid-bike-demand-demo
+2026-11-08T15:01:48.9851681Z   WIF_PROVIDER: projects/709271018248/locations/global/workloadIdentityPools/github/providers/github-actions
+2026-11-08T15:01:48.9852200Z   DEPLOY_SA: github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+2026-11-08T15:01:48.9852498Z   AR_REPO: orchid-bike
+2026-11-08T15:01:48.9852707Z   SHA: 4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:01:48.9853256Z   CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-fdd18a09b20607ef.json
+2026-11-08T15:01:48.9854046Z   GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-fdd18a09b20607ef.json
+2026-11-08T15:01:48.9854923Z   GOOGLE_GHA_CREDS_PATH: /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-fdd18a09b20607ef.json
+2026-11-08T15:01:48.9855406Z   CLOUDSDK_CORE_PROJECT: mlops-demo-512323
+2026-11-08T15:01:48.9855654Z   CLOUDSDK_PROJECT: mlops-demo-512323
+2026-11-08T15:01:48.9855904Z   GCLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:01:48.9856139Z   GCP_PROJECT: mlops-demo-512323
+2026-11-08T15:01:48.9856366Z   GOOGLE_CLOUD_PROJECT: mlops-demo-512323
+2026-11-08T15:01:48.9856656Z   CLOUDSDK_METRICS_ENVIRONMENT: github-actions-setup-gcloud
+2026-11-08T15:01:48.9856954Z   CLOUDSDK_METRICS_ENVIRONMENT_VERSION: 3.0.1
+2026-11-08T15:01:48.9857396Z   IMAGE: europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee
+2026-11-08T15:01:48.9857846Z   EXPECTED_MODEL_VERSION: baseline-cf856982003d
+2026-11-08T15:01:48.9858167Z   PREVIOUS_REVISION: mlops-thu2-orchid-bike-demand-demo-00005-j4x
+2026-11-08T15:01:48.9858526Z   NEW_REVISION: mlops-thu2-orchid-bike-demand-demo-00008-z4d
+2026-11-08T15:01:48.9858934Z   SERVICE_URL: https://mlops-thu2-orchid-bike-demand-demo-7md3wlybfq-ew.a.run.app
+2026-11-08T15:01:48.9859279Z ##[endgroup]
+2026-11-08T15:01:49.1114744Z With the provided path, there will be 1 file uploaded
+2026-11-08T15:01:49.1119504Z Artifact name is valid!
+2026-11-08T15:01:49.1120110Z Root directory input is valid!
+2026-11-08T15:01:49.4544264Z Uploading artifact: deploy-record-4287323da4162adfc1d8039b29e050ae9dbfc4ee.zip
+2026-11-08T15:01:49.4574678Z Beginning upload of artifact content to blob storage
+2026-11-08T15:01:49.7252460Z Uploaded bytes 535
+2026-11-08T15:01:49.7861274Z Finished uploading artifact content to blob storage!
+2026-11-08T15:01:49.7862192Z SHA256 digest of uploaded artifact is c877a1cd07804e7afab8bb36f9d1903a82f80dfd09098e0ce253e6ff4f6cf85d
+2026-11-08T15:01:49.7863548Z Finalizing artifact upload
+2026-11-08T15:01:50.3257481Z Artifact deploy-record-4287323da4162adfc1d8039b29e050ae9dbfc4ee successfully finalized. Artifact ID 13622410905
+2026-11-08T15:01:50.3258381Z Artifact deploy-record-4287323da4162adfc1d8039b29e050ae9dbfc4ee has been successfully uploaded! Final size is 535 bytes. Artifact ID is 13622410905
+2026-11-08T15:01:50.3260326Z Artifact download URL: https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/actions/runs/42491569451/artifacts/13622410905
+2026-11-08T15:01:50.3421739Z Post job cleanup.
+2026-11-08T15:01:50.4152154Z Removed exported credentials at "/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-fdd18a09b20607ef.json".
+2026-11-08T15:01:50.4290671Z Post job cleanup.
+2026-11-08T15:01:50.5077541Z Removed exported credentials at "/home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand/gha-creds-fdd18a09b20607ef.json".
+2026-11-08T15:01:50.5202213Z Post job cleanup.
+2026-11-08T15:01:50.6003001Z [command]/usr/bin/git version
+2026-11-08T15:01:50.6049476Z git version 2.56.0
+2026-11-08T15:01:50.6088588Z Temporarily overriding HOME='/home/runner/work/_temp/4ee02ac2-ab3d-49f7-bc53-4ab3046ef05d' before making global git config changes
+2026-11-08T15:01:50.6089623Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-08T15:01:50.6094701Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mlops-thu2-orchid-bike-demand/mlops-thu2-orchid-bike-demand
+2026-11-08T15:01:50.6128895Z Removing SSH command configuration
+2026-11-08T15:01:50.6135607Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-08T15:01:50.6174689Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-08T15:01:50.6398287Z Removing HTTP extra header
+2026-11-08T15:01:50.6405310Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-08T15:01:50.6444734Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-08T15:01:50.6726668Z Removing includeIf entries pointing to credentials config files
+2026-11-08T15:01:50.6736889Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-08T15:01:50.6807958Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-08T15:01:50.7176995Z Cleaning up orphan processes

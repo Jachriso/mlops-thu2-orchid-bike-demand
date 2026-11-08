@@ -1,0 +1,14 @@
+target https://mlops-thu2-orchid-bike-demand-demo-7md3wlybfq-ew.a.run.app
+claim                       expected                  observed                    result
+health status               200                       200                         ok
+health model_version        baseline-cf856982003d     baseline-cf856982003d       ok
+predict valid               200 + prediction >= 0     200 149.2911970908957       ok
+predict model_version       baseline-cf856982003d     baseline-cf856982003d       ok
+predict invalid (hum=1.5)   422                       422                         ok
+exit status 0
+commit           4287323da4162adfc1d8039b29e050ae9dbfc4ee
+image            europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee
+checked revision mlops-thu2-orchid-bike-demand-demo-00008-z4d
+previous         mlops-thu2-orchid-bike-demand-demo-00005-j4x
+REVISION_NAME                                     PERCENT
+['mlops-thu2-orchid-bike-demand-demo-00008-z4d']  [100]
