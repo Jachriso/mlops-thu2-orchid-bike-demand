@@ -35,7 +35,17 @@ will rely on.
 
 ## Access
 Read-only access (Storage Object Viewer) on the models bucket requested from Jade.
-Status: <pending / granted on DATE>.
+Status: **refused**. On 8 Nov, the project `mlops-demo-512323` is not visible from my
+Google account ("No resources to display"), and Jade cannot grant access. Only Jade can
+run the first recovery command.
+
+![Project mlops-demo-512323 not visible from my account (8 Nov)](../../images/lab7-marie-01-no-project-access.png)
+
+**Gap found:** the README recovery path depends on one person's cloud access. If she is
+not available during the Lab 8 incident, no other member can recover the accepted
+bundle. Possible repairs (team decision): ask the instructor to grant read access to the
+bucket for every member, or document a second, verified copy of the accepted bundle.
+
 
 ## Results
 To be filled after the run, with the raw outputs saved next to this file.
