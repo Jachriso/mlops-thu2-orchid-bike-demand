@@ -15,10 +15,10 @@ deploy time).
 | Role | Member | Rule |
 | --- | --- | --- |
 | Operator | Marie | investigates without knowing the fault |
-| Injector | TBD | prepares one reversible fault on a branch, does not reveal it |
+| Injector |  | prepares one reversible fault on a branch, does not reveal it |
 | Recorder | Marie | keeps the UTC timeline and the raw evidence |
 | Runbook author | Marie | writes `RUNBOOK.md` from this drill |
-| Runbook peer | TBD (not Marie) | follows `RUNBOOK.md` without its author narrating |
+| Runbook peer | | follows `RUNBOOK.md` without its author narrating |
 
 The fault is revealed only **after** the diagnosis is recorded. The operator and the
 recorder are the same person; every observation is therefore written down with its raw
@@ -49,7 +49,7 @@ evidence when it is made, not reconstructed afterwards.
 | Model identity seen by `/health` | `model_version` `baseline-0b7ee4462ec6` (same as `bundle verify` on v1); `/health` does not report `model_sha256` |
 | Accepted pointer | `models/accepted.json` current: `75dedf7d…` (manifest of v1) |
 | Results | health 5/5 → 200; valid 20/20 → 200; invalid 5/5 → 422 |
-| Latency, valid predictions (n = 20) | median TBD ms, p95 TBD ms |
+| Latency, valid predictions (n = 20) | median // ms, p95 //  ms |
 | Raw evidence | [`baseline-requests.txt`](baseline-requests.txt), [`baseline-service.log`](baseline-service.log) |
 
 ### Signal definitions (slide 8)
