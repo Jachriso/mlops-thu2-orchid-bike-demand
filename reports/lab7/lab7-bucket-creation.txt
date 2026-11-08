@@ -1,0 +1,65 @@
+Welcome to Cloud Shell! Type "help" to get started.
+Your Cloud Platform project in this session is set to mlops-demo-512323.
+Use `gcloud config set project [PROJECT_ID]` to change to a different project.
+jade_parrilla@cloudshell:~ (mlops-demo-512323)$ gcloud storage buckets create gs://mlops-demo-512323-orchid-bike-models \
+  --location=europe-west1 --uniform-bucket-level-access --public-access-prevention
+gcloud storage buckets update gs://mlops-demo-512323-orchid-bike-models --versioning
+Creating gs://mlops-demo-512323-orchid-bike-models/...
+Updating gs://mlops-demo-512323-orchid-bike-models/...                                                                                                                                                    
+  Completed 1                                                                                                                                                                                             
+jade_parrilla@cloudshell:~ (mlops-demo-512323)$ ls ~/v1-d24c050e3631
+manifest.json  model.joblib  model-metadata.json  uv.lock
+jade_parrilla@cloudshell:~ (mlops-demo-512323)$ sha256sum ~/v1-d24c050e3631/*
+75dedf7d7a60236f08b030ef87bab08c5f293f5ed357c7518e9d40ef5d4ff775  /home/jade_parrilla/v1-d24c050e3631/manifest.json
+d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07  /home/jade_parrilla/v1-d24c050e3631/model.joblib
+02a3748e9a7c50f9a2126c02662625c3f069049c22ea1c765af7b649a2f3d6f6  /home/jade_parrilla/v1-d24c050e3631/model-metadata.json
+955fd4fde8ce5cae097fee1c646e03f5a8e3204d28d111a55b18cfb68f0dae54  /home/jade_parrilla/v1-d24c050e3631/uv.lock
+jade_parrilla@cloudshell:~ (mlops-demo-512323)$ gcloud storage cp -r ~/v1-d24c050e3631 gs://mlops-demo-512323-orchid-bike-models/bundles/
+Copying file:///home/jade_parrilla/v1-d24c050e3631/model-metadata.json to gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631/model-metadata.json
+Copying file:///home/jade_parrilla/v1-d24c050e3631/uv.lock to gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631/uv.lock
+Copying file:///home/jade_parrilla/v1-d24c050e3631/manifest.json to gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631/manifest.json                                                       
+Copying file:///home/jade_parrilla/v1-d24c050e3631/model.joblib to gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631/model.joblib
+  Completed files 4/4 | 5.2MiB/5.2MiB                                                                                                                                                                     
+
+Average throughput: 16.9MiB/s
+jade_parrilla@cloudshell:~ (mlops-demo-512323)$ rm -rf /tmp/chk && mkdir /tmp/chk
+gcloud storage cp -r gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631 /tmp/chk/
+sha256sum /tmp/chk/v1-d24c050e3631/*
+Copying gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631/manifest.json to file:///tmp/chk/v1-d24c050e3631/manifest.json
+Copying gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631/model-metadata.json to file:///tmp/chk/v1-d24c050e3631/model-metadata.json
+Copying gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631/model.joblib to file:///tmp/chk/v1-d24c050e3631/model.joblib                                                                    
+Copying gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631/uv.lock to file:///tmp/chk/v1-d24c050e3631/uv.lock
+  Completed files 4/4 | 5.2MiB/5.2MiB                                                                                                                                                                     
+
+Average throughput: 35.6MiB/s
+75dedf7d7a60236f08b030ef87bab08c5f293f5ed357c7518e9d40ef5d4ff775  /tmp/chk/v1-d24c050e3631/manifest.json
+d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07  /tmp/chk/v1-d24c050e3631/model.joblib
+02a3748e9a7c50f9a2126c02662625c3f069049c22ea1c765af7b649a2f3d6f6  /tmp/chk/v1-d24c050e3631/model-metadata.json
+955fd4fde8ce5cae097fee1c646e03f5a8e3204d28d111a55b18cfb68f0dae54  /tmp/chk/v1-d24c050e3631/uv.lock
+jade_parrilla@cloudshell:~ (mlops-demo-512323)$ ^C
+jade_parrilla@cloudshell:~ (mlops-demo-512323)$ gcloud storage buckets add-iam-policy-binding gs://mlops-demo-512323-orchid-bike-models \
+  --member=serviceAccount:github-deployer@mlops-demo-512323.iam.gserviceaccount.com \
+  --role=roles/storage.objectViewer
+bindings:
+- members:
+  - projectEditor:mlops-demo-512323
+  - projectOwner:mlops-demo-512323
+  role: roles/storage.legacyBucketOwner
+- members:
+  - projectViewer:mlops-demo-512323
+  role: roles/storage.legacyBucketReader
+- members:
+  - projectEditor:mlops-demo-512323
+  - projectOwner:mlops-demo-512323
+  role: roles/storage.legacyObjectOwner
+- members:
+  - projectViewer:mlops-demo-512323
+  role: roles/storage.legacyObjectReader
+- members:
+  - serviceAccount:github-deployer@mlops-demo-512323.iam.gserviceaccount.com
+  role: roles/storage.objectViewer
+etag: CAM=
+kind: storage#policy
+resourceId: projects/_/buckets/mlops-demo-512323-orchid-bike-models
+version: 1
+jade_parrilla@cloudshell:~ (mlops-demo-512323)$ 

@@ -599,7 +599,9 @@ Tests: `bike-demand/tests/test_bundle.py` (a changed model byte fails *without* 
 | `model_version` served | `baseline-0b7ee4462ec6` |
 | Validation MAE | model 86.84685685591091, train-mean comparator 154.23179306864967: identical to the values recorded in Lab 2 (`reports/metrics.json`) |
 | Decision | bootstrap, not gated: v1 is the reference the gate compares candidates with; the gate does not exist yet |
-| Raw evidence | `reports/lab7/lab7-accepted-v1-create.txt` |
+| Stored | `gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631/` (bucket in `europe-west1`, object versioning on, public access prevented); uploaded from Cloud Shell, downloaded back with the same four sha256 |
+| Read access | project viewers, editors and owners (bucket defaults); `github-deployer` (`roles/storage.objectViewer`, for the deploy) |
+| Raw evidence | `reports/lab7/lab7-accepted-v1-create.txt` (creation and verification), `reports/lab7/lab7-bucket-creation.txt` (bucket, upload, download check, read access) |
 
 ### Recover the accepted version without retraining
 
@@ -642,6 +644,5 @@ To be answered by the owner of each part, in their pull request:
 
 ### Limits of increment 1
 
-- The bundle must still be uploaded to the bucket by Jade (the bucket is created in Cloud Shell); until then the recovery commands cannot be run by anyone else.
 - Cloud Run still serves a model trained during the Lab 6 deploy build (`model_version` `baseline-cf856982003d`), not the v1 bundle: the `Dockerfile` still retrains. Serving the accepted bundle is part of the promotion work.
 - `train.py` still overwrites `artifacts/` and `reports/metrics.json`; the pipeline command must not call it as it is.
