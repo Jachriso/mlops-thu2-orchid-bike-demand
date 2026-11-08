@@ -1,10 +1,16 @@
 import json
 import math
+import os
 import sys
 import urllib.error
 import urllib.request
 
-BASE = "http://127.0.0.1:8000"
+# Local by default (Lab 5). The deploy workflow sets BASE_URL to the Cloud Run URL,
+# ID_TOKEN to a Google identity token (private service) and a longer timeout for
+# cold starts. The token is read from the environment so it never shows in argv.
+BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
+ID_TOKEN = os.environ.get("ID_TOKEN")
+TIMEOUT = float(os.environ.get("CHECK_TIMEOUT", "5"))
 VALID = {"season": 1, "yr": 0, "mnth": 1, "hr": 12, "holiday": 0,
          "weekday": 1, "workingday": 1, "weathersit": 1,
          "temp": 0.5, "atemp": 0.5, "hum": 0.5, "windspeed": 0.2}
@@ -13,11 +19,13 @@ INVALID = dict(VALID, hum=1.5)
 
 def call(method, path, body=None):
     data = json.dumps(body).encode() if body is not None else None
+    headers = {"Content-Type": "application/json"}
+    if ID_TOKEN:
+        headers["Authorization"] = f"Bearer {ID_TOKEN}"
     req = urllib.request.Request(
-        BASE + path, data=data, method=method,
-        headers={"Content-Type": "application/json"})
+        BASE + path, data=data, method=method, headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=5) as r:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
             return r.status, json.load(r)
     except urllib.error.HTTPError as e:
         try:
@@ -33,6 +41,7 @@ def main():
         print("usage: python3 scripts/check_deployed.py <expected_model_version>")
         return 2
     expected = sys.argv[1]
+    print(f"target {BASE}")
     rows = []
 
     s, h = call("GET", "/health")
