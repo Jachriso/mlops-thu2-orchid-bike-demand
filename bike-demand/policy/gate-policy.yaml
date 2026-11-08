@@ -1,0 +1,46 @@
+# Lab 7 gate policy, version 1.
+# Committed BEFORE any candidate is evaluated. The only numbers used to write it
+# are the recorded v1 validation MAEs (model 86.8469, train-mean 154.2318).
+# Read by the gate; changed only through a reviewed pull request, with a reason.
+policy_version: 1
+ 
+protocol:
+  metric: validation_mae
+  metric_meaning: mean absolute error of cnt (bikes per hour), lower is better
+  rows: validation            # Jan-Jun 2012, 4358 rows (data/manifest.json partition_rows)
+  test_period: never used     # Jul-Dec 2012: no metric, no decision
+  comparators:
+    naive: train-mean model on the same rows
+    incumbent: the current entry of models/accepted.json at the evaluated commit
+ 
+quality:                      # every rule required; a measured failure = reject
+  beats_naive: candidate_mae < naive_mae
+  improves_incumbent:
+    rule: candidate_mae <= incumbent_mae * (1 - improvement_margin)
+    improvement_margin: 0.02  # relative; about 85.11 for v1 (86.8469). A judgment, not measured.
+ 
+operation:                    # every rule required; a measured failure = reject
+  loads_in_the_api: api.load_model accepts the candidate model and metadata
+  predictions: finite and >= 0 on every validation row (the API answers 500 otherwise)
+ 
+integrity:                    # every rule required; a failure or missing evidence = blocked
+  snapshot: check_snapshot passes (digest, size, header and rows match data/manifest.json)
+  features: the twelve ordered predictors, in the config and in the metadata
+  validation_rows: 4358
+  candidate_bytes: sha256 of model.joblib equals the candidate record, checked before the model is loaded
+  incumbent: bundle verify of the current accepted bundle exits 0, otherwise blocked
+  lock: sha256 of the candidate uv.lock equals the one in the incumbent bundle
+  settings: only model settings change; random_state 42 and n_jobs 1 stay fixed
+  evidence_values: numbers must be finite, not booleans, not strings; a MAE must be >= 0
+ 
+outcomes:
+  accept: every required rule passed
+  reject: evidence valid and complete, and at least one quality or operation rule failed
+  blocked: any integrity rule failed, or required evidence is missing or invalid; repair, then rerun
+exit_status: {accept: 0, reject: 1, blocked: 2}
+ 
+budget:
+  max_candidates: 4           # distinct model settings evaluated on the validation rows
+  counting: blocked runs count; a rerun of the same settings after an infrastructure failure does not
+  beyond: a fifth candidate needs a reviewed revision of this policy
+ 
