@@ -708,6 +708,6 @@ Why : every extra candidate evaluated on the same rows makes the best score look
 It judges one validation window of six months, not future conditions. It looks at one overall MAE, not slices such as peak hours. 
 It does not measure latency. 
 The margin is a judgment. 
-The checks that apply the policy are not written yet, so this policy has not been exercised by any code or test.
+The decision function bike_demand.gate.decide now applies this policy to a dictionary of observed evidence and is tested in tests/test_gate.py (58 cases). It is not yet connected to a candidate pipeline, and decision records are not yet written.
  
 
