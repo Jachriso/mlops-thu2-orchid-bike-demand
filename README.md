@@ -553,3 +553,95 @@ REVISION_NAME                                     PERCENT
 - The model deployed is not the one CI tested: CI checks that the training code reproduces the recorded MAE; the deploy checks the identity of the model in its own image.
 - `main` is not protected by a branch rule; the review requirement is a team rule.
 - The rollback step and a red live check on Cloud Run have not been seen yet.
+
+## Lab 7: Pipeline and gate
+
+Status: **increment 1 of 3 done** (accepted reference and recovery path). The policy, the pipeline command and the promotion come in the next pull requests; the table at the end says who owns what.
+
+### What `main` did before Lab 7
+
+| Question | Finding in the code | Consequence |
+| --- | --- | --- |
+| Training boundary | `python -m bike_demand.train --config configs/baseline.yaml` validates, fits, evaluates and writes its outputs in one call. | There is no step between "trained" and "served". |
+| Overwrite risk | `train_baseline` writes `artifacts/model.joblib` and overwrites `reports/metrics.json` before anything is decided. The `Dockerfile` also retrains at every build, and the Lab 6 deploy serves that model. | Any run replaces the model; Cloud Run serves a model no gate accepted. |
+| Settings guard | `load_config` rejects any `model` settings other than `DEFAULT_MODEL` (50 trees, depth 10). | No candidate can exist without a reviewed change to this guard. |
+| Identity | `model_version` is `baseline-` + `uuid4()`, a new random string at every training. `model_sha256` is stable: `d24c050e…8c07` in every Linux build since Lab 3. | The identity of an accepted version is the digest of its bytes, not `model_version`. |
+
+### Shared contract (proposed, to be confirmed by the team in the policy PR)
+
+- **Inputs:** the frozen snapshot `data/raw/hour.csv` (checked against `data/manifest.json`), the twelve ordered predictors, `uv.lock`, the policy file and the candidate's model settings. Candidates change model settings only.
+- **Evaluation rows:** train = 2011 (fit only), validation = Jan–Jun 2012 (4,358 rows, every comparison), test = Jul–Dec 2012 (never used, no metric).
+- **Outcomes:** `accept` (every criterion passed), `reject` (a measured rule failed), `blocked` (a required check did not run or its evidence is invalid; never counted as a pass).
+- **What a candidate may write:** only its own new run folder. Never `models/accepted.json`, never an accepted bundle, never `artifacts/` of the served image.
+- **Accepted state:** a bundle in Google Cloud Storage + the committed pointer `bike-demand/models/accepted.json`. Only a reviewed pull request on `main` changes the pointer.
+
+### Accepted state
+
+A **bundle** is a folder with the exact bytes of one version: `model.joblib`, `model-metadata.json` (what the API serves), `uv.lock` (dependencies) and `manifest.json` (sha256 of each file, data digest, feature order, validation rows and MAEs, source commit). Bundles are stored outside Git, in the bucket `gs://mlops-demo-512323-orchid-bike-models/bundles/<version>-<first 12 hex of model_sha256>/`; `*.joblib` and `bundles/` are ignored by Git.
+
+The **pointer** `bike-demand/models/accepted.json` is committed. `current` names the accepted bundle by the sha256 of its manifest (so it names exact bytes, since the manifest lists the digest of every file); `previous` keeps every version it replaced, newest first.
+
+`python -m bike_demand.bundle verify <folder> --pointer models/accepted.json` (run from `bike-demand/`):
+1. checks the manifest digest against the pointer, then every file digest against the manifest, then metadata against manifest, **before loading the model**;
+2. recomputes the validation MAE of the model and of the train-mean comparator on the same 4,358 rows, and compares them with the manifest (tolerance `1e-6`, as in Lab 6);
+3. prints a JSON result and exits 0, or prints the reason and exits 1.
+
+Tests: `bike-demand/tests/test_bundle.py` (a changed model byte fails *without* the model being loaded, a missing file fails, a pointer naming another manifest fails, an MAE that cannot be reproduced fails, an existing bundle is never overwritten).
+
+**v1, the accepted reference.**
+
+| Item | Value |
+| --- | --- |
+| Version | `v1`: the Week 1 random forest preset (`n_estimators` 50, `max_depth` 10, `random_state` 42, `n_jobs` 1) |
+| Bytes | trained by `docker build --target trainer` in a clean checkout of `main` at `4287323` (the trainer stage ran, not cached) |
+| `model_sha256` | `d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07` (the same digest as Lab 3, Lab 5 and the final check) |
+| Manifest sha256 | `75dedf7d7a60236f08b030ef87bab08c5f293f5ed357c7518e9d40ef5d4ff775` |
+| `model_version` served | `baseline-0b7ee4462ec6` |
+| Validation MAE | model 86.84685685591091, train-mean comparator 154.23179306864967: identical to the values recorded in Lab 2 (`reports/metrics.json`) |
+| Decision | bootstrap, not gated: v1 is the reference the gate compares candidates with; the gate does not exist yet |
+| Raw evidence | `reports/lab7/lab7-accepted-v1-create.txt` |
+
+### Recover the accepted version without retraining
+
+From `bike-demand/` (needs read access to the bucket):
+
+```
+gcloud storage cp -r gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631 bundles/
+uv run --locked python -m bike_demand.bundle verify bundles/v1-d24c050e3631 --pointer models/accepted.json
+```
+
+Exit 0 means: these are the accepted bytes, and they still give the recorded validation MAE. To recover an older version, use the `bundle_uri` and `manifest_sha256` of its entry in `previous`.
+
+### Design answers
+
+Answered in this increment:
+
+**Reference: which accepted version is frozen?**
+Choice: the version named by `current` in `models/accepted.json` at the commit the candidate is evaluated from; today `v1` (manifest `75dedf7d…`). *Rejected:* "the model in `artifacts/`" or "the model on Cloud Run": both change at every build (`train.py` overwrites `artifacts/`, the `Dockerfile` retrains), so the comparison would move under us.
+
+**Observations: same rows and labels for both?**
+Choice: yes, the validation partition of the frozen snapshot (4,358 rows, Jan–Jun 2012), checked by the snapshot digest before every evaluation; the bundle records the digest and the row count, and `verify` fails if either differs. *Rejected:* reusing a score computed on another split or snapshot.
+
+**Provenance: what makes an old score reusable?**
+Choice: a recorded score is reused only if the bytes, the data digest, the feature order and the row count all match, and `verify` reproduces it within `1e-6` on the current code and lock. *Rejected:* trusting a number in a report or an MLflow run from a laptop, which a clean checkout cannot check.
+
+**Identity (accepted state): what stays immutable for its lifetime?**
+Choice: the bundle folder and its four files; the pointer names it by manifest digest. A bundle is never edited (`create` refuses a non-empty folder); a new model is a new folder. *Rejected:* `model_version` alone (random, changes with every training) or an image tag (the Lab 6 deploy moved the same tag to a new image).
+
+**Retain: what recovers without retraining?**
+Choice: every accepted bundle stays in the bucket, and `previous` in the pointer keeps its URI and manifest digest, so any accepted version can be downloaded and verified with the two commands above. *Rejected:* keeping only the current model, or rebuilding an old version from its commit (retraining gives a new `model_version`, and depends on the platform: the Windows Lab 2 run gave another `model_sha256`).
+
+To be answered by the owner of each part, in their pull request:
+
+| Questions | Part | Owner |
+| --- | --- | --- |
+| metric, margin; Quality, Operation and Integrity rules; invalid, missing, reject, blocked, status | policy and gate checks (policy committed **before** any candidate is evaluated) | Annabelle (lead) |
+| stage, entry point, failure, partial, identity (run); separate (candidate side) | pipeline command and candidate runs, including one genuine rejection | Hajar |
+| switch, concurrent; serving the accepted bundle on Cloud Run; rejection leaves accepted state unchanged | promotion and deploy | Jade |
+| independent challenge of one claim | review | Léona |
+
+### Limits of increment 1
+
+- The bundle must still be uploaded to the bucket by Jade (the bucket is created in Cloud Shell); until then the recovery commands cannot be run by anyone else.
+- Cloud Run still serves a model trained during the Lab 6 deploy build (`model_version` `baseline-cf856982003d`), not the v1 bundle: the `Dockerfile` still retrains. Serving the accepted bundle is part of the promotion work.
+- `train.py` still overwrites `artifacts/` and `reports/metrics.json`; the pipeline command must not call it as it is.

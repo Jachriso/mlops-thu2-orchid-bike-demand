@@ -1,0 +1,67 @@
+# Lab 7: accepted v1 bundle, created and verified by Jade (Windows 11), 2026-11-08T15:47Z
+# Model bytes: docker build --target trainer -t orchid-bike:v1-trainer . in a clean checkout of main at 4287323 (trainer stage ran, not cached), then docker cp /app/artifacts
+# bundle uv.lock = bike-demand/uv.lock at 4287323 (cmp: identical)
+
+$ uv run --locked python -m bike_demand.bundle create --model <v1-local>/model.joblib --metadata <v1-local>/model-metadata.json --lock uv.lock --out bundles/v1-d24c050e3631 --commit 4287323da4162adfc1d8039b29e050ae9dbfc4ee --built-by "docker build --target trainer (clean checkout of main)"
+{
+  "schema": 1,
+  "created_at": "2026-11-08T15:47:18.715260+00:00",
+  "files": {
+    "model.joblib": "d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07",
+    "model-metadata.json": "02a3748e9a7c50f9a2126c02662625c3f069049c22ea1c765af7b649a2f3d6f6",
+    "uv.lock": "955fd4fde8ce5cae097fee1c646e03f5a8e3204d28d111a55b18cfb68f0dae54"
+  },
+  "model_sha256": "d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07",
+  "model_version": "baseline-0b7ee4462ec6",
+  "model_settings": {
+    "n_estimators": 50,
+    "max_depth": 10,
+    "random_state": 42,
+    "n_jobs": 1
+  },
+  "data_sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+  "features": [
+    "season",
+    "yr",
+    "mnth",
+    "hr",
+    "holiday",
+    "weekday",
+    "workingday",
+    "weathersit",
+    "temp",
+    "atemp",
+    "hum",
+    "windspeed"
+  ],
+  "validation_rows": 4358,
+  "validation_mae": {
+    "naive_train_mean": 154.23179306864967,
+    "model": 86.84685685591091
+  },
+  "source": {
+    "commit": "4287323da4162adfc1d8039b29e050ae9dbfc4ee",
+    "built_by": "docker build --target trainer (clean checkout of main)"
+  }
+}
+exit status 0
+
+$ sha256sum bundles/v1-d24c050e3631/*
+75dedf7d7a60236f08b030ef87bab08c5f293f5ed357c7518e9d40ef5d4ff775 *manifest.json
+02a3748e9a7c50f9a2126c02662625c3f069049c22ea1c765af7b649a2f3d6f6 *model-metadata.json
+d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07 *model.joblib
+955fd4fde8ce5cae097fee1c646e03f5a8e3204d28d111a55b18cfb68f0dae54 *uv.lock
+
+$ uv run --locked python -m bike_demand.bundle verify bundles/v1-d24c050e3631
+{
+  "status": "ok",
+  "manifest_sha256": "75dedf7d7a60236f08b030ef87bab08c5f293f5ed357c7518e9d40ef5d4ff775",
+  "model_sha256": "d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07",
+  "model_version": "baseline-0b7ee4462ec6",
+  "validation_rows": 4358,
+  "validation_mae": {
+    "naive_train_mean": 154.23179306864967,
+    "model": 86.84685685591091
+  }
+}
+exit status 0

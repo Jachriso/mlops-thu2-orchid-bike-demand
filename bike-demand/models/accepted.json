@@ -1,0 +1,25 @@
+{
+  "current": {
+    "version": "v1",
+    "bundle_uri": "gs://mlops-demo-512323-orchid-bike-models/bundles/v1-d24c050e3631/",
+    "manifest_sha256": "75dedf7d7a60236f08b030ef87bab08c5f293f5ed357c7518e9d40ef5d4ff775",
+    "model_sha256": "d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07",
+    "model_version": "baseline-0b7ee4462ec6",
+    "model_settings": {
+      "n_estimators": 50,
+      "max_depth": 10,
+      "random_state": 42,
+      "n_jobs": 1
+    },
+    "validation_mae": {
+      "naive_train_mean": 154.23179306864967,
+      "model": 86.84685685591091
+    },
+    "source_commit": "4287323da4162adfc1d8039b29e050ae9dbfc4ee",
+    "accepted_on": "2026-11-08",
+    "decision": "bootstrap: the Week 1 random forest preset (validation MAE 86.8469, as recorded in Lab 2) becomes the first accepted version, so that the Lab 7 gate has a frozen reference to compare candidates with. It was not decided by the gate, which does not exist yet.",
+    "evidence": "reports/lab7/lab7-accepted-v1-create.txt",
+    "cloud_run_revision": null
+  },
+  "previous": []
+}

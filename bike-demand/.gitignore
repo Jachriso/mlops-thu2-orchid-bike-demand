@@ -15,3 +15,7 @@ artifacts/
 tracking/
 roster.txt
 reports/*private*
+
+# Lab 7: model bundles live outside Git (see models/accepted.json)
+bundles/
+*.joblib
