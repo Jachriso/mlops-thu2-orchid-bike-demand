@@ -1,0 +1,159 @@
+{
+  "run": "2c1bb390e084-1",
+  "training_commit": "d984fd3ff4fc3da2efabea9abe4e3f44c88f3bbc",
+  "config": {
+    "data": "data/raw/hour.csv",
+    "features": [
+      "season",
+      "yr",
+      "mnth",
+      "hr",
+      "holiday",
+      "weekday",
+      "workingday",
+      "weathersit",
+      "temp",
+      "atemp",
+      "hum",
+      "windspeed"
+    ],
+    "model": {
+      "n_estimators": 200,
+      "max_depth": 15,
+      "random_state": 42,
+      "n_jobs": 1
+    }
+  },
+  "evidence": {
+    "candidate_mae": 86.18562792579105,
+    "naive_mae": 154.23179306864967,
+    "data_sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+    "manifest_sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+    "features": [
+      "season",
+      "yr",
+      "mnth",
+      "hr",
+      "holiday",
+      "weekday",
+      "workingday",
+      "weathersit",
+      "temp",
+      "atemp",
+      "hum",
+      "windspeed"
+    ],
+    "validation_rows": 4358,
+    "candidate_model_sha256": "9a7fdb747dc99a97239904d876a71965be5304e9ea3ffe05b9be5f76ea9289c1",
+    "recorded_model_sha256": "9a7fdb747dc99a97239904d876a71965be5304e9ea3ffe05b9be5f76ea9289c1",
+    "candidate_lock_sha256": "955fd4fde8ce5cae097fee1c646e03f5a8e3204d28d111a55b18cfb68f0dae54",
+    "settings": {
+      "bootstrap": true,
+      "ccp_alpha": 0.0,
+      "criterion": "squared_error",
+      "max_depth": 15,
+      "max_features": 1.0,
+      "max_leaf_nodes": null,
+      "max_samples": null,
+      "min_impurity_decrease": 0.0,
+      "min_samples_leaf": 1,
+      "min_samples_split": 2,
+      "min_weight_fraction_leaf": 0.0,
+      "monotonic_cst": null,
+      "n_estimators": 200,
+      "n_jobs": 1,
+      "oob_score": false,
+      "random_state": 42,
+      "verbose": 0,
+      "warm_start": false
+    },
+    "loads_in_api": true,
+    "predictions_all_finite": true,
+    "predictions_min": 1.158043317063054,
+    "incumbent_verify_exit": 0,
+    "incumbent_mae": 86.84685685591091,
+    "incumbent_lock_sha256": "955fd4fde8ce5cae097fee1c646e03f5a8e3204d28d111a55b18cfb68f0dae54"
+  },
+  "decision": {
+    "policy_version": 1,
+    "outcome": "reject",
+    "exit_status": 1,
+    "rules": [
+      {
+        "family": "integrity",
+        "rule": "snapshot",
+        "status": "passed",
+        "reason": "data_sha256 equals manifest_sha256"
+      },
+      {
+        "family": "integrity",
+        "rule": "features",
+        "status": "passed",
+        "reason": "the twelve predictors, in order"
+      },
+      {
+        "family": "integrity",
+        "rule": "validation_rows",
+        "status": "passed",
+        "reason": "4358 validation rows"
+      },
+      {
+        "family": "integrity",
+        "rule": "candidate_bytes",
+        "status": "passed",
+        "reason": "candidate_model_sha256 equals recorded_model_sha256"
+      },
+      {
+        "family": "integrity",
+        "rule": "incumbent",
+        "status": "passed",
+        "reason": "bundle verify of the incumbent exited 0"
+      },
+      {
+        "family": "integrity",
+        "rule": "lock",
+        "status": "passed",
+        "reason": "candidate_lock_sha256 equals incumbent_lock_sha256"
+      },
+      {
+        "family": "integrity",
+        "rule": "settings",
+        "status": "passed",
+        "reason": "random_state 42 and n_jobs 1 are unchanged"
+      },
+      {
+        "family": "quality",
+        "rule": "beats_naive",
+        "status": "passed",
+        "reason": "candidate MAE 86.18562792579105 is below the train-mean MAE 154.23179306864967"
+      },
+      {
+        "family": "quality",
+        "rule": "improves_incumbent",
+        "status": "failed",
+        "reason": "candidate MAE 86.18562792579105 > 85.1099197187927 (incumbent 86.84685685591091, margin 0.02)"
+      },
+      {
+        "family": "operation",
+        "rule": "loads_in_the_api",
+        "status": "passed",
+        "reason": "the API loader accepted the candidate"
+      },
+      {
+        "family": "operation",
+        "rule": "predictions",
+        "status": "passed",
+        "reason": "all predictions are finite and non-negative"
+      },
+      {
+        "family": "integrity",
+        "rule": "evidence_values",
+        "status": "passed",
+        "reason": "every number is finite, typed and in range"
+      }
+    ],
+    "reasons": [
+      "quality.improves_incumbent: failed: candidate MAE 86.18562792579105 > 85.1099197187927 (incumbent 86.84685685591091, margin 0.02)"
+    ]
+  }
+}
