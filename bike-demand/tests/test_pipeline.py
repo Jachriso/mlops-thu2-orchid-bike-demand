@@ -201,6 +201,8 @@ def test_a_run_without_incumbent_is_blocked_and_touches_no_other_state(workspace
     decision = json.loads(record_path.read_text())["decision"]
     assert decision["outcome"] == "blocked"
     assert decision["exit_status"] == 2
+    beats_naive = next(r for r in decision["rules"] if r["rule"] == "beats_naive")
+    assert beats_naive["status"] == "passed"
     assert not (workspace / "artifacts").exists()
     assert not (workspace / "reports" / "metrics.json").exists()
 
