@@ -412,7 +412,7 @@ Each run was made by its author on their own machine; image IDs differ because e
 | Start-up (Léona, Windows 11) | `cab9507` | `sha256:76a4c875…` | health 200, predict 200, `hum = 1.5` 422; missing model 503 / 503 / 422 | PR #8 description |
 | Check (Hajar, macOS) | `cab9507` | `sha256:53a5ab37…` (`bike-demand:dev`, container `c1`) | exit 0 with the right version, exit 1 with a wrong one | `reports/lab5/lab5-check-ok.txt`, `reports/lab5/lab5-check-fail.txt`, `reports/lab5/lab5-logs-raw.txt` |
 | Logging (Annabelle) | `6b85a88` | `8c5567d14241` | 145 tests passed in the image; one line per request; check exit 0; missing model logged with `reason` | `reports/lab5/lab5-logging-*.txt` |
-| Final check (Jade) | `main` after the last merge | — | pending | `reports/lab5/lab5-final-check.txt` |
+| Final check (Jade, Windows 11) | `d41f51c` (`main`) | `sha256:c2907919…` | steps 1 to 9: 5 claims ok, exit 0; broken model 503 / 503 / 422, exit 1 | `reports/lab5/lab5-final-check.txt` (commit `806c39c`) |
 
 ### Limits
 
@@ -420,5 +420,136 @@ Each run was made by its author on their own machine; image IDs differ because e
 - The expected value comes from the same image, so the check detects a wrong or stale container, not a bad build.
 - `service_revision` is only as good as the value passed at build time: a dirty tree or a forgotten `--build-arg` gives a wrong or `"unknown"` value.
 - If the model raises an unexpected error, the traceback is still written to the container log by the `uvicorn.error` logger, with the exception text. We did not review what such a text could contain.
-- `uv run` re-installs the project at each container start (`Uninstalled 1 package / Installed 1 package` in the logs).
-- No log retention or access control is defined; these are local logs. All runs are local; there is no CI yet (Lab 6).
+- `uv run` re-installs the project at each container start (`Uninstalled 1 package / Installed 1 package` in the logs). Cause found in Week 3: uv compares the ctime of `pyproject.toml` and `src/` with the one it recorded at build time, and Docker resets the ctime when it writes the image layers (raw output in `reports/lab3/uv-reinstall-diagnosis.txt`, explanation in `reports/week-2.md`).
+- No log retention or access control is defined; these are local logs. All Lab 5 runs are local; CI and the Cloud Run deploy come in Lab 6 (next section).
+
+## Lab 6: CI and deploy to Cloud Run
+
+Two workflows in `.github/workflows/`. Every action is pinned to a commit SHA, permissions are read-only by default, every job has a time limit, and every install comes from `uv.lock` (`uv sync --locked`). No secret or key is stored in the repository.
+
+### What runs, and when
+
+| Workflow | Trigger | Job / step | What it checks | Fails when |
+| --- | --- | --- | --- | --- |
+| `ci.yml` | pull request to `main`, push to `main`, manual | `lint` | `uv sync --locked`, `preflight`, `ruff check`, `ruff format --check` | the lock is stale, a required file is missing, a lint or format error |
+| | | `tests` (after `lint`): fast tests | `pytest -m "not regression"` (145 tests: data, split, baseline, API, logging, infra, lab1) | any behaviour test fails |
+| | | `tests`: regression | `pytest -m regression` (2 tests): retrains from the data snapshot and compares the validation MAEs with `bike-demand/reports/metrics.json` | the recomputed MAE differs from the recorded one by more than `1e-6` |
+| | | `tests`: upload test logs | both pytest logs kept as artifact `pytest-logs-<sha>` (14 days), even when red | — |
+| `deploy.yml` | the `CI` workflow completed on `main` | `deploy`, only if that CI run was a **push to `main`** and **succeeded** | build the image tagged with the commit, push it to Artifact Registry, deploy a new revision with no traffic, switch the traffic, run the Lab 5 check on the live URL | any step fails; if the live check fails, traffic goes back to the previous revision |
+
+A new push to a pull request cancels the outdated CI run on that pull request; runs on `main` are never cancelled. Deploys never run in parallel and are never cancelled halfway.
+
+### Reproduce a failure locally
+
+Run from `bike-demand/` (same commands on Windows PowerShell and macOS / Linux). The CI runs exactly these commands.
+
+```
+uv sync --locked
+uv run --locked ruff check .
+uv run --locked ruff format --check .
+uv run --locked pytest -q -m "not regression"
+uv run --locked pytest -q -m regression
+```
+
+- **Format (seen in CI run #1, `reports/lab6/lab6-ci-ddfd529-red.txt`):** the Lab 5 files `api.py`, `test_api.py` and `test_request_logging.py` were not formatted, and `ruff format --check .` printed `3 files would be reformatted` with exit code 1. `uv run --locked ruff format .` fixes it.
+- **Regression (`reports/lab6/lab6-tests-regression-red.txt`):** in `src/bike_demand/train.py`, train on `registered` instead of `cnt`, then run the regression tests: `113.93061096197528 == 86.84685685591091 ± 1.0e-06` fails. Revert the change afterwards.
+
+### Test map
+
+| Test | Defect it catches | Shown red |
+| --- | --- | --- |
+| `ruff format --check` (CI step) | code that does not follow the team format | CI run #1, PR #12, commit `ddfd529` (`reports/lab6/lab6-ci-ddfd529-red.txt`) |
+| `test_random_forest_validation_mae_matches_recorded` | drift in the training code: wrong target, features, split window or model settings change the validation MAE | target set to `registered`: 113.93 vs 86.85 (`reports/lab6/lab6-tests-regression-red.txt`, run on Hajar's Mac) |
+| `test_naive_mean_validation_mae_matches_recorded` | drift in the comparator: wrong training statistic or split | `mean` replaced by `median`: 159.95 vs 154.23 (same file) |
+| `scripts/check_deployed.py` on the live URL (deploy step) | the live service answers with another model, does not answer, or accepts invalid input | Lab 5: a wrong expected version gives 2 `FAIL`, exit 1 (`reports/lab5/lab5-check-fail.txt`); not yet seen red on Cloud Run |
+
+### Decisions
+
+Each answer gives our choice, the option we rejected, and why.
+
+#### What the pipeline checks
+
+**Coverage: what do our checks not cover yet?**
+Choice: we list the gaps instead of hiding them. CI does not build the Docker image (only the deploy does, after the merge), does not start the API in a container, does not run on Windows or macOS (where the team works), and does not test the README commands or `check_deployed.py` itself. Model quality is only checked as "the same MAE as recorded", not "better than the comparator". *Rejected:* adding a Docker build to every pull request now: about 2 minutes per run (see the deploy log) for a risk the deploy already catches before any traffic moves.
+
+**Machine: what does a clean runner not have?**
+Choice: the runner starts from `ubuntu-24.04` with nothing of ours: no `.venv`, no uv cache, no trained model (`artifacts/` is not in git), no MLflow `tracking/` folder, no Google Cloud credentials, and only the checked-out commit. So every run installs from `uv.lock`, and the regression test retrains from the data snapshot instead of loading a model file. *Rejected:* committing a model or caching `.venv` between runs: CI would then test what is on someone's disk, not what the commit produces.
+
+**Trigger: which changes should start which checks?**
+Choice: every pull request to `main` and every push to `main` run all of `ci.yml`, with no path filter. A deploy starts only from a green CI run on a push to `main`. *Rejected:* path filters (for example "skip CI when only Markdown changes"): `preflight` checks that `README.md` and other files exist, so a documentation change can break CI too.
+
+**Order: which check should fail first, and why?**
+Choice: `lint` first (lock, preflight, ruff), then the fast tests, then the regression tests that retrain the model. The cheapest check that catches the most common mistake fails first: run #1 stopped at `ruff format` after 19 seconds, without spending time on the tests. Fast tests and regression tests are separate steps, so the log says which kind of defect it is. *Rejected:* one job with a single `pytest` run: a format error would cost the full test time, and a red run would not say whether a behaviour or a recorded number changed.
+
+**Evidence: what can CI claim about the model?**
+- CI can claim: this commit, installed from `uv.lock` on `ubuntu-24.04`, passed lint, 145 fast tests and 2 regression tests, and the runner itself retrained the baseline and got the validation MAEs recorded in `reports/metrics.json` (86.8469 and 154.2318) within `1e-6`.
+- CI cannot claim anything about our laptops' MLflow runs, local model files, or the model in the deployed image (the deploy retrains in its own Docker build and gets a new `model_version`).
+- CI computes no test-period metric and says nothing about the model's quality on future data.
+
+#### Whether the tests work
+
+**Defects: which bug does each test catch?**
+See the test map above: each line names one defect. *Rejected:* a placeholder test (`assert True`, in the first version of PR #13): it can never fail, so it catches nothing.
+
+**Failing: can we make each test fail?**
+Yes: each line of the test map was made red on purpose, then reverted (raw outputs in `reports/lab6/`), except the live check, which has only been seen red locally (Lab 5). The first version of the regression test trained its own copy of the model instead of calling `fit_evaluate`; during the review of PR #13, a wrong target in `train.py` did not turn it red. The merged version calls the project code (`fit_evaluate`, `compare_mean`, `split_data`) and fails on that defect (113.93 vs 86.85). *Rejected:* trusting a test that was only ever seen green.
+
+**Tolerance: where does our number come from?**
+Choice: `1e-6`, from measured variation. The seed is fixed (`random_state=42`, `n_jobs=1`), `metrics.json` records `reload_mae_delta = 0.0`, three local recomputations gave a delta of exactly 0.0, and the CI run on `ubuntu-24.04` gave the same values. The tolerance only absorbs float rounding across platforms. *Rejected:* a loose tolerance such as 0.5, which would hide a real regression.
+
+**Repair: did we fix the cause or hide it?**
+Choice: fix the cause. CI run #1 (format): we ran `ruff format` on the three files (`d720474`); we did not remove the format check or exclude the files. Deploy run #1 (permission, see "Red to green" below): we granted the missing read permission to the deploy account; we did not remove the traffic switch or mark the step `continue-on-error`. If a regression test turns red, the fix is the training code, or a retrain with a new `metrics.json` in a reviewed pull request; never a wider tolerance.
+
+**Records: what is still readable in 3 months?**
+Choice: everything we cite is in the repository as text: raw logs of each red and green run in `reports/lab6/`, the recorded metrics in `bike-demand/reports/metrics.json`, the workflows with pinned versions, and this README. *Rejected:* links to Actions runs and artifacts only: the test-log artifacts expire after 14 days and the deploy records after 30 days.
+
+#### Delivering to Cloud Run
+
+**Gate: which branch and checks gate a deploy?**
+Choice: only `main`, only after the `CI` workflow succeeded on a push to `main` (`workflow_run` plus an `if` on the conclusion, the event and the branch). The deploy checks out the exact commit CI tested (`head_sha`), not whatever `main` is when the deploy starts. A pull request, a red CI or another branch deploys nothing. *Rejected:* a deploy job inside `ci.yml`: it would put the `id-token: write` permission next to the pull-request jobs. Limit: `main` has no branch protection rule, so "only reviewed pull requests reach `main`" is a team rule, not enforced by GitHub.
+
+**Identity: how does it log in with no stored key?**
+Choice: Workload Identity Federation. The job asks GitHub for a short-lived OIDC token (`id-token: write`), and `google-github-actions/auth` exchanges it for the service account `github-deployer@mlops-demo-512323.iam.gserviceaccount.com`. The provider, the account and the Artifact Registry repository are repository variables (not secrets: none of them gives access on its own). The same login gives the identity token for the private service. *Rejected:* a service-account JSON key stored as a GitHub secret: a long-lived key that works from anywhere if it leaks.
+
+**Proof: what shows the new revision is live?**
+Choice: after the traffic switch, the deploy runs `scripts/check_deployed.py` (the Lab 5 check) on the live URL with an identity token. The expected `model_version` is read from the image built in the same run, before the service answers. The output is saved with the commit, the image, the checked revision, the previous revision and the traffic table, and uploaded as `deploy-record-<sha>` (copy in `reports/lab6/lab6-deploy-live-check.txt`). *Rejected:* "the deploy command printed Done": that shows a revision exists, not which model answers.
+
+**Undo: what do we do if the live check fails?**
+Choice: the new revision is deployed with `--no-traffic`, and the revision serving before is recorded first. If the live check fails, the `Roll back` step sends 100% of the traffic back to that previous revision. **The previous revision stays served until the traffic is switched:** in deploy run #1 the traffic switch failed, and `mlops-thu2-orchid-bike-demand-demo-00005-j4x` kept 100% of the traffic while the new revision `00007-m94` got 0%. *Rejected:* `gcloud run deploy` with immediate traffic, which serves the new revision before it is checked. Limit: the rollback step has not been exercised yet (no live check has failed).
+
+### Red to green
+
+| Run | Commit | Result | Cause (from the log) | Repair | Raw log |
+| --- | --- | --- | --- | --- | --- |
+| CI #1, PR #12 | `ddfd529` | red, step `ruff format --check` | 3 Lab 5 files not formatted | `d720474` on the same PR: `ruff format` | `reports/lab6/lab6-ci-ddfd529-red.txt` |
+| CI #2, PR #12 | `d720474` | green | | | Actions only |
+| Deploy #1, attempt 1 | `4287323` (`main`) | red, step "Deploy a new revision" | `update-traffic` denied: `artifactregistry.repositories.downloadArtifacts` on repository `cloud-run-source-deploy` | `github-deployer` granted the Artifact Registry `reader` role on `cloud-run-source-deploy` | `reports/lab6/lab6-deploy-1-red.txt` |
+| Deploy #1, attempt 2 | `4287323` (`main`) | green: revision `00008-z4d` at 100%, live check 5 ok, exit 0 | | | `reports/lab6/lab6-deploy-2-green.txt`, `reports/lab6/lab6-deploy-live-check.txt` |
+
+**Deploy diagnosis.** The image was built and pushed, and the new revision was created. Moving the traffic failed because the deploy account must be able to read the image of every revision named in the traffic, including the one already serving. The previous revision `00005-j4x` had been deployed by hand from source, so its image is in the `cloud-run-source-deploy` repository, where the deploy account had no read access (it could only use our `orchid-bike` repository). The repair is a permission in Google Cloud, not a change in the repository, which is why attempt 2 ran on the same commit: the run was re-run after the cause was fixed, not "until it turned green".
+
+### Deploy record (current live revision)
+
+```
+target https://mlops-thu2-orchid-bike-demand-demo-7md3wlybfq-ew.a.run.app
+claim                       expected                  observed                    result
+health status               200                       200                         ok
+health model_version        baseline-cf856982003d     baseline-cf856982003d       ok
+predict valid               200 + prediction >= 0     200 149.2911970908957       ok
+predict model_version       baseline-cf856982003d     baseline-cf856982003d       ok
+predict invalid (hum=1.5)   422                       422                         ok
+exit status 0
+commit           4287323da4162adfc1d8039b29e050ae9dbfc4ee
+image            europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee
+checked revision mlops-thu2-orchid-bike-demand-demo-00008-z4d
+previous         mlops-thu2-orchid-bike-demand-demo-00005-j4x
+REVISION_NAME                                     PERCENT
+['mlops-thu2-orchid-bike-demand-demo-00008-z4d']  [100]
+```
+
+### Limits
+
+- The deploy retrains during `docker build`, so each deploy gets a new `model_version` (same commit: attempt 1 built `baseline-e980b74b3569`, attempt 2 `baseline-cf856982003d`). Attempt 2 pushed the same tag `orchid-bike:<sha>` again, so that tag now points to the second image; the deploy record says which revision and model are live.
+- The model deployed is not the one CI tested: CI checks that the training code reproduces the recorded MAE; the deploy checks the identity of the model in its own image.
+- `main` is not protected by a branch rule; the review requirement is a team rule.
+- The rollback step and a red live check on Cloud Run have not been seen yet.

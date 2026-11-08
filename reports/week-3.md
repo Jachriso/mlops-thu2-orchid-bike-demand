@@ -5,7 +5,8 @@
   - start-up: Marie Léona (`Leona224`), PR #8, reviewed by Parrilla Jade (`Jachriso`);
   - external check: Benlemqadem Hajar (`Hajarblmq`), PR #9, merged by Fautrad Annabelle (`annaftrd`);
   - logging: Annabelle, PR #10, merged by Hajar.
-- **Lab 6:** not started yet (section to come).
+- **Lab 5 final check:** run by Jade on `main` at `d41f51c` (all claims ok), output `reports/lab5/lab5-final-check.txt` (commit `806c39c`).
+- **Lab 6:** done and merged on `main` (`4287323`) through four pull requests (#12 CI, #13 tests, #14 CI completion, #15 deploy). `main` was deployed to Cloud Run by the deploy workflow: revision `mlops-thu2-orchid-bike-demand-demo-00008-z4d`, live check 5 ok.
 
 ## Student / team
 - **Team:** `mlops-thu2-orchid-bike-demand`
@@ -150,18 +151,160 @@ Followed only the README in Windows PowerShell, on `lab-05-startup` at `dfe8c35`
 
 ## Limits and Missing Evidence
 - **Reviews of PR #9 and #10 are not visible** on GitHub; the reviewers' commands and observations are not recorded. PR #8 has the review only in the merge commit message.
-- **Final check not yet run.** The README now names who runs it (Jade, on `main` after the last Lab 5 merge, before `m3`); its output `reports/lab5/lab5-final-check.txt` does not exist yet.
+- **Final check committed without a pull request.** Jade ran it on `main` at `d41f51c` (25 October 2026): 5 claims ok, exit 0; broken model 503 / 503 / 422, exit 1. The output `reports/lab5/lab5-final-check.txt` was committed directly on `main` (`806c39c`), not through a reviewed pull request.
 - **Start-up evidence of PR #8 has no raw log file** in the team repository; the author's results are only in the PR description.
 - A traceback from an unexpected model error still goes to the container log through `uvicorn.error`; its content was not reviewed.
-- `uv run` re-installs the project at each container start (`Uninstalled 1 package / Installed 1 package`), as already noted in Lab 4.
-- All runs are local, on our own machines. No remote CI was used as evidence; this is Lab 6.
+- `uv run` re-installs the project at each container start (`Uninstalled 1 package / Installed 1 package`), as already noted in Lab 4. Cause found in Week 3: uv compares the ctime of `pyproject.toml` and `src/` with the one it recorded at build time, and Docker resets the ctime when it writes the image layers (raw output in `reports/lab3/uv-reinstall-diagnosis.txt`, explanation in `reports/week-2.md`).
+- All Lab 5 runs are local, on our own machines. No remote CI was used as evidence; CI and the Cloud Run deploy are in Lab 6 below.
 
 ## Assistance and recovery acknowledgement
 - Jade used an AI assistant (Claude) to prepare the review of PR #8 (list of checks, PowerShell commands, wording of the review comment), to restructure the Lab 5 README and to draft this report from the commits, PR descriptions and `reports/lab5/` files. Every result in the review was run and seen by Jade; values in this report are copied from the repository, the PR descriptions and the raw logs.
-- Other members: to be completed by each author.
+- Other members: no AI assistance is declared in the descriptions or commits of PR #8 (Léona), #9 (Hajar) and #10 (Annabelle), and no instructor recovery function was used. If an author used an AI assistant, they add it to this line before `m3`.
 
 ---
 
-# Lab 6: GitHub Actions
+# Lab 6: GitHub Actions, CI checks, regression tests and deploy
 
-*To be completed.*
+## Roles & Contributions
+- **Annabelle (workflow):** wrote the first CI workflow at the repository root (`.github/workflows/ci.yml`, PR #12): locked install, preflight, `ruff check`, `ruff format --check`, then the whole test suite in a second job that waits for lint. Saved the first red run as text and repaired it on the same PR.
+- **Hajar (tests):** wrote the regression tests (`bike-demand/tests/test_lab06_catch.py`, PR #13) and registered the `regression` marker in `pyproject.toml`. Made each test red on purpose and saved the output (`reports/lab6/lab6-tests-regression-red.txt`).
+- **Jade (review, CI completion, deploy, README, report):** reviewed PR #13 and merged it; completed the CI (PR #14: separate regression step, concurrency, test-log artifact); wrote the deploy workflow (PR #15); set up the Google Cloud side (Cloud Run service, Artifact Registry repository `orchid-bike`, Workload Identity Federation, deploy account `github-deployer`, repository variables); diagnosed and repaired the red deploy; wrote the README "Lab 6" section and this report.
+- **Léona:** merged PR #14 and PR #15.
+- **Merges:** Hajar merged #12; Jade merged #13; Léona merged #14 and #15.
+
+## Links to Code and Pull Requests
+
+| PR | Branch | Author | Head merged | Merge commit on `main` | Merged by |
+| --- | --- | --- | --- | --- | --- |
+| [#12](https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/12) CI workflow | `lab-06-workflow-ci` | Annabelle | `04e6d97` | `08b1ad9` | Hajar |
+| [#13](https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/13) regression tests | `lab-06-tests` | Hajar | `67ac71d` | `7f061b4` | Jade |
+| [#14](https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/14) CI completion | `lab-06-ci-regression` | Jade | `00aca40` | included in `4287323` (merged with #15, which was based on it) | Léona |
+| [#15](https://github.com/Jachriso/mlops-thu2-orchid-bike-demand/pull/15) deploy | `lab-06-deploy` | Jade | `9e8ad05` | `4287323` | Léona |
+
+## What was added
+
+| Path | Change | PR |
+| --- | --- | --- |
+| `.github/workflows/ci.yml` | CI at the repository root: `lint` job (locked install, preflight, ruff), `tests` job after it; later split into fast tests and regression tests, concurrency, test logs uploaded even when red | #12, #14 |
+| `.github/workflows/deploy.yml` | deploy after a green CI on a push to `main`: keyless login, image tagged with the commit, new revision with no traffic, traffic switch, live check, rollback if the check fails, deploy record | #15 |
+| `bike-demand/tests/test_lab06_catch.py` | 2 regression tests: retrain with the project code and compare both validation MAEs with `reports/metrics.json` (tolerance `1e-6`) | #13 |
+| `bike-demand/pyproject.toml` | `regression` marker registered (`--strict-markers` is on) | #13 |
+| `bike-demand/src/bike_demand/api.py`, `tests/test_api.py`, `tests/test_request_logging.py` | `ruff format` only (repair of CI run #1) | #12 |
+| `scripts/check_deployed.py` | reads `BASE_URL`, `ID_TOKEN` and `CHECK_TIMEOUT` from the environment, so the Lab 5 check also runs against the private Cloud Run URL | #15 |
+| `reports/lab6/` | raw logs as text: CI run #1 (red), regression tests made red, deploy attempt 1 (red) and attempt 2 (green), live check | #12, #13, this PR |
+| `README.md` | section "Lab 6: CI and deploy to Cloud Run": what runs, how to reproduce a failure, test map, the 14 answers, red to green, deploy record, limits | this PR |
+
+No dependency was added: `uv.lock` is unchanged, and every install in CI and in the image uses `--locked`.
+
+## Decisions and Rationale
+The full answers (choice, rejected option, why) are in the README. In short:
+
+| Question | Our choice | Rejected |
+| --- | --- | --- |
+| coverage | gaps listed: no Docker build or running API in CI, Linux only, README commands and check script not tested, quality = "same MAE as recorded" | a Docker build on every PR (about 2 min, already done by the deploy) |
+| machine | nothing of ours on the runner: install from `uv.lock`, retrain from the data snapshot | committing a model or caching `.venv` |
+| trigger | every PR and push to `main` run all of CI, no path filter; deploy only after green CI on `main` | path filters (preflight reads the README, so docs can break CI) |
+| order | lint (19 s to fail) → fast tests → regression | one job with one `pytest` run |
+| evidence | runner-made facts only: commit, lock, checks, recomputed MAE; nothing about laptop MLflow runs or the deployed model | citing local runs as CI evidence |
+| defects | one named defect per test (test map) | `assert True` placeholder |
+| failing | each test made red on purpose, output saved as text | trusting a test only seen green |
+| tolerance | `1e-6`: fixed seed, delta 0.0 measured locally and on the runner | a loose tolerance (0.5) |
+| repair | fix the cause in a commit or a permission; never mute the check | removing the check, `continue-on-error` |
+| records | raw logs in `reports/lab6/`, metrics in the repo | links to runs and artifacts (expire after 14 / 30 days) |
+| gate | `workflow_run` of CI, only `success` + `push` + `main`, deploys the tested `head_sha` | deploy job inside `ci.yml` (puts `id-token: write` next to PR jobs) |
+| identity | Workload Identity Federation, short-lived OIDC token → `github-deployer` | a JSON key stored as a secret |
+| proof | Lab 5 check on the live URL, expected `model_version` read from the image of the same run, record with the revision | "deploy printed Done" |
+| undo | new revision with `--no-traffic`; previous revision recorded and kept serving until the switch; rollback step if the live check fails | deploying with immediate traffic |
+
+## Red → diagnosis → repair → green
+
+### CI, PR #12 (Annabelle)
+
+| Run | Commit | Result |
+| --- | --- | --- |
+| CI #1 | `ddfd529` | **red** at `ruff format --check .`: `Would reformat: src/bike_demand/api.py`, `tests/test_api.py`, `tests/test_request_logging.py`, `3 files would be reformatted`, exit code 1 (`reports/lab6/lab6-ci-ddfd529-red.txt`) |
+| — | `9ca1521` | red log saved as text |
+| — | `d720474` | **repair:** `ruff format` applied to the three files (formatting only, 145 insertions / 146 deletions) |
+| CI #2 | `d720474` | **green** |
+
+**Cause:** the Lab 5 files had never been checked by `ruff format`, because there was no CI before. The check was kept as it is; the code was fixed.
+
+### Deploy, run #1 on `main` (Jade)
+
+| Attempt | Commit | Result |
+| --- | --- | --- |
+| 1 (14:48–14:50 UTC) | `4287323` | **red** at "Deploy a new revision of the Lab 5 service" (`reports/lab6/lab6-deploy-1-red.txt`) |
+| 2 (14:59–15:01 UTC) | `4287323` | **green**: revision `00008-z4d` at 100%, live check 5 ok, exit 0 (`reports/lab6/lab6-deploy-2-green.txt`, `reports/lab6/lab6-deploy-live-check.txt`) |
+
+What the attempt 1 log shows: login without a key, build, push to `orchid-bike` and the new revision `00007-m94` (0% of the traffic) all succeeded. The traffic switch then failed:
+
+```
+Updating traffic failed
+Traffic:
+  100% mlops-thu2-orchid-bike-demand-demo-00005-j4x
+ERROR: (gcloud.run.services.update-traffic) PERMISSION_DENIED: Permission 'artifactregistry.repositories.downloadArtifacts' denied on resource '//artifactregistry.googleapis.com/projects/mlops-demo-512323/locations/europe-west1/repositories/cloud-run-source-deploy' (or it may not exist). [...] This command is authenticated as github-deployer@mlops-demo-512323.iam.gserviceaccount.com [...]
+```
+
+**Diagnosis.** Traffic can only be moved if the deploy account can read the image of every revision concerned, not only the new one. The revision serving before, `00005-j4x`, came from the service Jade had created by hand from source in Lab 6 setup, so its image is in the `cloud-run-source-deploy` repository. `github-deployer` could write to our `orchid-bike` repository but could not read `cloud-run-source-deploy`.
+
+**Repair.** Jade granted `github-deployer` the Artifact Registry `reader` role on `cloud-run-source-deploy`, then re-ran the failed job. Nothing changed in the repository, so attempt 2 ran on the same commit: it is a re-run after the cause was fixed in Google Cloud, not a re-run "until green". No step was muted and the traffic switch was kept.
+
+**Undo seen for real.** While the traffic switch failed, the previous revision `00005-j4x` kept 100% of the traffic: users kept the old, working service. This is the answer to *undo* in the README. The rollback step itself (live check red) was not triggered.
+
+## Deploy record
+
+From `reports/lab6/lab6-deploy-live-check.txt` (deploy run #1, attempt 2):
+
+| Item | Value |
+| --- | --- |
+| Commit | `4287323da4162adfc1d8039b29e050ae9dbfc4ee` (merge of PR #15 on `main`) |
+| CI that gated it | CI #27, push to `main`, green: lint, 145 fast tests, 2 regression tests |
+| Image | `europe-west1-docker.pkg.dev/mlops-demo-512323/orchid-bike/orchid-bike:4287323da4162adfc1d8039b29e050ae9dbfc4ee` |
+| Expected model (read from that image) | `baseline-cf856982003d` |
+| Checked revision | `mlops-thu2-orchid-bike-demand-demo-00008-z4d`, 100% of the traffic |
+| Previous revision | `mlops-thu2-orchid-bike-demand-demo-00005-j4x` |
+| Live check | `/health` 200, `model_version` ok, valid `/predict` 200 (149.29), `predict model_version` ok, `hum = 1.5` 422; exit status 0 |
+| URL | `https://mlops-thu2-orchid-bike-demand-demo-7md3wlybfq-ew.a.run.app` (private: identity token required) |
+
+## Tests: what they catch
+
+| Test | Defect | Shown red |
+| --- | --- | --- |
+| `ruff format --check` | unformatted code | CI #1 (`ddfd529`) |
+| `test_random_forest_validation_mae_matches_recorded` | training code drift (target, features, split, settings) | target `registered`: 113.93 vs 86.85 |
+| `test_naive_mean_validation_mae_matches_recorded` | comparator drift (statistic, split) | `median` instead of `mean`: 159.95 vs 154.23 |
+| live check in the deploy | wrong model, no answer, invalid input accepted | Lab 5 only (`lab5-check-fail.txt`) |
+
+The regression outputs were produced on Hajar's Mac (the path in the log is `/Users/hajarblmq/...`), not on the runner. On the runner (CI #27), both regression tests passed: `2 passed, 145 deselected`.
+
+## Review and Response
+
+### PR #13 (tests), reviewed by Jade
+- **`d27f48f` (first version):** the only new test was `assert True`. Jade posted a comment asking for changes (21:56 UTC): it can never fail, so it catches no defect (Lab 6 "Catch" and rule 2).
+- **`795e513`:** the test recomputed the MAE and caught a shifted validation window (85.52 vs 86.85), but trained its own copy of the model: a wrong target in `train.py` (`registered`) **still passed**. It also added an unused data link.
+- **Response (`409183c`, `67ac71d`):** the test now calls the project code (`fit_evaluate`, `compare_mean`, `split_data`), the unused file was removed, the `regression` marker was registered, and the red outputs were saved. The wrong target now fails (113.93 vs 86.85). CI #22 was red on `409183c` (`ruff format`, missing final newline), repaired by `67ac71d`, CI #23 green. Jade merged (`7f061b4`).
+- The comment is a plain comment, not a formal GitHub "Request changes" or "Approve" review.
+
+### PR #12, #14 and #15
+- **No review or comment is recorded on GitHub** for these three PRs (0 reviews, 0 comments). #12 was merged by Hajar, #14 and #15 by Léona.
+
+## Exit check: could our pipeline have failed? Show me.
+
+Yes, and it did, for real reasons:
+- CI run #1 failed on unformatted code, and was repaired by formatting it.
+- The regression tests fail when the training target or the comparator is changed (outputs saved).
+- The deploy failed on a missing permission, while the old revision kept serving, and turned green after the permission was fixed.
+
+## Limits and Missing Evidence
+- **"Break it on purpose" not done.** No teammate has opened a pull request with a hidden defect for the test author yet; there is no PR and no run for it.
+- **Reviews:** no formal GitHub review on any Lab 6 PR; only one comment (Jade on #13). `main` is not protected by a branch rule.
+- **The regression red outputs come from a laptop**, not from the runner. The runner only shows them green.
+- **The rollback step was never triggered**, and the live check was never seen red on Cloud Run.
+- **Same tag, two images.** Attempt 2 rebuilt the image (the model is retrained during the build, so `model_version` changed from `baseline-e980b74b3569` to `baseline-cf856982003d`) and pushed it under the same tag `orchid-bike:<sha>`. The revision `00007-m94` from attempt 1 still exists with 0% of the traffic.
+- The model deployed is not the one CI tested: CI checks that the training code reproduces the recorded MAE; the deploy checks the model identity in its own image.
+- The permission fix was made in the Google Cloud console / Cloud Shell; there is no text log of that command in the repository.
+- The `m3` tag has not been created yet.
+
+## Assistance and recovery acknowledgement
+- Jade used an AI assistant (Claude Code) to draft the CI completion and deploy workflows, the README "Lab 6" section and this report, from the workflows, the PR history and the raw logs in `reports/lab6/`. The Google Cloud setup, the deploy runs, the diagnosis and the permission fix were done by Jade; values in this report are copied from the logs and the repository.
+- Other members: no AI assistance is declared in the descriptions or commits of PR #12 (Annabelle) and #13 (Hajar); Léona only merged #14 and #15. No instructor recovery function was used. If an author used an AI assistant, they add it to this line before `m3`.
