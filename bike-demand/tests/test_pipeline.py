@@ -14,6 +14,7 @@ import pytest
 import yaml
 
 from bike_demand import pipeline
+from bike_demand.gate import load_policy
 from bike_demand.pipeline import (
     CANDIDATES,
     DECISIONS,
@@ -29,6 +30,11 @@ from bike_demand.validate import FEATURES
 
 ROOT = Path(__file__).parents[1]
 POLICY_FILE = ROOT / "policy" / "gate-policy.yaml"
+
+
+@pytest.fixture(scope="module")
+def policy_settings():
+    return load_policy(POLICY_FILE)["candidate_settings"]
 
 
 def write_config(folder: Path, **changes) -> Path:
@@ -73,9 +79,9 @@ def workspace(tmp_path, monkeypatch):
 # Settings guard
 
 
-def test_changed_tunable_settings_are_accepted(tmp_path):
+def test_changed_tunable_settings_are_accepted(tmp_path, policy_settings):
     model = {**DEFAULT_MODEL, "n_estimators": 100, "max_depth": 6}
-    config = load_candidate(write_config(tmp_path, model=model))
+    config = load_candidate(write_config(tmp_path, model=model), policy_settings)
     assert config["model"] == model
 
 
@@ -92,27 +98,60 @@ def test_changed_tunable_settings_are_accepted(tmp_path):
         {"min_samples_leaf": 3},
     ],
 )
-def test_bad_model_settings_are_refused(tmp_path, changes):
+def test_bad_model_settings_are_refused(tmp_path, policy_settings, changes):
     model = {**DEFAULT_MODEL, **changes}
     with pytest.raises(PipelineError):
-        load_candidate(write_config(tmp_path, model=model))
+        load_candidate(write_config(tmp_path, model=model), policy_settings)
 
 
-def test_a_missing_model_setting_is_refused(tmp_path):
+def test_a_missing_model_setting_is_refused(tmp_path, policy_settings):
     model = {k: v for k, v in DEFAULT_MODEL.items() if k != "n_jobs"}
     with pytest.raises(PipelineError):
-        load_candidate(write_config(tmp_path, model=model))
+        load_candidate(write_config(tmp_path, model=model), policy_settings)
 
 
-def test_the_data_and_feature_contracts_cannot_change(tmp_path):
+def test_the_data_and_feature_contracts_cannot_change(tmp_path, policy_settings):
     with pytest.raises(PipelineError):
-        load_candidate(write_config(tmp_path, data="data/raw/other.csv"))
+        load_candidate(
+            write_config(tmp_path, data="data/raw/other.csv"), policy_settings
+        )
     with pytest.raises(PipelineError):
-        load_candidate(write_config(tmp_path, features=list(FEATURES)[::-1]))
+        load_candidate(
+            write_config(tmp_path, features=list(FEATURES)[::-1]), policy_settings
+        )
     with pytest.raises(PipelineError):
-        load_candidate(write_config(tmp_path, features=list(FEATURES)[:-1]))
+        load_candidate(
+            write_config(tmp_path, features=list(FEATURES)[:-1]), policy_settings
+        )
     with pytest.raises(PipelineError):
-        load_candidate(write_config(tmp_path, extra="nope"))
+        load_candidate(write_config(tmp_path, extra="nope"), policy_settings)
+
+
+def test_policy_bounds_are_read_from_the_committed_policy(policy_settings):
+    assert policy_settings["tunable"]["n_estimators"] == {"min": 50, "max": 500}
+    assert policy_settings["tunable"]["max_depth"] == {"min": 3, "max": 20}
+    assert policy_settings["fixed"] == {"random_state": 42, "n_jobs": 1}
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"n_estimators": 5000},  # above max 500
+        {"n_estimators": 10},  # below min 50
+        {"max_depth": 2},  # below min 3
+        {"max_depth": 30},  # above max 20
+    ],
+)
+def test_policy_bounds_refuse_out_of_range_settings(tmp_path, policy_settings, changes):
+    model = {**DEFAULT_MODEL, **changes}
+    with pytest.raises(PipelineError):
+        load_candidate(write_config(tmp_path, model=model), policy_settings)
+
+
+def test_policy_bounds_accept_in_range_settings(tmp_path, policy_settings):
+    model = {**DEFAULT_MODEL, "n_estimators": 100, "max_depth": 6}
+    config = load_candidate(write_config(tmp_path, model=model), policy_settings)
+    assert config["model"]["n_estimators"] == 100
 
 
 # Identity

@@ -36,41 +36,19 @@ from bike_demand.validate import FEATURES, load_data
 CANDIDATES = Path("bundles/candidates")  # outside Git (see .gitignore)
 DECISIONS = Path("reports/lab7/decisions")  # committed records
 
-# Fallback candidate settings if the policy file has no candidate_settings block.
-# These match policy v2 and exist only so a malformed policy is reported, never
-# silently replaced.
-DEFAULT_CANDIDATE_SETTINGS = {
-    "tunable": {
-        "n_estimators": {"min": 50, "max": 500},
-        "max_depth": {"min": 3, "max": 20},
-    },
-    "fixed": {"random_state": 42, "n_jobs": 1},
-}
-
 
 class PipelineError(Exception):
     """The run cannot produce evidence that the gate could judge."""
 
 
-def load_candidate_settings(policy: dict | None = None) -> dict:
-    """Read candidate_settings from the policy, with the v2 defaults as fallback."""
-    if policy is None:
-        return DEFAULT_CANDIDATE_SETTINGS
-    settings = policy.get("candidate_settings")
-    if settings is None:
-        return DEFAULT_CANDIDATE_SETTINGS
-    if (
-        not isinstance(settings, dict)
-        or "tunable" not in settings
-        or "fixed" not in settings
-    ):
-        raise PipelineError("policy: candidate_settings needs tunable and fixed")
-    return settings
+def load_candidate(path: Path, settings: dict) -> dict:
+    """Same contract as train.load_config, but model settings may vary.
 
-
-def load_candidate(path: Path, settings: dict | None = None) -> dict:
-    """Same contract as train.load_config, but model settings may vary."""
-    settings = settings or DEFAULT_CANDIDATE_SETTINGS
+    `settings` is the `candidate_settings` block of the policy: it holds the
+    `tunable` keys with their min/max bounds and the `fixed` keys with their
+    required values. The policy is required (no fallback): a missing block is
+    already refused by load_policy.
+    """
     tunable = settings["tunable"]
     fixed = settings["fixed"]
     config = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -155,7 +133,7 @@ def observe_incumbent(root: Path, bundle: Path | None) -> dict:
 
 def run(root: Path, config_path: Path, incumbent: Path | None) -> int:
     policy = load_policy(root / "policy/gate-policy.yaml")
-    settings = load_candidate_settings(policy)
+    settings = policy["candidate_settings"]
     config = load_candidate(config_path, settings)
     observed_sha = check_snapshot(root)["sha256"]
     expected_sha = json.loads((root / "data/manifest.json").read_text())["sha256"]
