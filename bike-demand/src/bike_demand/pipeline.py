@@ -7,6 +7,9 @@ folder named after a run always holds a finished decision.
 
 Exit status is the gate's: 0 accept, 1 reject, 2 blocked. Anything that is not a
 decision (bad settings, unexpected crash) also exits 2, never 1.
+
+Candidate settings (tunable and fixed) are read from the policy file, so the
+allowlist lives next to the rules it belongs to.
 """
 
 import argparse
@@ -32,18 +35,44 @@ from bike_demand.validate import FEATURES, load_data
 
 CANDIDATES = Path("bundles/candidates")  # outside Git (see .gitignore)
 DECISIONS = Path("reports/lab7/decisions")  # committed records
-# Settings a candidate may change. TODO: read this list (and its bounds) from the
-# policy once the allowlist is committed there. No candidate runs before that.
-TUNABLE = ("n_estimators", "max_depth")
-FIXED = {"random_state": 42, "n_jobs": 1}
+
+# Fallback candidate settings if the policy file has no candidate_settings block.
+# These match policy v2 and exist only so a malformed policy is reported, never
+# silently replaced.
+DEFAULT_CANDIDATE_SETTINGS = {
+    "tunable": {
+        "n_estimators": {"min": 50, "max": 500},
+        "max_depth": {"min": 3, "max": 20},
+    },
+    "fixed": {"random_state": 42, "n_jobs": 1},
+}
 
 
 class PipelineError(Exception):
     """The run cannot produce evidence that the gate could judge."""
 
 
-def load_candidate(path: Path) -> dict:
+def load_candidate_settings(policy: dict | None = None) -> dict:
+    """Read candidate_settings from the policy, with the v2 defaults as fallback."""
+    if policy is None:
+        return DEFAULT_CANDIDATE_SETTINGS
+    settings = policy.get("candidate_settings")
+    if settings is None:
+        return DEFAULT_CANDIDATE_SETTINGS
+    if (
+        not isinstance(settings, dict)
+        or "tunable" not in settings
+        or "fixed" not in settings
+    ):
+        raise PipelineError("policy: candidate_settings needs tunable and fixed")
+    return settings
+
+
+def load_candidate(path: Path, settings: dict | None = None) -> dict:
     """Same contract as train.load_config, but model settings may vary."""
+    settings = settings or DEFAULT_CANDIDATE_SETTINGS
+    tunable = settings["tunable"]
+    fixed = settings["fixed"]
     config = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(config, dict) or set(config) != {"data", "features", "model"}:
         raise PipelineError("config: require data, features and model")
@@ -54,10 +83,14 @@ def load_candidate(path: Path) -> dict:
     model = config["model"]
     if not isinstance(model, dict) or set(model) != set(DEFAULT_MODEL):
         raise PipelineError(f"config: model needs exactly {sorted(DEFAULT_MODEL)}")
-    for key in TUNABLE:
-        if type(model[key]) is not int or model[key] < 1:
-            raise PipelineError(f"config: {key} must be an integer >= 1")
-    for key, value in FIXED.items():
+    for key, bounds in tunable.items():
+        if type(model[key]) is not int:
+            raise PipelineError(f"config: {key} must be an integer")
+        if not (bounds["min"] <= model[key] <= bounds["max"]):
+            raise PipelineError(
+                f"config: {key} must be between {bounds['min']} and {bounds['max']}"
+            )
+    for key, value in fixed.items():
         if type(model[key]) is not int or model[key] != value:
             raise PipelineError(f"config: {key} must stay {value}")
     return config
@@ -122,7 +155,8 @@ def observe_incumbent(root: Path, bundle: Path | None) -> dict:
 
 def run(root: Path, config_path: Path, incumbent: Path | None) -> int:
     policy = load_policy(root / "policy/gate-policy.yaml")
-    config = load_candidate(config_path)
+    settings = load_candidate_settings(policy)
+    config = load_candidate(config_path, settings)
     observed_sha = check_snapshot(root)["sha256"]
     expected_sha = json.loads((root / "data/manifest.json").read_text())["sha256"]
     commit = code_revision(root)
