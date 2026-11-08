@@ -47,5 +47,33 @@ bundle. Possible repairs (team decision): ask the instructor to grant read acces
 bucket for every member, or document a second, verified copy of the accepted bundle.
 
 
-## Results
-To be filled after the run, with the raw outputs saved next to this file.
+
+## Results ( Windows 11, my machine, branch `lab-07-challenge` = `main` + this file)
+
+Step 1 of the README (`gcloud storage cp`) was run by Jade, the only member with bucket
+access; she sent me the four bundle files privately (not through Git). Transport does not
+matter for this check: the pointer committed on `main` names the exact manifest digest.
+
+| Prediction | Observed | Raw output |
+| --- | --- | --- |
+| 1. The real bundle passes `verify`, exit 0, recorded MAE | **Confirmed.** `status: ok`, exit 0, `manifest_sha256` `75dedf7d…`, `model_sha256` `d24c050e…`, 4,358 validation rows, MAE 86.84685685591091 (train mean 154.23179306864967) | [`lab7-marie-verify-genuine.txt`](lab7-marie-verify-genuine.txt) |
+| 2. A copy with one changed byte fails and names `model.joblib` | **Confirmed.** One bit flipped at byte 1000 of the copy: `status: failed`, `integrity: model.joblib sha256 differs from the manifest`, exit 1, no MAE computed (refused before loading) | [`lab7-marie-verify-tampered.txt`](lab7-marie-verify-tampered.txt) |
+| 3. Accepted state unchanged | **Confirmed locally.** `git diff main -- models/accepted.json` is empty; the original `model.joblib` still hashes to `D24C050E…`, the copy to `B2D2AC74…`. I could not list the bucket myself (no access), but nothing was uploaded. | this file |
+
+### What this shows
+- `bundle verify` does what the README claims, on the real accepted bundle and for a
+  member who did not build it.
+- Loading the exact bytes on Windows, without Docker, gives the recorded MAE to every
+  digit, whereas retraining on Windows in Lab 2 gave another `model_sha256`. Keeping the
+  bytes is what makes recovery reproducible.
+
+### Gap (for Lab 8)
+The first recovery command needs bucket access that only one member has. Recovery
+during the incident must not depend on her being available. To be decided by the team
+before the drill.
+
+### Not covered by this challenge
+- The second recovery case in the README (an older version from `previous`): only v1
+  exists today.
+- Serving: Cloud Run still serves a model retrained at deploy time (README, line 647),
+  so I did not check the served identity.

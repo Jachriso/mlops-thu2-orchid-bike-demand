@@ -1,0 +1,6 @@
+﻿> uv run --locked python -m bike_demand.bundle verify bundles/v1-tampered --pointer models/accepted.json
+{
+  "status": "failed",
+  "reason": "integrity: model.joblib sha256 differs from the manifest"
+}
+exit code: 1
