@@ -723,3 +723,21 @@ The decision function bike_demand.gate.decide now applies this policy to a dicti
 **Partial.** Choice: the temporary folder is renamed only after the decision is written, so a run folder without a decision never exists. *Rejected:* writing straight into the final folder.
 
 **Identity.** Choice: `run_id` = first 12 hex characters of sha256 of `{model settings, data sha256, commit}`, no clock and no random id. It is also the key counting candidates against the budget. *Rejected:* `model_version` (contains a random id).
+
+
+### Result of the real candidate runs
+
+No candidate qualified. The best candidate (`n_estimators: 500, max_depth: 20`) reached validation MAE **85.99**, above the 2% margin threshold (`0.98 × 86.8469 = 85.11`). The accepted v1 bundle is retained unchanged: no margin, rule or threshold was adjusted to force a pass. The evidence file for this run is `reports/lab7/decisions/candidate-500-20-reject.txt` (renamed from the previous `accept.txt`).
+
+The four candidates evaluated are:
+
+| Settings | MAE | Outcome | Exit |
+|---|---|---|---|
+| `n_estimators: 50, max_depth: 3` | 105.10 | reject | 1 |
+| `n_estimators: 200, max_depth: 15` | 86.19 | reject | 1 |
+| `n_estimators: 500, max_depth: 20` | 85.99 | reject | 1 |
+| `n_estimators: 5000, max_depth: 3` | — | blocked (budget) | 2 |
+
+### `uv.lock` alignment and the first blocked run
+
+The first candidate run was `blocked` on `integrity.lock`: the sha256 of my local `uv.lock` differed from the incumbent bundle's lock. `git diff --ignore-cr-at-eol` shows the two files differ only by line endings, but the digests are different and the policy compares digests, not contents. I aligned the local `uv.lock` on the bundle's lock (`sha256: 955fd4fd…`) and every later run passed `integrity.lock`. I did not weaken the check or edit the bundle; the first blocked run (lock mismatch) was resolved before any later run.
