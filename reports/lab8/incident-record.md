@@ -5,20 +5,24 @@ next operator what to do. Raw evidence is kept as text next to this file and is 
 edited after the fact (slide 9).
 
 ## Status
-Baseline measured on 8 Nov. Fault, diagnosis and recovery: not done yet (waiting for an
-injector). The drill runs **locally with Docker**, as allowed by slide 17, because the
-operator has no access to the GCP project (see "Scope and limits"). Lab 7 is not fully
-merged on `main` yet (pipeline not connected, Cloud Run still serves a model retrained at
-deploy time).
+- Baseline measured on 8 Nov (section 1).
+- Fault attempt 1 (`lab-08-injector`, `119820f`): **refused at build time** by the
+  training settings guard; no image was produced and serving was not affected (see the
+  timeline and section 8). A fault that reaches the service has been requested from
+  the injector.
+- Diagnosis, rollback and recovery: not done yet.
+
+The drill runs **locally with Docker**, as allowed by slide 17, because the operator has
+no access to the GCP project (see "Scope and limits").
 
 ## Roles
 | Role | Member | Rule |
 | --- | --- | --- |
 | Operator | Marie | investigates without knowing the fault |
-| Injector |  | prepares one reversible fault on a branch, does not reveal it |
+| Injector | Hajar | prepares one reversible fault on a branch, does not reveal it |
 | Recorder | Marie | keeps the UTC timeline and the raw evidence |
 | Runbook author | Marie | writes `RUNBOOK.md` from this drill |
-| Runbook peer | | follows `RUNBOOK.md` without its author narrating |
+| Runbook peer | TBD (not Marie) | follows `RUNBOOK.md` without its author narrating |
 
 The fault is revealed only **after** the diagnosis is recorded. The operator and the
 recorder are the same person; every observation is therefore written down with its raw
@@ -49,7 +53,7 @@ evidence when it is made, not reconstructed afterwards.
 | Model identity seen by `/health` | `model_version` `baseline-0b7ee4462ec6` (same as `bundle verify` on v1); `/health` does not report `model_sha256` |
 | Accepted pointer | `models/accepted.json` current: `75dedf7d…` (manifest of v1) |
 | Results | health 5/5 → 200; valid 20/20 → 200; invalid 5/5 → 422 |
-| Latency, valid predictions (n = 20) | median // ms, p95 //  ms |
+| Latency, valid predictions (n = 20) | median 13.5 ms, p95 22.0 ms (nearest rank, `curl` `time_total`) |
 | Raw evidence | [`baseline-requests.txt`](baseline-requests.txt), [`baseline-service.log`](baseline-service.log) |
 
 ### Signal definitions (slide 8)
@@ -59,6 +63,7 @@ evidence when it is made, not reconstructed afterwards.
 | Prediction success | valid `POST /predict` calls | 200, finite value ≥ 0, expected `model_version` | ratio per window | no answer counts as a failure |
 | Validation rejections | invalid `POST /predict` calls | 4xx (expected) | count per window | not counted as failures |
 | Latency | valid `POST /predict` calls answered | time measured by `curl` (`time_total`) | ms, median and p95 (nearest rank) | unanswered calls are reported separately, not as a latency |
+| Release build | build of a new release | image produced | pass / fail | a refused build means nothing new is served |
 
 Intentional 422 rejections are **not** failures of valid predictions. The expected
 identity is `model_version` because `/health` does not report `model_sha256`.
@@ -66,14 +71,19 @@ identity is `model_version` because `/health` does not report `model_sha256`.
 ## 2. Timeline (UTC)
 | Time (UTC) | Who | What was observed or done | Evidence |
 | --- | --- | --- | --- |
-| 2026-11-08T22:28:38Z | Marie | service started from image `099e606f…` with bundle v1 | `baseline-service.log` |
+| 2026-11-08T22:28:38Z | Marie | service started from image `099e606f…` with bundle v1 | [`baseline-service.log`](baseline-service.log) |
 | 2026-11-08T22:28:49Z | Marie | `/health` → 200, `model_version` `baseline-0b7ee4462ec6` | terminal output |
-| 2026-11-08T22:30:24Z | Marie | baseline workload started | `baseline-requests.txt` |
-| 2026-11-08T22:31:00Z | Marie | baseline workload ended: no failure | `baseline-requests.txt` |
+| 2026-11-08T22:30:24Z | Marie | baseline workload started | [`baseline-requests.txt`](baseline-requests.txt) |
+| 2026-11-08T22:31:00Z | Marie | baseline workload ended: no failure | [`baseline-requests.txt`](baseline-requests.txt) |
+| 2026-11-08T23:05Z | Hajar | announced a faulty release on branch `lab-08-injector` (`119820f`). Her message included a hint about the fault area; the investigation deliberately starts from the symptoms | team chat |
+| 2026-11-08T23:06Z | Marie | release `119820f` checked out in a separate worktree; its commit message reads "under-trained model fault (config)". Treated as release metadata to verify, not as the conclusion | `git log` |
+| 2026-11-08T23:09Z | Marie | build of release `119820f` refused at the `trainer` stage: "config: use the Week 1 RF preset; settings changes need review". No image produced; serving state unchanged | [`release-build-refused.txt`](release-build-refused.txt) |
+| 2026-11-08T23:12Z | Marie | build rerun with full output saved as raw evidence; same refusal | [`release-build-refused.txt`](release-build-refused.txt) |
+| 2026-11-08T23:15Z | Marie | asked the injector for a fault that reaches the service, without bypassing the guard | team chat |
 | TBD | | | |
 
 ## 3. First signal (slide 9)
-- Signal: TBD
+- Signal: TBD (attempt 2)
 - Time (UTC): TBD
 - Affected scope: TBD
 - Image and model observed: TBD
@@ -94,7 +104,7 @@ identity is `model_version` because `/health` does not report `model_sha256`.
 | --- | --- | --- |
 | Code and image | TBD | TBD |
 | Model version and verified bytes | TBD | TBD |
-| Configuration (environment variables) | TBD | TBD |
+| Configuration (environment variables and training config) | TBD | TBD |
 | Inputs | TBD | TBD |
 
 ## 5. Response and rollback target (slides 13-14)
@@ -117,13 +127,22 @@ A successful command alone does not prove recovery.
 ## 7. Baseline, incident, recovery (slide 16)
 | Period | Window (UTC) | Count | Identity | Signals |
 | --- | --- | --- | --- | --- |
-| Baseline | 22:30:24Z to 22:31:00Z | 30 requests | `baseline-0b7ee4462ec6` | health 5/5 200, valid 20/20 200, invalid 5/5 422 |
+| Baseline | 22:30:24Z to 22:31:00Z | 30 requests | `baseline-0b7ee4462ec6` | health 5/5 200, valid 20/20 200, invalid 5/5 422; latency median 13.5 ms, p95 22.0 ms |
 | Incident | TBD | TBD | TBD | TBD |
 | After recovery | TBD | TBD | TBD | TBD |
 
 ## 8. Observed, unknown, next action (slide 17)
-- Observed: baseline healthy; the service serves the accepted bundle v1 when it is
-  mounted and selected with `MODEL_PATH` and `METADATA_PATH`.
-- Unknown: the fault (not injected yet); whether the same procedure works on Cloud Run.
-- Next action and owner: an injector prepares one reversible fault on a branch (TBD);
-  Marie runs the faulty release with the same workload and diagnoses it.
+- Observed:
+  - the baseline is healthy, and the service serves the accepted bundle v1 when it is
+    mounted and selected with `MODEL_PATH` and `METADATA_PATH`;
+  - fault attempt 1 (a training configuration change) never reached the service: the
+    training settings guard refused it at build time. The guard worked as intended; it
+    was not bypassed.
+- Unknown:
+  - the symptoms of a fault that does reach the service (attempt 2 pending);
+  - whether the procedure works on Cloud Run (no access);
+  - `main` moved from `d312a24` to `7e42d3f` after the baseline; if the new commits
+    change the service, the baseline must be measured again before attempt 2.
+- Next action and owner: Hajar prepares a fault that reaches the service and can be
+  reversed with the retained bundle v1; Marie checks the new `main` commits, re-measures
+  the baseline if needed, then runs the drill.
