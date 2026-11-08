@@ -649,69 +649,72 @@ To be answered by the owner of each part, in their pull request:
 
 ### Policy and gate (Annabelle)
  
-The gate policy is [`bike-demand/policy/gate-policy.yaml`](bike-demand/policy/gate-policy.yaml) (version 1). It was committed before any candidate was evaluated: the only numbers used to write it are the recorded v1 validation MAEs (model 86.8469, train-mean comparator 154.2318). No candidate score, decision record or gate code exists yet; what is described below as planned is written in the next pull requests.
+The gate policy is [`bike-demand/policy/gate-policy.yaml`](bike-demand/policy/gate-policy.yaml) (version 2). Version 1 was committed before any candidate was evaluated: the only numbers used to write it are the recorded v1 validation MAEs (model 86.8469, train-mean comparator 154.2318). Version 2 only adds `candidate_settings`: it was written after the candidate runs recorded in `reports/lab7/decisions/`, its upper bounds equal the largest settings already evaluated, and it changes no rule, margin or budget. Those decision records carry `policy_version` 1.
  
 **Shared contract.** Confirmed as proposed, with these additions :
 - a candidate writes `model.joblib` and a `model-metadata.json` with `model_version` and the twelve `features`, because the Operation check loads it with the API loader (`api.load_model`);
 - the pipeline exits 0 / 1 / 2 for accept / reject / blocked;
-- candidate settings : not decided yet. Hajar's pipeline will define how a candidate declares them, and the gate will read that;
+- the settings a candidate may change, with their bounds, and the settings that stay fixed are declared in the policy (`candidate_settings`, version 2); the pipeline still uses a provisional list in its code until it is changed to read them;
 - candidates are produced in the project's Linux container: the bytes of a model differ between platforms while its MAE does not (Windows run `fd98ceaf...`, Linux builds `d24c050e...`, same validation MAE 86.84685685591091).
 
 **Metric : what does the score mean, in what unit?**
-Choice: the MAE of `cnt` on the 4,358 validation rows (Jan-Jun 2012), in bikes per hour, lower is better. The train-mean comparator, the incumbent and the candidate are scored on the same rows and labels. The test period (Jul-Dec 2012) is never used. 
+Choice: the MAE of `cnt` on the 4,358 validation rows (Jan-Jun 2012), in bikes per hour, lower is better. The train-mean comparator, the incumbent and the candidate are scored on the same rows and labels. The test period (Jul-Dec 2012) is never used.
 *Rejected :* a score computed on another partition, or an MLflow run from a laptop. Why: MAE is the metric recorded since Lab 2 and has a direct unit.
  
 **Margin : what size of change matters, and why?**
-Choice : a candidate must improve on the incumbent by at least 2 % of its MAE: `candidate_mae <= 0.98 x incumbent_mae` (about 85.11 against v1). This is a judgment, not a measurement: I did not measure how the v1 MAE varies from month to month. Numerical noise is not the reason: with a fixed seed and `n_jobs=1` the recomputed MAE was identical across platforms in Lab 6 (see `bundle.py`) and `reports/metrics.json` records `reload_mae_delta = 0.0`. The margin protects against a gain that only reflects the single six-month validation window, and against changing the served model for a gain too small to matter. It is relative, so it follows the incumbent after a promotion. 
+Choice : a candidate must improve on the incumbent by at least 2 % of its MAE: `candidate_mae <= 0.98 x incumbent_mae` (about 85.11 against v1). This is a judgment, not a measurement: I did not measure how the v1 MAE varies from month to month. Numerical noise is not the reason: with a fixed seed and `n_jobs=1` the recomputed MAE was identical across platforms in Lab 6 (see `bundle.py`) and `reports/metrics.json` records `reload_mae_delta = 0.0`. The margin protects against a gain that only reflects the single six-month validation window, and against changing the served model for a gain too small to matter. It is relative, so it follows the incumbent after a promotion.
 *Rejected :* a zero margin (any gain, even noise-level, would qualify) and a non-regression rule (it would accept an equivalent model, which does not show improved accuracy). The margin was fixed before any candidate; changing it needs a reviewed revision with a reason.
  
 **Quality : what must a candidate prove?**
-Choice : two rules, both required: it beats the train-mean comparator, and it improves on the incumbent by the margin, on the same validation rows. If the incumbent evidence is unavailable, the quality check is not passed (blocked). 
+Choice : two rules, both required: it beats the train-mean comparator, and it improves on the incumbent by the margin, on the same validation rows. If the incumbent evidence is unavailable, the quality check is not passed (blocked).
 *Rejected :* comparing only with the train-mean baseline, which any reasonable model beats.
  
 **Operation : what serving condition, and why?**
-Choice : the candidate's model and metadata must be accepted by `api.load_model`, and its predictions on every validation row must be finite and non-negative. Why: the API refuses to start with another metadata contract and answers 500 for a non-finite or negative prediction. 
+Choice : the candidate's model and metadata must be accepted by `api.load_model`, and its predictions on every validation row must be finite and non-negative. Why: the API refuses to start with another metadata contract and answers 500 for a non-finite or negative prediction.
 *Rejected :* a latency bound: a small benchmark does not establish a service level, and the settings we vary are unlikely to change latency much (not measured here).
  
 **Integrity : which inputs and which bytes?**
-Choice : the snapshot passes `check_snapshot` (digest, size, header, rows against `data/manifest.json`); the features are the twelve ordered predictors; the validation rows number 4,358; the sha256 of the candidate's `model.joblib` equals its record, checked before the model is loaded; the incumbent passes `bundle verify` (exit 0); the candidate's `uv.lock` equals the incumbent's; only model settings change, with `random_state` 42 and `n_jobs` 1 fixed. 
+Choice : the snapshot passes `check_snapshot` (digest, size, header, rows against `data/manifest.json`); the features are the twelve ordered predictors; the validation rows number 4,358; the sha256 of the candidate's `model.joblib` equals its record, checked before the model is loaded; the incumbent passes `bundle verify` (exit 0); the candidate's `uv.lock` equals the incumbent's; only model settings change, with `random_state` 42 and `n_jobs` 1 fixed.
 *Rejected :* trusting a score without checking its inputs and bytes.
  
 **Invalid : what evidence must never count as a pass?**
-Choice : a non-finite number (NaN, infinity), a boolean, a string where a number is expected, a negative MAE, or a row count that differs from 4,358. It makes the run `blocked`. 
+Choice : a non-finite number (NaN, infinity), a boolean, a string where a number is expected, a negative MAE, or a row count that differs from 4,358. It makes the run `blocked`.
 *Rejected :* letting such a value reach an inequality (`nan <= x` is false, `True` is a number in Python).
  
 **Missing: what if a required check did not run?**
-Choice : `blocked`, with the name of the missing check. A check that did not run is never a passed check, and a better MAE does not replace it. 
+Choice : `blocked`, with the name of the missing check. A check that did not run is never a passed check, and a better MAE does not replace it.
 *Rejected :* treating an absent check as a pass.
  
 **Reject : which measured rule failed?**
-Choice : `reject` when the evidence is valid and complete and at least one quality or operation rule failed, for example a MAE above the threshold. The record lists each rule with its value. 
+Choice : `reject` when the evidence is valid and complete and at least one quality or operation rule failed, for example a MAE above the threshold. The record lists each rule with its value.
 *Rejected :* a single pass / fail without reasons.
  
 **Blocked : what must be repaired before deciding?**
-Choice : `blocked` when an integrity rule fails or required evidence is missing or invalid (digest differs, snapshot differs, incumbent not verifiable, check could not run). 
-The cause is repaired, then the run is repeated. This is not a policy decision and not a new candidate. 
+Choice : `blocked` when an integrity rule fails or required evidence is missing or invalid (digest differs, snapshot differs, incumbent not verifiable, check could not run).
+The cause is repaired, then the run is repeated. This is not a policy decision and not a new candidate.
 *Rejected :* calling an incomplete evaluation a rejection.
  
 **Status : how does CI observe the outcome?**
-Choice : the exit status (0 accept, 1 reject, 2 blocked) and a decision record, planned in `reports/lab7/decisions/`, written by the gate with the candidate and incumbent identities, the policy version and the commit of the policy file, values, counts, required checks and the rule-by-rule reasons. 
-The gate records what it observed, not a "passed" flag written by the candidate. 
+Choice : the exit status (0 accept, 1 reject, 2 blocked) and a decision record in `reports/lab7/decisions/`, written by the pipeline from the gate's decision: the run name, the training commit, the candidate config, the observed evidence (including the incumbent's MAE and lock digest), the policy version and the rule-by-rule reasons. It does not record the commit of the policy file.
+The gate decides from what the pipeline observed, not from a "passed" flag written by the candidate.
 *Rejected :* one non-zero code for everything that is not accept, because CI could not tell a measured rejection from an incomplete evaluation.
  
 **Budget**
-Choice : at most 4 distinct model settings evaluated on the validation rows. Blocked runs count; a rerun of the same settings after an infrastructure failure is recorded but does not count. A fifth candidate needs a reviewed revision of the policy. 
-Why : every extra candidate evaluated on the same rows makes the best score look better than it is. 
+Choice : at most 4 distinct model settings evaluated on the validation rows. Blocked runs count; a rerun of the same settings after an infrastructure failure is recorded but does not count. A fifth candidate needs a reviewed revision of the policy. How the pipeline applies this rule is described in "Pipeline boundary": it counts by run identity (settings, data digest and commit).
+Why : every extra candidate evaluated on the same rows makes the best score look better than it is.
 *Rejected :* an unlimited grid of settings.
  
-**What this gate still cannot know**
-It judges one validation window of six months, not future conditions. It looks at one overall MAE, not slices such as peak hours. 
-It does not measure latency. 
-The margin is a judgment. 
-The decision function bike_demand.gate.decide now applies this policy to a dictionary of observed evidence and is tested in tests/test_gate.py (58 cases). It is not yet connected to a candidate pipeline, and decision records are not yet written.
+**Candidate settings: what may a candidate change, and within what bounds?**
+Choice: `n_estimators` between 50 and 500 and `max_depth` between 3 and 20 (integers); `random_state` 42 and `n_jobs` 1 stay fixed. The baseline (50, 10) is inside the bounds. They guard against absurd settings (a tree depth of 1,000, or 100,000 trees that would make a run last hours and the bundle huge); they are not a decision rule and do not make a candidate better. They are a judgment, not a measurement, and they were written after the candidate runs in `reports/lab7/decisions/`: the upper bounds equal the largest settings already evaluated. Policy version 2 adds only this section; no rule, margin or budget changed, and no candidate was re-evaluated against it.
+*Rejected:* a bound chosen from a score, and unbounded settings.
  
-
-
+**What this gate still cannot know**
+It judges one validation window of six months, not future conditions. It looks at one overall MAE, not slices such as peak hours.
+It does not measure latency.
+The margin is a judgment.
+It decides only on the settings the policy allows a candidate to change (two parameters, within bounds): none of the candidates evaluated reached the margin, so the accept path has been exercised by unit tests but not by a real candidate.
+The decision function `bike_demand.gate.decide` applies this policy to a dictionary of observed evidence and is tested in `tests/test_gate.py` (70 cases). The candidate pipeline (Hajar, `bike_demand.pipeline`) passes it the evidence it observes and writes one decision record per run.
+ 
 ### Pipeline boundary (Hajar)
 
 **Stage.** Choice: one stage that consumes a candidate config (`configs/candidates/<name>.yaml`, same format as `baseline.yaml`, only `model` changes), the frozen snapshot and `models/accepted.json`, and produces `bundles/candidates/<run_id>-<attempt>/` (model, metadata, decision) plus a committed record in `reports/lab7/decisions/`. Then it calls the gate. *Rejected:* calling `train.py`: it overwrites `artifacts/` and `reports/metrics.json` before any decision.

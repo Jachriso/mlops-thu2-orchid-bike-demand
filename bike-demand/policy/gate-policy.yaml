@@ -1,8 +1,13 @@
-# Lab 7 gate policy, version 1.
-# Committed BEFORE any candidate is evaluated. The only numbers used to write it
-# are the recorded v1 validation MAEs (model 86.8469, train-mean 154.2318).
-# Read by the gate; changed only through a reviewed pull request, with a reason.
-policy_version: 1
+# Lab 7 gate policy, version 2.
+# Version 1 was committed BEFORE any candidate was evaluated; its only numbers are
+# the recorded v1 validation MAEs (model 86.8469, train-mean 154.2318).
+# Version 2 only adds candidate_settings. It was written AFTER the candidate runs
+# recorded in reports/lab7/decisions/, and its upper bounds equal the largest
+# settings already evaluated (n_estimators 500, max_depth 20). It changes no rule,
+# margin or budget.
+# Read by the gate and the pipeline; changed only through a reviewed pull request,
+# with a reason.
+policy_version: 2
  
 protocol:
   metric: validation_mae
@@ -32,6 +37,14 @@ integrity:                    # every rule required; a failure or missing eviden
   lock: sha256 of the candidate uv.lock equals the one in the incumbent bundle
   settings: only model settings change; random_state 42 and n_jobs 1 stay fixed
   evidence_values: numbers must be finite, not booleans, not strings; a MAE must be >= 0
+ 
+candidate_settings:           # what a candidate may change; read by the pipeline
+  tunable:                    # integers, inclusive bounds
+    n_estimators: {min: 50, max: 500}
+    max_depth: {min: 3, max: 20}
+  fixed:                      # must keep these values (see integrity.settings)
+    random_state: 42
+    n_jobs: 1
  
 outcomes:
   accept: every required rule passed

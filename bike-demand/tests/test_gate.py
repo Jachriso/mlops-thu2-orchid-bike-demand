@@ -11,6 +11,7 @@ import numpy as np
 import pytest
 
 from bike_demand.gate import decide, load_policy
+from bike_demand.train import DEFAULT_MODEL
 from bike_demand.validate import FEATURES
 
 ROOT = Path(__file__).parents[1]
@@ -258,4 +259,51 @@ def test_policy_must_name_the_three_outcomes(tmp_path):
     path = tmp_path / "policy.yaml"
     path.write_text(text.replace("blocked: 2}", "stuck: 2}"), encoding="utf-8")
     with pytest.raises(ValueError, match="exit_status"):
+        load_policy(path)
+
+
+# Candidate settings declared in the policy
+
+
+def test_the_policy_declares_what_a_candidate_may_change():
+    settings = POLICY["candidate_settings"]
+    assert set(settings["tunable"]) == {"n_estimators", "max_depth"}
+    assert settings["fixed"] == {"random_state": 42, "n_jobs": 1}
+
+
+def test_the_baseline_settings_are_inside_the_declared_bounds():
+    settings = POLICY["candidate_settings"]
+    for name, bounds in settings["tunable"].items():
+        assert bounds["min"] <= DEFAULT_MODEL[name] <= bounds["max"]
+    for name, value in settings["fixed"].items():
+        assert DEFAULT_MODEL[name] == value
+
+
+@pytest.mark.parametrize(
+    ("old", "new"),
+    [
+        ("max_depth: {min: 3, max: 20}", "max_depth: {min: 30, max: 20}"),
+        ("max_depth: {min: 3, max: 20}", "max_depth: {min: 0, max: 20}"),
+        ("max_depth: {min: 3, max: 20}", "max_depth: {min: 3.5, max: 20}"),
+        ("max_depth: {min: 3, max: 20}", "max_depth: {min: 3}"),
+        ("    n_jobs: 1\n", "    n_jobs: 1\n    n_estimators: 100\n"),
+        ("    random_state: 42\n    n_jobs: 1\n", "    random_state: 42\n"),
+    ],
+)
+def test_unusable_candidate_settings_are_refused(tmp_path, old, new):
+    text = (ROOT / "policy" / "gate-policy.yaml").read_text(encoding="utf-8")
+    assert old in text
+    path = tmp_path / "policy.yaml"
+    path.write_text(text.replace(old, new), encoding="utf-8")
+    with pytest.raises(ValueError, match="policy"):
+        load_policy(path)
+
+
+def test_a_policy_without_candidate_settings_is_refused(tmp_path):
+    text = (ROOT / "policy" / "gate-policy.yaml").read_text(encoding="utf-8")
+    start = text.index("candidate_settings:")
+    end = text.index("outcomes:")
+    path = tmp_path / "policy.yaml"
+    path.write_text(text[:start] + text[end:], encoding="utf-8")
+    with pytest.raises(ValueError, match="missing sections"):
         load_policy(path)
