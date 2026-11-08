@@ -49,9 +49,14 @@ def load_policy(path: Path = POLICY_PATH) -> dict:
 
 
 def finite_number(value) -> bool:
-    """True for a real, finite int or float; not a boolean, a string, NaN or inf."""
+    """True for a real, finite int or float (numpy floats included); not a
+    boolean, a string, NaN or inf."""
     try:
-        return type(value) in (int, float) and isfinite(value)
+        return (
+            isinstance(value, (int, float))
+            and not isinstance(value, bool)
+            and isfinite(value)
+        )
     except OverflowError:
         return False
 
@@ -123,9 +128,10 @@ def loads_in_the_api(evidence: dict):
 
 
 def predictions_rule(evidence: dict):
-    for key in ("predictions_all_finite", "predictions_min"):
-        if key not in evidence:
-            return MISSING, f"{key} is missing"
+    if evidence.get("loads_in_api") is False:
+        return FAILED, "no predictions: the API loader refused the candidate"
+    if "predictions_all_finite" not in evidence:
+        return MISSING, "predictions_all_finite is missing"
     finite = evidence["predictions_all_finite"]
     if type(finite) is not bool:
         return (
@@ -134,6 +140,8 @@ def predictions_rule(evidence: dict):
         )
     if not finite:
         return FAILED, "some predictions are not finite"
+    if "predictions_min" not in evidence:
+        return MISSING, "predictions_min is missing"
     minimum = evidence["predictions_min"]
     if not finite_number(minimum):
         return (

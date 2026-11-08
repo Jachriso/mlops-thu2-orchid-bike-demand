@@ -7,6 +7,7 @@ file, so a changed margin or budget changes what these tests check.
 import math
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from bike_demand.gate import decide, load_policy
@@ -112,6 +113,37 @@ def test_operation_failures_are_rejections(change, rule):
     assert status_of(decision, rule) == "failed"
 
 
+def test_non_finite_predictions_are_rejected_without_a_minimum():
+    # The pipeline records predictions_min only when every prediction is finite.
+    evidence = {**good_evidence(), "predictions_all_finite": False}
+    del evidence["predictions_min"]
+    decision = decide(evidence, POLICY)
+    assert decision["outcome"] == "reject"
+    assert status_of(decision, "predictions") == "failed"
+
+
+def test_a_model_the_api_refuses_is_rejected_not_blocked():
+    # No predictions exist when the API loader refuses the candidate.
+    evidence = {**good_evidence(), "loads_in_api": False}
+    del evidence["predictions_all_finite"]
+    del evidence["predictions_min"]
+    decision = decide(evidence, POLICY)
+    assert decision["outcome"] == "reject"
+    assert decision["exit_status"] == 1
+    assert status_of(decision, "loads_in_the_api") == "failed"
+    assert status_of(decision, "predictions") == "failed"
+
+
+def test_numpy_floats_are_valid_numbers():
+    evidence = {
+        **good_evidence(),
+        "candidate_mae": np.float64(80.0),
+        "naive_mae": np.float64(NAIVE),
+        "predictions_min": np.float64(0.0),
+    }
+    assert decide(evidence, POLICY)["outcome"] == "accept"
+
+
 # Integrity: a failure means the evidence cannot be trusted, so the run is blocked
 
 INTEGRITY_BREAKS = [
@@ -204,7 +236,7 @@ def test_evidence_that_is_not_a_mapping_blocks_the_run(evidence):
 def test_reasons_name_every_rule_that_did_not_pass():
     evidence = {**good_evidence(), "loads_in_api": False, "candidate_mae": NAIVE + 1}
     reasons = decide(evidence, POLICY)["reasons"]
-    assert len(reasons) == 3
+    assert len(reasons) == 4  # two quality rules, loader, predictions
     assert any(
         reason.startswith("operation.loads_in_the_api: failed") for reason in reasons
     )

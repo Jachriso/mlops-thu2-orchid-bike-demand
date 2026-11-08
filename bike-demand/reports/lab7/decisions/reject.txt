@@ -1,0 +1,83 @@
+{
+  "policy_version": 1,
+  "outcome": "reject",
+  "exit_status": 1,
+  "rules": [
+    {
+      "family": "integrity",
+      "rule": "snapshot",
+      "status": "passed",
+      "reason": "data_sha256 equals manifest_sha256"
+    },
+    {
+      "family": "integrity",
+      "rule": "features",
+      "status": "passed",
+      "reason": "the twelve predictors, in order"
+    },
+    {
+      "family": "integrity",
+      "rule": "validation_rows",
+      "status": "passed",
+      "reason": "4358 validation rows"
+    },
+    {
+      "family": "integrity",
+      "rule": "candidate_bytes",
+      "status": "passed",
+      "reason": "candidate_model_sha256 equals recorded_model_sha256"
+    },
+    {
+      "family": "integrity",
+      "rule": "incumbent",
+      "status": "passed",
+      "reason": "bundle verify of the incumbent exited 0"
+    },
+    {
+      "family": "integrity",
+      "rule": "lock",
+      "status": "passed",
+      "reason": "candidate_lock_sha256 equals incumbent_lock_sha256"
+    },
+    {
+      "family": "integrity",
+      "rule": "settings",
+      "status": "passed",
+      "reason": "random_state 42 and n_jobs 1 are unchanged"
+    },
+    {
+      "family": "quality",
+      "rule": "beats_naive",
+      "status": "passed",
+      "reason": "candidate MAE 105.09954867403768 is below the train-mean MAE 154.23179306864967"
+    },
+    {
+      "family": "quality",
+      "rule": "improves_incumbent",
+      "status": "failed",
+      "reason": "candidate MAE 105.09954867403768 > 85.1099197187927 (incumbent 86.84685685591091, margin 0.02)"
+    },
+    {
+      "family": "operation",
+      "rule": "loads_in_the_api",
+      "status": "passed",
+      "reason": "the API loader accepted the candidate"
+    },
+    {
+      "family": "operation",
+      "rule": "predictions",
+      "status": "passed",
+      "reason": "all predictions are finite and non-negative"
+    },
+    {
+      "family": "integrity",
+      "rule": "evidence_values",
+      "status": "passed",
+      "reason": "every number is finite, typed and in range"
+    }
+  ],
+  "reasons": [
+    "quality.improves_incumbent: failed: candidate MAE 105.09954867403768 > 85.1099197187927 (incumbent 86.84685685591091, margin 0.02)"
+  ]
+}
+exit: 1

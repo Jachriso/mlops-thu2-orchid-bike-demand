@@ -711,3 +711,33 @@ The margin is a judgment.
 The decision function bike_demand.gate.decide now applies this policy to a dictionary of observed evidence and is tested in tests/test_gate.py (58 cases). It is not yet connected to a candidate pipeline, and decision records are not yet written.
  
 
+
+### Pipeline boundary (Hajar)
+
+**Stage.** Choice: one stage that consumes a candidate config (`configs/candidates/<name>.yaml`, same format as `baseline.yaml`, only `model` changes), the frozen snapshot and `models/accepted.json`, and produces `bundles/candidates/<run_id>-<attempt>/` (model, metadata, decision) plus a committed record in `reports/lab7/decisions/`. Then it calls the gate. *Rejected:* calling `train.py`: it overwrites `artifacts/` and `reports/metrics.json` before any decision.
+
+**Entry point.** Choice: `python -m bike_demand.pipeline --config <file> --incumbent <bundle>` in the project container (`docker build --target base`), with `TRAINING_COMMIT` passed from outside because the image has no `.git`. It needs the snapshot matching `data/manifest.json`, the policy, `models/accepted.json` and a local copy of the incumbent bundle. *Rejected:* running on the Mac directly: model bytes differ between platforms.
+
+**Failure.** Choice: a run writes only into `bundles/candidates/.tmp-<name>`; a crash leaves that folder, deleted and rebuilt on retry. A finished run folder is never overwritten. Any error that is not a decision exits 2, never 1. *Why:* 1 means "measured rejection" for CI.
+
+**Partial.** Choice: the temporary folder is renamed only after the decision is written, so a run folder without a decision never exists. *Rejected:* writing straight into the final folder.
+
+**Identity.** Choice: `run_id` = first 12 hex characters of sha256 of `{model settings, data sha256, commit}`, no clock and no random id. It is also the key counting candidates against the budget. *Rejected:* `model_version` (contains a random id).
+
+
+### Result of the real candidate runs
+
+No candidate qualified. The best candidate (`n_estimators: 500, max_depth: 20`) reached validation MAE **85.99**, above the 2% margin threshold (`0.98 × 86.8469 = 85.11`). The accepted v1 bundle is retained unchanged: no margin, rule or threshold was adjusted to force a pass. The evidence file for this run is `reports/lab7/decisions/candidate-500-20-reject.txt` (renamed from the previous `accept.txt`).
+
+The four candidates evaluated are:
+
+| Settings | MAE | Outcome | Exit |
+|---|---|---|---|
+| `n_estimators: 50, max_depth: 3` | 105.10 | reject | 1 |
+| `n_estimators: 200, max_depth: 15` | 86.19 | reject | 1 |
+| `n_estimators: 500, max_depth: 20` | 85.99 | reject | 1 |
+| `n_estimators: 5000, max_depth: 3` | — | blocked (budget) | 2 |
+
+### `uv.lock` alignment and the first blocked run
+
+The first candidate run was `blocked` on `integrity.lock`: the sha256 of my local `uv.lock` differed from the incumbent bundle's lock. `git diff --ignore-cr-at-eol` shows the two files differ only by line endings, but the digests are different and the policy compares digests, not contents. I aligned the local `uv.lock` on the bundle's lock (`sha256: 955fd4fd…`) and every later run passed `integrity.lock`. I did not weaken the check or edit the bundle; the first blocked run (lock mismatch) was resolved before any later run.
