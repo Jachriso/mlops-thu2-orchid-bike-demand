@@ -654,7 +654,7 @@ The gate policy is [`bike-demand/policy/gate-policy.yaml`](bike-demand/policy/ga
 **Shared contract.** Confirmed as proposed, with these additions :
 - a candidate writes `model.joblib` and a `model-metadata.json` with `model_version` and the twelve `features`, because the Operation check loads it with the API loader (`api.load_model`);
 - the pipeline exits 0 / 1 / 2 for accept / reject / blocked;
-- the settings a candidate may change, with their bounds, and the settings that stay fixed are declared in the policy (`candidate_settings`, version 2); the pipeline still uses a provisional list in its code until it is changed to read them;
+- the settings a candidate may change, with their bounds, and the settings that stay fixed are declared in the policy (`candidate_settings`, version 2) and read by the pipeline;
 - candidates are produced in the project's Linux container: the bytes of a model differ between platforms while its MAE does not (Windows run `fd98ceaf...`, Linux builds `d24c050e...`, same validation MAE 86.84685685591091).
 
 **Metric : what does the score mean, in what unit?**
