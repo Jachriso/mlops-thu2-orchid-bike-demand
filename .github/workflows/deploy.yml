@@ -1,0 +1,156 @@
+name: Deploy
+
+# Gate: runs only after the "CI" workflow finished, and the job below continues
+# only if that CI run was a push to main and succeeded. A PR, a red CI or another
+# branch deploys nothing.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write # keyless login to Google Cloud (Workload Identity Federation)
+
+# Never two deploys at once, and never cancel one halfway (it could leave the
+# traffic split between revisions). Later deploys wait in line.
+concurrency:
+  group: deploy-cloud-run
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: mlops-demo-512323
+  REGION: europe-west1
+  SERVICE: mlops-thu2-orchid-bike-demand-demo
+  # Not secrets (no key is stored): repository variables, set in
+  # Settings > Secrets and variables > Actions > Variables.
+  WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
+  DEPLOY_SA: ${{ vars.GCP_DEPLOY_SA }}
+  AR_REPO: ${{ vars.GCP_AR_REPO }}
+  SHA: ${{ github.event.workflow_run.head_sha }}
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check repository variables
+        run: |
+          for v in WIF_PROVIDER DEPLOY_SA AR_REPO; do
+            if [ -z "${!v}" ]; then echo "::error::missing repository variable for $v"; exit 1; fi
+          done
+
+      # Build exactly the commit that CI checked, not whatever main is now.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ env.SHA }}
+          persist-credentials: false
+
+      - name: Login to Google Cloud (no stored key)
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOY_SA }}
+
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+      - name: Build image tagged with the commit SHA
+        run: |
+          IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${AR_REPO}/orchid-bike:${SHA}"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+          docker build --build-arg SERVICE_REVISION="${SHA::7}" -t "$IMAGE" .
+          # The model is trained inside this build, so the expected model_version
+          # comes from this image, not from a laptop.
+          EXPECTED=$(docker run --rm --entrypoint cat "$IMAGE" artifacts/model-metadata.json \
+            | python3 -c "import json,sys; print(json.load(sys.stdin)['model_version'])")
+          echo "EXPECTED_MODEL_VERSION=$EXPECTED" >> "$GITHUB_ENV"
+          echo "commit $SHA"
+          echo "image  $IMAGE"
+          echo "model  $EXPECTED"
+
+      - name: Push image to Artifact Registry
+        run: |
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          docker push "$IMAGE"
+
+      - name: Remember the revision currently serving
+        run: |
+          PREVIOUS=$(gcloud run services describe "$SERVICE" --region "$REGION" --format=json \
+            | python3 -c "import json,sys; t=json.load(sys.stdin)['status'].get('traffic',[]); print(max(t, key=lambda x: x.get('percent',0)).get('revisionName',''))")
+          echo "PREVIOUS_REVISION=$PREVIOUS" >> "$GITHUB_ENV"
+          echo "previous revision: ${PREVIOUS:-none}"
+
+      - name: Deploy a new revision of the Lab 5 service
+        run: |
+          # --no-traffic then an explicit switch: works even when traffic was
+          # pinned to an older revision by a previous rollback.
+          gcloud run deploy "$SERVICE" --region "$REGION" --image "$IMAGE" \
+            --port 8000 --no-traffic --quiet
+          NEW=$(gcloud run services describe "$SERVICE" --region "$REGION" \
+            --format='value(status.latestCreatedRevisionName)')
+          echo "NEW_REVISION=$NEW" >> "$GITHUB_ENV"
+          gcloud run services update-traffic "$SERVICE" --region "$REGION" \
+            --to-revisions "$NEW=100" --quiet
+          URL=$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')
+          echo "SERVICE_URL=$URL" >> "$GITHUB_ENV"
+          echo "new revision: $NEW"
+          echo "url:          $URL"
+
+      # The service is private: the check needs an identity token whose audience
+      # is the service URL (same identity check as Lab 5).
+      - name: Get an identity token for the service
+        id: idtoken
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOY_SA }}
+          token_format: id_token
+          id_token_audience: ${{ env.SERVICE_URL }}
+          id_token_include_email: true
+
+      - name: Check the live URL
+        id: check
+        env:
+          BASE_URL: ${{ env.SERVICE_URL }}
+          ID_TOKEN: ${{ steps.idtoken.outputs.id_token }}
+          CHECK_TIMEOUT: "60" # first request may hit a cold start
+        run: |
+          mkdir -p deploy-logs
+          python3 scripts/check_deployed.py "$EXPECTED_MODEL_VERSION" | tee deploy-logs/live-check.txt
+          {
+            echo "commit           $SHA"
+            echo "image            $IMAGE"
+            echo "checked revision $NEW_REVISION"
+            echo "previous         ${PREVIOUS_REVISION:-none}"
+          } | tee -a deploy-logs/live-check.txt
+          gcloud run services describe "$SERVICE" --region "$REGION" \
+            --format='table(status.traffic[].revisionName, status.traffic[].percent)' \
+            | tee -a deploy-logs/live-check.txt
+
+      - name: Roll back to the previous revision
+        if: failure() && steps.check.conclusion == 'failure' && env.PREVIOUS_REVISION != ''
+        run: |
+          echo "::error::live check failed on $NEW_REVISION, traffic goes back to $PREVIOUS_REVISION"
+          gcloud run services update-traffic "$SERVICE" --region "$REGION" \
+            --to-revisions "$PREVIOUS_REVISION=100" --quiet
+          mkdir -p deploy-logs
+          gcloud run services describe "$SERVICE" --region "$REGION" \
+            --format='table(status.traffic[].revisionName, status.traffic[].percent)' \
+            | tee deploy-logs/rollback.txt
+
+      - name: Upload deploy record
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: deploy-record-${{ env.SHA }}
+          path: deploy-logs/
+          if-no-files-found: warn
+          retention-days: 30
