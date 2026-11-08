@@ -28,6 +28,7 @@ POLICY_SECTIONS = (
     "quality",
     "operation",
     "integrity",
+    "candidate_settings",
     "outcomes",
     "exit_status",
     "budget",
@@ -45,7 +46,27 @@ def load_policy(path: Path = POLICY_PATH) -> dict:
         raise ValueError(f"policy: missing sections {absent}")
     if set(policy["exit_status"]) != {"accept", "reject", "blocked"}:
         raise ValueError("policy: exit_status must name accept, reject and blocked")
+    check_candidate_settings(policy["candidate_settings"])
     return policy
+
+
+def check_candidate_settings(section) -> None:
+    """The settings a candidate may change must be declared with usable bounds."""
+    if not isinstance(section, dict) or set(section) != {"tunable", "fixed"}:
+        raise ValueError("policy: candidate_settings needs tunable and fixed")
+    tunable, fixed = section["tunable"], section["fixed"]
+    if not isinstance(tunable, dict) or not tunable:
+        raise ValueError("policy: candidate_settings.tunable must list settings")
+    for name, bounds in tunable.items():
+        if not isinstance(bounds, dict) or set(bounds) != {"min", "max"}:
+            raise ValueError(f"policy: {name} needs min and max")
+        low, high = bounds["min"], bounds["max"]
+        if type(low) is not int or type(high) is not int or not 1 <= low <= high:
+            raise ValueError(f"policy: {name} bounds must satisfy 1 <= min <= max")
+    if not isinstance(fixed, dict) or set(fixed) != {"random_state", "n_jobs"}:
+        raise ValueError("policy: candidate_settings.fixed needs random_state, n_jobs")
+    if set(fixed) & set(tunable):
+        raise ValueError("policy: a setting cannot be both tunable and fixed")
 
 
 def finite_number(value) -> bool:
