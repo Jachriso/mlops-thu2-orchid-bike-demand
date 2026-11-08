@@ -711,3 +711,15 @@ The margin is a judgment.
 The decision function bike_demand.gate.decide now applies this policy to a dictionary of observed evidence and is tested in tests/test_gate.py (58 cases). It is not yet connected to a candidate pipeline, and decision records are not yet written.
  
 
+
+### Pipeline boundary (Hajar)
+
+**Stage.** Choice: one stage that consumes a candidate config (`configs/candidates/<name>.yaml`, same format as `baseline.yaml`, only `model` changes), the frozen snapshot and `models/accepted.json`, and produces `bundles/candidates/<run_id>-<attempt>/` (model, metadata, decision) plus a committed record in `reports/lab7/decisions/`. Then it calls the gate. *Rejected:* calling `train.py`: it overwrites `artifacts/` and `reports/metrics.json` before any decision.
+
+**Entry point.** Choice: `python -m bike_demand.pipeline --config <file> --incumbent <bundle>` in the project container (`docker build --target base`), with `TRAINING_COMMIT` passed from outside because the image has no `.git`. It needs the snapshot matching `data/manifest.json`, the policy, `models/accepted.json` and a local copy of the incumbent bundle. *Rejected:* running on the Mac directly: model bytes differ between platforms.
+
+**Failure.** Choice: a run writes only into `bundles/candidates/.tmp-<name>`; a crash leaves that folder, deleted and rebuilt on retry. A finished run folder is never overwritten. Any error that is not a decision exits 2, never 1. *Why:* 1 means "measured rejection" for CI.
+
+**Partial.** Choice: the temporary folder is renamed only after the decision is written, so a run folder without a decision never exists. *Rejected:* writing straight into the final folder.
+
+**Identity.** Choice: `run_id` = first 12 hex characters of sha256 of `{model settings, data sha256, commit}`, no clock and no random id. It is also the key counting candidates against the budget. *Rejected:* `model_version` (contains a random id).
