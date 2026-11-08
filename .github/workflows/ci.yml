@@ -10,6 +10,12 @@ on:
 permissions:
   contents: read
 
+# One run per branch/PR: a new push to a PR cancels the outdated run.
+# Runs on main are never cancelled, so every merged commit keeps its CI result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   lint:
     runs-on: ubuntu-24.04
@@ -37,6 +43,8 @@ jobs:
     defaults:
       run:
         working-directory: bike-demand
+        # explicit bash => pipefail, so "pytest | tee" still fails when pytest fails
+        shell: bash
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
@@ -46,4 +54,19 @@ jobs:
           version: "0.12.23"
           python-version: "3.12"
       - run: uv sync --locked
-      - run: uv run --locked pytest -q
+      - name: Fast tests (all except regression)
+        run: |
+          mkdir -p test-logs
+          uv run --locked pytest -q -m "not regression" 2>&1 | tee test-logs/pytest-fast.log
+      - name: Regression tests (recompute recorded validation MAEs)
+        run: |
+          mkdir -p test-logs
+          uv run --locked pytest -q -m regression 2>&1 | tee test-logs/pytest-regression.log
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pytest-logs-${{ github.sha }}
+          path: bike-demand/test-logs/
+          if-no-files-found: warn
+          retention-days: 14
