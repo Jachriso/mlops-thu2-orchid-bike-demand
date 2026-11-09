@@ -1,0 +1,17 @@
+﻿
+
+Hash : D24C050E3631D5B4C2FEB8CB571BEF6382D8C975C42A5C11EDD28DE78A0B8C07
+Path : C:\Users\mleon\mlops-thu2-orchid-bike-demand\bike-demand\bundles\v1-d24c050e3631\model.joblib
+
+Hash : BBAE6BC88BFA38ABCAF27EDE369133C11FA6FAFDD8E5A4BB23DBCDAECAB0B222
+Path : C:\Users\mleon\mlops-thu2-orchid-bike-demand\bike-demand\bundles\release-2\model.joblib
+
+Hash : 02A3748E9A7C50F9A2126C02662625C3F069049C22EA1C765AF7B649A2F3D6F6
+Path : C:\Users\mleon\mlops-thu2-orchid-bike-demand\bike-demand\bundles\v1-d24c050e3631\model-metadata.json
+
+Hash : 4EC79AB457DE36BD31893431A6F6D78CA822ECBB5FFA7C2C61A12B1D8083DE56
+Path : C:\Users\mleon\mlops-thu2-orchid-bike-demand\bike-demand\bundles\release-2\model-metadata.json
+
+
+
+

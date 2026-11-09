@@ -109,6 +109,8 @@ identity is `model_version` because `/health` does not report `model_sha256`.
 | 2026-11-08T23:54:51Z | Marie | **first signal**: `model_version` `candidate-0e02f6bbae83-1`, all status codes normal | [`incident-service.log`](incident-service.log) |
 | 2026-11-08T23:55:18Z | Marie | incident workload ended | [`incident-requests.txt`](incident-requests.txt) |
 | 2026-11-08T23:56Z | Marie | hypotheses A and B written before running any check | this file |
+| 2026-11-09T00:01Z | Marie | model sha256 compared: release-2 `BBAE6BC8…` ≠ v1 `D24C050E…` → hypothesis B rejected | [`incident-hashes.txt`](incident-hashes.txt) |
+| 2026-11-09T00:02Z | Marie | `bundle verify release-2 --pointer`: manifest differs from the pointer, exit 1 → hypothesis A kept | [`incident-verify-release2.txt`](incident-verify-release2.txt) |
 
 ## 3. First signal (slide 9)
 - Signal: unexpected model identity. `/health` and every `/predict` answer
@@ -133,19 +135,30 @@ Written before running the checks.
 | Statement | the release serves another model, not the accepted one | the release serves the accepted model; only its metadata (label) changed |
 | Predicted signature | `model.joblib` sha256 ≠ `d24c050e…`; `bundle verify release-2 --pointer models/accepted.json` fails | `model.joblib` sha256 = `d24c050e…`; only `model-metadata.json` differs |
 | Discriminating check | sha256 of both `model.joblib`; `bundle verify` of release-2 against the pointer | same checks |
-| Actual result | TBD | TBD |
-| Kept or rejected | TBD | TBD |
-| Still uncertain | TBD | TBD |
+| Actual result | **confirmed**: `model.joblib` sha256 `BBAE6BC8…` ≠ `D24C050E…` (4,145 bytes vs 5,243,633); `bundle verify` fails: `manifest sha256 differs from the pointer (feee47b9… != 75dedf7d…)`, exit 1 | **rejected**: the model file itself differs, not only the metadata |
+| Kept or rejected | **kept** | **rejected** |
+| Still uncertain | whether the candidate predicts worse (its validation MAE was not measured); how it was built (a model ~1,000 times smaller suggests a much simpler forest, not proven) | — |
 
-## 5. Response and rollback target 
-- Why rollback fits: TBD
-- Target: version `v1-d24c050e3631`, `manifest_sha256` `75dedf7d…`, bundle URI from
-  `models/accepted.json`
-- Integrity check before switching: `bundle verify` exit 0 on the new `main` at
-  2026-11-08T23:23Z (to be run again right before the switch)
-- Compatibility: dependencies checked (`uv.lock` of `main` = bundle's `uv.lock`); feature
-  order and validation rows checked by `bundle verify`; configuration: TBD
+| Boundary | Checked? | Observation |
+| --- | --- | --- |
+| Code and image | yes | same image `97e4f5be…`, same commit `ccabd24` as baseline 2: unchanged |
+| Model version and verified bytes | yes | **changed**: `candidate-0e02f6bbae83-1`, model sha256 `BBAE6BC8…`, manifest `feee47b9…`, not the pointer's `75dedf7d…` ([`incident-verify-release2.txt`](incident-verify-release2.txt), [`incident-hashes.txt`](incident-hashes.txt)) |
+| Configuration (environment variables) | yes | same `MODEL_PATH` and `METADATA_PATH`; only the mounted folder changed |
+| Inputs | yes | same request bodies as baseline 2; invalid requests still rejected with 422 |
+
+## 5. Response and rollback target (slides 13-14)
+- Why rollback fits: the fault is a wrong model, not a code, dependency or input
+  problem; the image, configuration and inputs are unchanged. Switching back to the
+  accepted bundle removes the cause in one controlled change, without retraining.
+- Target: version `v1-d24c050e3631`, `manifest_sha256` `75dedf7d…`, named by
+  `models/accepted.json` `current`.
+- Integrity check before switching: `bundle verify` exit TBD (run right before the
+  switch; raw output: [`rollback-verify-v1.txt`](rollback-verify-v1.txt))
+- Compatibility: same image and code (`ccabd24`); `uv.lock` of `main` = bundle's
+  `uv.lock` (`955FD4FD…`); feature order and validation rows checked by `verify`.
 - Action taken: TBD
+- Gap found: the service loads whatever `MODEL_PATH` points to; nothing checks the
+  bundle against the accepted pointer before it is served.
 
 ## 6. Verification after recovery 
 | Source | Expected | Observed |
