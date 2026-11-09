@@ -121,7 +121,7 @@ identity is `model_version` because `/health` does not report `model_sha256`.
 | 2026-11-09T00:09:33Z | Marie | recovery workload ended: health 5/5 200, valid 20/20 200, invalid 5/5 422, all `baseline-0b7ee4462ec6` | [`recovery-requests.txt`](recovery-requests.txt) |
 | 2026-11-09T00:10:44Z | Marie | same valid request: prediction 149.53300780120094 (incident: 119.18025683402225) | terminal output |
 
-## 3. First signal (slide 9)
+## 3. First signal 
 - Signal: unexpected model identity. `/health` and every `/predict` answer
   `model_version` `candidate-0e02f6bbae83-1` instead of `baseline-0b7ee4462ec6`.
   Status codes are unchanged (health 5/5 200, valid 20/20 200, invalid 5/5 422):
@@ -136,7 +136,7 @@ identity is `model_version` because `/health` does not report `model_sha256`.
 - Raw evidence: [`incident-requests.txt`](incident-requests.txt),
   [`incident-service.log`](incident-service.log)
 
-## 4. Hypotheses (slide 10)
+## 4. Hypotheses 
 Written before running the checks.
 
 | | Hypothesis A | Hypothesis B |
@@ -155,7 +155,7 @@ Written before running the checks.
 | Configuration (environment variables) | yes | same `MODEL_PATH` and `METADATA_PATH`; only the mounted folder changed |
 | Inputs | yes | same request bodies as baseline 2; invalid requests still rejected with 422 |
 
-## 5. Response and rollback target (slides 13-14)
+## 5. Response and rollback target 
 - Why rollback fits: the fault is a wrong model, not a code, dependency or input
   problem; the image, configuration and inputs are unchanged. Switching back to the
   accepted bundle removes the cause in one controlled change, without retraining.
@@ -171,7 +171,7 @@ Written before running the checks.
 - Gap found: the service loads whatever `MODEL_PATH` points to; nothing checks the
   bundle against the accepted pointer before it is served.
 
-## 6. Verification after recovery (slide 15)
+## 6. Verification after recovery 
 | Source | Expected | Observed |
 | --- | --- | --- |
 | Identity (`/health`, `model_version`) | `baseline-0b7ee4462ec6` | `baseline-0b7ee4462ec6` on every request; start-up line `model loaded: version baseline-0b7ee4462ec6` |
@@ -183,7 +183,7 @@ Written before running the checks.
 A successful command alone does not prove recovery: recovery is shown by the identity
 and by fresh requests after the change.
 
-## 7. Baseline, incident, recovery (slide 16)
+## 7. Baseline, incident, recovery 
 | Period | Window (UTC) | Count | Identity | Signals |
 | --- | --- | --- | --- | --- |
 | Baseline 2 | 2026-11-08 23:27:32Z to 23:28:03Z | 30 requests | `baseline-0b7ee4462ec6` | health 5/5 200, valid 20/20 200, invalid 5/5 422; latency median 9.4 ms, p95 11.9 ms |
@@ -193,7 +193,7 @@ and by fresh requests after the change.
 Status codes and latency stayed in the same range in all three periods. **Only the
 model identity and the prediction values revealed the incident.**
 
-## 8. Observed, unknown, next action (slide 17)
+## 8. Observed, unknown, next action 
 - Observed:
   - release-2 served a model that is not the accepted one (model sha256 `BBAE6BC8…`,
     manifest `feee47b9…` ≠ pointer `75dedf7d…`), with normal status codes;
