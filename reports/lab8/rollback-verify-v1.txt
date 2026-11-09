@@ -1,0 +1,13 @@
+﻿> uv run --locked python -m bike_demand.bundle verify bundles/v1-d24c050e3631 --pointer models/accepted.json
+{
+  "status": "ok",
+  "manifest_sha256": "75dedf7d7a60236f08b030ef87bab08c5f293f5ed357c7518e9d40ef5d4ff775",
+  "model_sha256": "d24c050e3631d5b4c2feb8cb571bef6382d8c975c42a5c11edd28de78a0b8c07",
+  "model_version": "baseline-0b7ee4462ec6",
+  "validation_rows": 4358,
+  "validation_mae": {
+    "naive_train_mean": 154.23179306864967,
+    "model": 86.84685685591091
+  }
+}
+exit code: 0

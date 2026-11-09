@@ -5,16 +5,20 @@ next operator what to do. Raw evidence is kept as text next to this file and is 
 edited after the fact (slide 9).
 
 ## Status
-- Baseline 1 measured on the old `main` (`d312a24`); `main` then moved to `7e42d3f`
-  (Lab 7 pipeline, aligned `uv.lock`), so **baseline 2** was measured on the new code.
-  Baseline 2 is the reference for the drill.
-- Fault attempt 1 (`lab-08-injector`, `119820f`): **refused at build time** by the
-  training settings guard; no image was produced and serving was not affected. A fault
-  that reaches the service has been requested from the injector.
-- Diagnosis, rollback and recovery: not done yet.
+- Baseline 1 measured on the old `main` (`d312a24`); `main` then moved to `7e42d3f`, so
+  **baseline 2** was measured on the new code and is the reference for the drill.
+- Fault attempt 1 (`lab-08-injector`, `119820f`): refused at build time by the training
+  settings guard; serving not affected.
+- Fault attempt 2 (`release-2`): **diagnosed and recovered** on 9 Nov. A non-accepted
+  model was served with normal status codes; rollback to the verified accepted bundle v1
+  restored the expected identity and behaviour.
+- Fault revealed by the injector: TBD (asked after the diagnosis and recovery were
+  committed).
+- `RUNBOOK.md`: not written yet.
 
-The drill runs **locally with Docker**, as allowed by slide 17, because the operator has
+The drill runs **locally with Docker**, because the operator has
 no access to the GCP project (see "Scope and limits").
+
 
 ## Roles
 | Role | Member | Rule |
@@ -111,6 +115,11 @@ identity is `model_version` because `/health` does not report `model_sha256`.
 | 2026-11-08T23:56Z | Marie | hypotheses A and B written before running any check | this file |
 | 2026-11-09T00:01Z | Marie | model sha256 compared: release-2 `BBAE6BC8…` ≠ v1 `D24C050E…` → hypothesis B rejected | [`incident-hashes.txt`](incident-hashes.txt) |
 | 2026-11-09T00:02Z | Marie | `bundle verify release-2 --pointer`: manifest differs from the pointer, exit 1 → hypothesis A kept | [`incident-verify-release2.txt`](incident-verify-release2.txt) |
+| 2026-11-09T00:07Z | Marie | `bundle verify` of v1 against the pointer right before the switch: `status: ok`, exit 0 | [`rollback-verify-v1.txt`](rollback-verify-v1.txt) |
+| 2026-11-09T00:08:04Z | Marie | incident logs saved, container `bike-release2` removed, `bike-recovered` started with bundle v1 (same image, same variables) | [`incident-service-final.log`](incident-service-final.log), [`recovery-service.log`](recovery-service.log) |
+| 2026-11-09T00:08:47Z | Marie | recovery workload started (same as baseline 2) | [`recovery-requests.txt`](recovery-requests.txt) |
+| 2026-11-09T00:09:33Z | Marie | recovery workload ended: health 5/5 200, valid 20/20 200, invalid 5/5 422, all `baseline-0b7ee4462ec6` | [`recovery-requests.txt`](recovery-requests.txt) |
+| 2026-11-09T00:10:44Z | Marie | same valid request: prediction 149.53300780120094 (incident: 119.18025683402225) | terminal output |
 
 ## 3. First signal (slide 9)
 - Signal: unexpected model identity. `/health` and every `/predict` answer
@@ -152,40 +161,58 @@ Written before running the checks.
   accepted bundle removes the cause in one controlled change, without retraining.
 - Target: version `v1-d24c050e3631`, `manifest_sha256` `75dedf7d…`, named by
   `models/accepted.json` `current`.
-- Integrity check before switching: `bundle verify` exit TBD (run right before the
-  switch; raw output: [`rollback-verify-v1.txt`](rollback-verify-v1.txt))
+- Integrity check before switching: `bundle verify` `status: ok`, exit 0, MAE
+  86.84685685591091 ([`rollback-verify-v1.txt`](rollback-verify-v1.txt)).
 - Compatibility: same image and code (`ccabd24`); `uv.lock` of `main` = bundle's
   `uv.lock` (`955FD4FD…`); feature order and validation rows checked by `verify`.
-- Action taken: TBD
+- Action taken: one change only, at 2026-11-09T00:08:04Z: the mounted folder went from
+  `release-2` back to `v1-d24c050e3631` (container `bike-release2` replaced by
+  `bike-recovered`, same image, same `MODEL_PATH` and `METADATA_PATH`).
 - Gap found: the service loads whatever `MODEL_PATH` points to; nothing checks the
   bundle against the accepted pointer before it is served.
 
-## 6. Verification after recovery 
+## 6. Verification after recovery (slide 15)
 | Source | Expected | Observed |
 | --- | --- | --- |
-| Identity (`/health`, `model_version`) | `baseline-0b7ee4462ec6` | TBD |
-| Fresh requests (same workload as baseline 2) | health 5/5 → 200, valid 20/20 → 200, invalid 5/5 → 422 | TBD |
-| Post-change logs and window | no error line, one log line per request | TBD |
+| Identity (`/health`, `model_version`) | `baseline-0b7ee4462ec6` | `baseline-0b7ee4462ec6` on every request; start-up line `model loaded: version baseline-0b7ee4462ec6` |
+| Verified bytes | accepted bundle v1 | `bundle verify` ok on the mounted folder just before the switch |
+| Fresh requests (same workload as baseline 2) | health 5/5 → 200, valid 20/20 → 200, invalid 5/5 → 422 | health 5/5 → 200, valid 20/20 → 200, invalid 5/5 → 422 |
+| Same valid request | v1 behaviour | prediction 149.53300780120094 (incident model: 119.18025683402225) |
+| Post-change logs and window | no error line, one log line per request | no `ERROR` line; one JSON line per request with `model_version` `baseline-0b7ee4462ec6`; the only matches for "error" are the `error_fields` of the 5 expected 422 rejections |
 
-A successful command alone does not prove recovery.
+A successful command alone does not prove recovery: recovery is shown by the identity
+and by fresh requests after the change.
 
-## 7. Baseline, incident, recovery 
+## 7. Baseline, incident, recovery (slide 16)
 | Period | Window (UTC) | Count | Identity | Signals |
 | --- | --- | --- | --- | --- |
-| Baseline 2 | 23:27:32Z to 23:28:03Z | 30 requests | `baseline-0b7ee4462ec6` | health 5/5 200, valid 20/20 200, invalid 5/5 422; latency median 9.4 ms, p95 11.9 ms |
-| Incident | TBD | TBD | TBD | TBD |
-| After recovery | TBD | TBD | TBD | TBD |
+| Baseline 2 | 2026-11-08 23:27:32Z to 23:28:03Z | 30 requests | `baseline-0b7ee4462ec6` | health 5/5 200, valid 20/20 200, invalid 5/5 422; latency median 9.4 ms, p95 11.9 ms |
+| Incident | 2026-11-08 23:54:43Z to 23:55:18Z | 30 requests | **`candidate-0e02f6bbae83-1`** | health 5/5 200, valid 20/20 200, invalid 5/5 422; latency median 11.1 ms, p95 13.4 ms; same request predicted 119.18 |
+| After recovery | 2026-11-09 00:08:47Z to 00:09:33Z | 30 requests | `baseline-0b7ee4462ec6` | health 5/5 200, valid 20/20 200, invalid 5/5 422; latency median 9.6 ms, p95 13.9 ms; same request predicted 149.53 |
 
-## 8. Observed, unknown, next action 
+Status codes and latency stayed in the same range in all three periods. **Only the
+model identity and the prediction values revealed the incident.**
+
+## 8. Observed, unknown, next action (slide 17)
 - Observed:
-  - the service serves the accepted bundle v1 on both the old and the new `main`, when
-    the bundle is mounted and selected with `MODEL_PATH` and `METADATA_PATH`;
-  - the new `main` uses exactly the bundle's `uv.lock`, and v1 still passes
-    `bundle verify`, so v1 is a compatible rollback target;
-  - fault attempt 1 (a training configuration change) never reached the service: the
-    training settings guard refused it at build time. The guard was not bypassed.
+  - release-2 served a model that is not the accepted one (model sha256 `BBAE6BC8…`,
+    manifest `feee47b9…` ≠ pointer `75dedf7d…`), with normal status codes;
+  - the per-request logs (Lab 5) made it visible, because every line carries
+    `model_version`;
+  - the rollback to the verified bundle v1 restored the expected identity, status codes
+    and prediction, with no retraining;
+  - fault attempt 1 (training configuration) was stopped earlier by the settings guard.
 - Unknown:
-  - the symptoms of a fault that does reach the service (attempt 2 pending);
-  - whether the procedure works on Cloud Run (no access).
-- Next action and owner: Hajar prepares a fault that reaches the service and can be
-  reversed with the retained bundle v1; Marie runs it with the baseline 2 workload.
+  - whether the candidate model is worse on validation (its MAE was not measured);
+  - how it was produced (a file ~1,000 times smaller suggests a much simpler forest,
+    not proven);
+  - whether the same procedure works on Cloud Run (no access).
+  - Limit of this drill: the operator knew in advance that the fault was one of two
+    types proposed by the injector; the observed fault was neither of them.
+- Next actions and owners:
+  - Hajar reveals the fault; Marie compares it with this diagnosis (TBD).
+  - Marie writes `RUNBOOK.md` from this drill; a peer (TBD) follows it without help.
+  - Team decision: check the mounted bundle against `models/accepted.json` before
+    serving (for example, run `bundle verify` at start-up and answer 503 on a mismatch),
+    and add `model_sha256` to `/health`, so that a wrong model is refused instead of
+    served.

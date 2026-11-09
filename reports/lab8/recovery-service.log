@@ -1,0 +1,39 @@
+﻿   Building bike-demand @ file:///app
+{"timestamp":"2026-11-09T00:08:59.281+00:00","event":"request","request_id":"404ed038c3c7","method":"GET","path":"/health","status":200,"outcome":"ok","duration_ms":12.0,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+      Built bike-demand @ file:///app
+Uninstalled 1 package in 5ms
+Installed 1 package in 4ms
+INFO:     Started server process [23]
+INFO:     Waiting for application startup.
+INFO:     model loaded: version baseline-0b7ee4462ec6
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+{"timestamp":"2026-11-09T00:08:59.306+00:00","event":"request","request_id":"cf89f8569198","method":"GET","path":"/health","status":200,"outcome":"ok","duration_ms":1.1,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:08:59.330+00:00","event":"request","request_id":"59f1d091e7f7","method":"GET","path":"/health","status":200,"outcome":"ok","duration_ms":0.7,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:08:59.353+00:00","event":"request","request_id":"09000c62874b","method":"GET","path":"/health","status":200,"outcome":"ok","duration_ms":0.6,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:08:59.379+00:00","event":"request","request_id":"c5a0c3868df7","method":"GET","path":"/health","status":200,"outcome":"ok","duration_ms":0.6,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:13.908+00:00","event":"request","request_id":"6750a77ca3aa","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":172.3,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:13.942+00:00","event":"request","request_id":"61904ea98ed6","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":9.2,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:13.974+00:00","event":"request","request_id":"bb72503d45a8","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":7.9,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.003+00:00","event":"request","request_id":"ab5525e410af","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":6.2,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.035+00:00","event":"request","request_id":"5537ab171bde","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":7.4,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.065+00:00","event":"request","request_id":"ef2cdc842f5d","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":6.0,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.093+00:00","event":"request","request_id":"7ffdb6da3f07","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":5.5,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.126+00:00","event":"request","request_id":"04b204de93f6","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":7.1,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.163+00:00","event":"request","request_id":"706ec8156f43","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":6.1,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.201+00:00","event":"request","request_id":"1054aa47e52e","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":7.2,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.241+00:00","event":"request","request_id":"222b9d06b202","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":6.2,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.276+00:00","event":"request","request_id":"e2b8221bcf7e","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":5.4,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.309+00:00","event":"request","request_id":"705ac11e7013","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":5.4,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.346+00:00","event":"request","request_id":"e36217c1efab","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":5.5,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.382+00:00","event":"request","request_id":"efdf4a299f36","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":6.2,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.408+00:00","event":"request","request_id":"3891309a7c8c","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":5.9,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.436+00:00","event":"request","request_id":"a21e0237573d","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":5.7,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.462+00:00","event":"request","request_id":"e8d989334893","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":5.3,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.490+00:00","event":"request","request_id":"0000ba620970","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":5.3,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:14.516+00:00","event":"request","request_id":"f93396057580","method":"POST","path":"/predict","status":200,"outcome":"ok","duration_ms":5.7,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown"}
+{"timestamp":"2026-11-09T00:09:24.013+00:00","event":"request","request_id":"3814caf883f9","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":2.4,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown","error_fields":["body.hum"]}
+{"timestamp":"2026-11-09T00:09:24.036+00:00","event":"request","request_id":"804fe0578904","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":1.1,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown","error_fields":["body.hum"]}
+{"timestamp":"2026-11-09T00:09:24.058+00:00","event":"request","request_id":"40f6978844ea","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":0.8,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown","error_fields":["body.hum"]}
+{"timestamp":"2026-11-09T00:09:24.079+00:00","event":"request","request_id":"3ecf00a74b31","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":0.7,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown","error_fields":["body.hum"]}
+{"timestamp":"2026-11-09T00:09:24.104+00:00","event":"request","request_id":"15c5e319291a","method":"POST","path":"/predict","status":422,"outcome":"rejected","duration_ms":0.7,"model_version":"baseline-0b7ee4462ec6","service_revision":"unknown","error_fields":["body.hum"]}
