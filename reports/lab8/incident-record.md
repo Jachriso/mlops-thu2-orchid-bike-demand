@@ -14,7 +14,7 @@ edited after the fact (slide 9).
   restored the expected identity and behaviour.
 - Fault revealed by the injector: TBD (asked after the diagnosis and recovery were
   committed).
-- `RUNBOOK.md`: not written yet.
+- `RUNBOOK.md`: written from this drill; to be followed by a peer without its author.
 
 The drill runs **locally with Docker**, because the operator has
 no access to the GCP project (see "Scope and limits").
