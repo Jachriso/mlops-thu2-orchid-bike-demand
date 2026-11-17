@@ -1,0 +1,6 @@
+﻿> uv run --locked python -m bike_demand.bundle verify bundles/release-2 --pointer models/accepted.json
+{
+  "status": "failed",
+  "reason": "integrity: manifest sha256 differs from the pointer (feee47b96c30659d07758e224c24b6cc8916285173979d648e63eb4f57a69567 != 75dedf7d7a60236f08b030ef87bab08c5f293f5ed357c7518e9d40ef5d4ff775)"
+}
+exit code: 1
