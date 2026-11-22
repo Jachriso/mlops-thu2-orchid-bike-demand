@@ -744,3 +744,33 @@ The four candidates evaluated are:
 ### `uv.lock` alignment and the first blocked run
 
 The first candidate run was `blocked` on `integrity.lock`: the sha256 of my local `uv.lock` differed from the incumbent bundle's lock. `git diff --ignore-cr-at-eol` shows the two files differ only by line endings, but the digests are different and the policy compares digests, not contents. I aligned the local `uv.lock` on the bundle's lock (`sha256: 955fd4fd…`) and every later run passed `integrity.lock`. I did not weaken the check or edit the bundle; the first blocked run (lock mismatch) was resolved before any later run.
+
+
+## Lab 8: Incident drill, verified rollback and runbook
+
+The drill was run locally with Docker (the operator had no access to the GCP project; allowed by the lab).
+
+- **Silent fault:** a release served another model (`candidate-0e02f6bbae83-1`) with normal status codes and latency; only the model identity in `/health` and in every log line changed. The same request predicted 119.18 instead of 149.53.
+- **Diagnosis:** two hypotheses committed before any check; the model sha256 and `bundle verify` kept "another model" and rejected "same model, new label".
+- **Recovery:** `bundle verify` on the accepted bundle v1 before switching (exit 0), one change (the mounted bundle), recovery proved with 30 fresh requests.
+- A first fault (a training config change) never reached the service: the training settings guard refused the build.
+
+Record and raw evidence: [`reports/lab8/incident-record.md`](reports/lab8/incident-record.md). Operator steps: [`RUNBOOK.md`](RUNBOOK.md).
+
+## Final result on the held-out test period
+
+The accepted model v1 was scored **once** on the test partition (Jul–Dec 2012, 4,376 rows), after its bytes were verified against `models/accepted.json`. No model or setting was chosen or changed after this score.
+
+```
+cd bike-demand
+uv run --locked python ../scripts/held_test.py bundles/v1-d24c050e3631
+```
+
+| Model | Validation MAE (Jan–Jun 2012) | Test MAE (Jul–Dec 2012) |
+| --- | --- | --- |
+| Random forest v1 (`baseline-0b7ee4462ec6`) | 86.85 | **93.74** |
+| Naive train mean | 154.23 | 182.21 |
+
+The error rises on the test period, but much less than the naive baseline's: the model stays about twice as accurate. Raw output: [`reports/held-test-v1.txt`](reports/held-test-v1.txt).
+
+**Limit:** one overall MAE on one six-month period; no slice by hour, season or weather.
