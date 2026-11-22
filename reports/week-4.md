@@ -7,8 +7,8 @@
 | Lab | Area | Owner |
 | --- | --- | --- |
 | 7 | Accepted bundle v1, pointer, bucket, recovery path | Jade (PR #17) |
-| 7 | Policy and gate decision function | Annabelle (PRs #18, #19, #22) |
-| 7 | Candidate pipeline and real candidate runs | Hajar (PRs #21, #23, #24) |
+| 7 | Policy (v1 and v2 bounds) and gate decision function | Annabelle (PRs #18, #19, #22, #23) |
+| 7 | Candidate pipeline and real candidate runs | Hajar (PRs #21, #24) |
 | 7 | Independent challenge of the recovery claim | Marie (PR #20) |
 | 8 | Operator, recorder, incident record, `RUNBOOK.md` | Marie (PR #25) |
 | 8 | Fault injector | Hajar (branch `lab-08-injector`) |
@@ -18,7 +18,7 @@
 ## Links to code and pull requests
 - Lab 7: PRs #17, #18, #19, #20, #21, #22, #23, #24 (all merged into `main`).
 - Lab 8: PR #25, incident record and `RUNBOOK.md`, merged as `6c68cf7`.
-- Final test score and README Lab 8 section: PR #26 .
+- Final test score, README Lab 8 section and this report: PR #26.
 - Release: tag `v1.0.0` on `main` at `6c68cf7`.
 
 ## Test and execution results (commands, revision, observed output)
@@ -31,7 +31,7 @@ Gate policy: `bike-demand/policy/gate-policy.yaml`; records: `bike-demand/report
 | 50 / 3 | 105.10 | reject |
 | 200 / 15 | 86.19 | reject |
 | 500 / 20 | 85.99 | reject |
-| 5000 / 3 | — | blocked (budget) |
+| 5000 / 3 | — | blocked: refused before any evaluation (budget of 4 distinct settings already used) |
 
 
 
@@ -64,11 +64,17 @@ Command: `uv run --locked python ../scripts/held_test.py bundles/v1-d24c050e3631
 ## Screenshots
 ![Lab 7 challenge: the GCP project is not visible from Marie's account, so recovery depends on one member (PR #20)](../images/lab7-marie-01-no-project-access.png)
 
+## My contribution
+Team report: each member details their own work in their individual report.
+- **Annabelle:** gate policy v1 (committed before any candidate) and v2 bounds (written after the runs), decision function and its 70 tests; review and merge of PRs #21, #24, #25 and #26.
+- **Hajar:** candidate pipeline, real candidate runs and decision records; fault injector for the Lab 8 drill.
+- **Jade:** accepted bundle v1, pointer, bucket and recovery path; review and merge of PR #20.
+- **Marie:** independent recovery challenge (Lab 7); operator and recorder of the incident drill, verified rollback and `RUNBOOK.md` (Lab 8); held-out test score and v1.0.0 release.
 
 ## Decisions and rationale
 - **Accepted state = exact bytes.** The pointer names the bundle by its manifest digest; `model_version` alone is random and changes at every training.
 - **Recover, never retrain.** Retraining gives a new `model_version`, and on another platform a different `model_sha256` (Lab 2 vs Lab 3).
-- **Gate rules before candidates.** The policy was committed before any candidate was evaluated.
+- **Gate rules before candidates.** Policy v1 was committed before any candidate was evaluated. Policy v2 (`candidate_settings` bounds) was written after the runs; it changes no rule, margin or budget.
 - **Hypotheses before checks (Lab 8).** Two hypotheses (another model / same model, new label) were committed before any check; the model sha256 and `bundle verify` kept the first.
 - **One controlled change.** Rollback = verify v1, then swap only the mounted bundle; recovery proved with fresh requests, not by a successful command.
 - **Local drill.** The operator had no GCP access; the lab allows a local drill.
@@ -78,7 +84,7 @@ Command: `uv run --locked python ../scripts/held_test.py bundles/v1-d24c050e3631
 - PR #20 (Marie's challenge): reviewed and merged by Jade.
 - PR #25 (incident record, `RUNBOOK.md`): merged by Annabelle.
 - Finding from Lab 7, carried into Lab 8: recovery depended on one member's bucket access; documented in `RUNBOOK.md` (section 4.1).
-- PR #26
+- PR #26 (held-out test score, README Lab 8 section, this report): reviewed by Annabelle; script, figures and README confirmed, CI green. Requested corrections to this report were applied (PR ownership, the blocked candidate, policy v2 timing, missing sections). The image path `../images/` was kept: this file is in `reports/`.
 
 ## Blockers / missing evidence
 - Only Jade can access the GCP project and the models bucket; the incident drill was therefore local, not on Cloud Run.
